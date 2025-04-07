@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dealer Gears - F&I Menus</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="settings-styles.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button id="sidebar-toggle" class="sidebar-toggle">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+  </div>
+  
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="menu-label">F&I Menus</div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="menu-options sidebar-menu">
+        <a href="index.html" class="active"><i class="bi bi-grid"></i> <span class="menu-text">Menu</span></a>
+        <a href="settings.html"><i class="bi bi-gear"></i> <span class="menu-text">Settings</span></a>
+        <a href="#"><i class="bi bi-printer"></i> <span class="menu-text">Print</span></a>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="base-payment">
+        <div class="base-payment-label">Base Protected Payment</div>
+        <div class="base-payment-amount">$227.06</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="main-content">
+  <!-- Mobile Toggle Button -->
+  <div class="mobile-toggle-container">
+    <button id="mobile-toggle" class="mobile-toggle">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="mobile-title">F&I Menus</div>
+  </div>
+  
+  <div class="menu-container">
+    <!-- Menu Table -->
+    <table class="menu-table">
+      <thead>
+        <tr>
+          <th class="platinum-bg">Platinum</th>
+          <th class="gold-bg">Gold</th>
+          <th class="silver-bg">Silver</th>
+          <th class="bronze-bg">Bronze</th>
+          <th class="iron-bg">Iron</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="cell-content">
+              <!-- Platinum Column -->
+              <div class="price-section">
+                <div class="price-main platinum-price">$49<span class="price-cents">.99</span></div>
+                
+                <!-- Month Selection Dropdown -->
+                <div class="month-selector-wrapper">
+                  <div class="price-monthly platinum-monthly">$407.05 Monthly</div>
+                  <div class="dropdown month-selector">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="price-term platinum-term">for 60 months</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" data-months="36" data-plan="platinum">36 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="48" data-plan="platinum">48 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="60" data-plan="platinum">60 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="63" data-plan="platinum">63 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="72" data-plan="platinum">72 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="75" data-plan="platinum">75 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="84" data-plan="platinum">84 months</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <ul class="feature-list kanban-dropzone" data-plan="platinum">
+                <li class="feature-item" draggable="true" data-id="p1" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">Extended Warranty</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p2" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">Rust Proofing</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p3" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">Paint Protection</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p4" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">Fabric/Leather Protection</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p5" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">Key Fob Replacement</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p6" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">GAP</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p7" data-plan="platinum">
+                  <div class="feature-content">
+                    <span class="feature-check platinum-check">✓</span>
+                    <span class="product-name">Scratch/Dent Repair</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+              </ul>
+              
+              <button class="choose-button platinum">Choose</button>
+              <a href="#" class="view-terms-link" data-plan="platinum">View Full Terms & Conditions</a>
+            </div>
+          </td>
+          
+          <td>
+            <div class="cell-content">
+              <!-- Gold Column -->
+              <div class="price-section">
+                <div class="price-main gold-price">$45<span class="price-cents">.19</span></div>
+                
+                <!-- Month Selection Dropdown -->
+                <div class="month-selector-wrapper">
+                  <div class="price-monthly gold-monthly">$352.25 Monthly</div>
+                  <div class="dropdown month-selector">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="price-term gold-term">for 60 months</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" data-months="36" data-plan="gold">36 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="48" data-plan="gold">48 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="60" data-plan="gold">60 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="63" data-plan="gold">63 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="72" data-plan="gold">72 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="75" data-plan="gold">75 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="84" data-plan="gold">84 months</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div> 
+              
+              <ul class="feature-list kanban-dropzone" data-plan="gold">
+                <li class="feature-item" draggable="true" data-id="p8" data-plan="gold">
+                  <div class="feature-content">
+                    <span class="feature-check gold-check">✓</span>
+                    <span class="product-name">Extended Warranty</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p9" data-plan="gold">
+                  <div class="feature-content">
+                    <span class="feature-check gold-check">✓</span>
+                    <span class="product-name">Rust Proofing</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p10" data-plan="gold">
+                  <div class="feature-content">
+                    <span class="feature-check gold-check">✓</span>
+                    <span class="product-name">Paint Protection</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p11" data-plan="gold">
+                  <div class="feature-content">
+                    <span class="feature-check gold-check">✓</span>
+                    <span class="product-name">Fabric/Leather Protection</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p12" data-plan="gold">
+                  <div class="feature-content">
+                    <span class="feature-check gold-check">✓</span>
+                    <span class="product-name">Key Fob Replacement</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p13" data-plan="gold">
+                  <div class="feature-content">
+                    <span class="feature-check gold-check">✓</span>
+                    <span class="product-name">GAP</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+              </ul>
+              
+              <button class="choose-button gold">Choose</button>
+              <a href="#" class="view-terms-link" data-plan="gold">View Full Terms & Conditions</a>
+            </div>
+          </td>
+          
+          <td>
+            <div class="cell-content">
+              <!-- Silver Column -->
+              <div class="price-section">
+                <div class="price-main silver-price">$43<span class="price-cents">.11</div>
+                
+                <!-- Month Selection Dropdown -->
+                <div class="month-selector-wrapper">
+                  <div class="price-monthly silver-monthly">$320.17 Monthly</div>
+                  <div class="dropdown month-selector">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="price-term silver-term">for 60 months</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" data-months="36" data-plan="silver">36 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="48" data-plan="silver">48 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="60" data-plan="silver">60 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="63" data-plan="silver">63 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="72" data-plan="silver">72 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="75" data-plan="silver">75 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="84" data-plan="silver">84 months</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <ul class="feature-list kanban-dropzone" data-plan="silver">
+                <li class="feature-item" draggable="true" data-id="p14" data-plan="silver">
+                  <div class="feature-content">
+                    <span class="feature-check silver-check">✓</span>
+                    <span class="product-name">Extended Warranty</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p15" data-plan="silver">
+                  <div class="feature-content">
+                    <span class="feature-check silver-check">✓</span>
+                    <span class="product-name">Rust Proofing</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p16" data-plan="silver">
+                  <div class="feature-content">
+                    <span class="feature-check silver-check">✓</span>
+                    <span class="product-name">Paint Protection</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p17" data-plan="silver">
+                  <div class="feature-content">
+                    <span class="feature-check silver-check">✓</span>
+                    <span class="product-name">Key Fob Replacement</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p18" data-plan="silver">
+                  <div class="feature-content">
+                    <span class="feature-check silver-check">✓</span>
+                    <span class="product-name">GAP</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+              </ul>
+              
+              <button class="choose-button silver">Choose</button>
+              <a href="#" class="view-terms-link" data-plan="silver">View Full Terms & Conditions</a>
+            </div>
+          </td>
+          
+          <td>
+            <div class="cell-content">
+              <!-- Bronze Column -->
+              <div class="price-section">
+                <div class="price-main bronze-price">$39<span class="price-cents">.44</span></div>
+                
+                <!-- Month Selection Dropdown -->
+                <div class="month-selector-wrapper">
+                  <div class="price-monthly bronze-monthly">$293.50 Monthly</div>
+                  <div class="dropdown month-selector">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="price-term bronze-term">for 60 months</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" data-months="36" data-plan="bronze">36 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="48" data-plan="bronze">48 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="60" data-plan="bronze">60 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="63" data-plan="bronze">63 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="72" data-plan="bronze">72 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="75" data-plan="bronze">75 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="84" data-plan="bronze">84 months</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <ul class="feature-list kanban-dropzone" data-plan="bronze">
+                <li class="feature-item" draggable="true" data-id="p19" data-plan="bronze">
+                  <div class="feature-content">
+                    <span class="feature-check bronze-check">✓</span>
+                    <span class="product-name">Extended Warranty</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p20" data-plan="bronze">
+                  <div class="feature-content">
+                    <span class="feature-check bronze-check">✓</span>
+                    <span class="product-name">Key Fob Replacement</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p21" data-plan="bronze">
+                  <div class="feature-content">
+                    <span class="feature-check bronze-check">✓</span>
+                    <span class="product-name">GAP</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+              </ul>
+              
+              <button class="choose-button bronze">Choose</button>
+              <a href="#" class="view-terms-link" data-plan="bronze">View Full Terms & Conditions</a>
+            </div>
+          </td>
+          
+          <td>
+            <div class="cell-content">
+              <!-- Iron Column -->
+              <div class="price-section">
+                <div class="price-main iron-price">$28<span class="price-cents">.44</span></div>
+                
+                <!-- Month Selection Dropdown -->
+                <div class="month-selector-wrapper">
+                  <div class="price-monthly iron-monthly">$274.50 Monthly</div>
+                  <div class="dropdown month-selector">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="price-term iron-term">for 60 months</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" data-months="36" data-plan="iron">36 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="48" data-plan="iron">48 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="60" data-plan="iron">60 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="63" data-plan="iron">63 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="72" data-plan="iron">72 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="75" data-plan="iron">75 months</a></li>
+                      <li><a class="dropdown-item" href="#" data-months="84" data-plan="iron">84 months</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <ul class="feature-list kanban-dropzone" data-plan="iron">
+                <li class="feature-item" draggable="true" data-id="p22" data-plan="iron">
+                  <div class="feature-content">
+                    <span class="feature-check iron-check">✓</span>
+                    <span class="product-name">Extended Warranty</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+                <li class="feature-item" draggable="true" data-id="p23" data-plan="iron">
+                  <div class="feature-content">
+                    <span class="feature-check iron-check">✓</span>
+                    <span class="product-name">Key Fob Replacement</span>
+                    <button class="remove-product-btn" title="Remove product"><i class="bi bi-trash3-fill"></i>
+                    </i></button>
+                  </div>
+                </li>
+              </ul>
+              
+              <button class="choose-button iron">Choose</button>
+              <a href="#" class="view-terms-link" data-plan="iron">View Full Terms & Conditions</a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Product Explanation Modal -->
+<div class="modal fade" id="productExplanationModal" tabindex="-1" aria-labelledby="productExplanationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productExplanationModalLabel">Product Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="productExplanationContent">
+        <!-- Content will be dynamically inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="termsModalLabel">Terms & Conditions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="termsModalContent">
+        <!-- Content will be dynamically inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

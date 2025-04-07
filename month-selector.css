@@ -1,0 +1,102 @@
+/* Month Selector Styling */
+.month-selector-wrapper {
+    margin-bottom: var(--space-4);
+    position: relative;
+  }
+  
+  .month-selector .btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .month-selector .btn:hover,
+  .month-selector .btn:focus {
+    color: var(--text-light);
+    box-shadow: none;
+  }
+  
+  .month-selector .btn::after {
+    margin-left: 5px;
+    vertical-align: middle;
+    transition: transform var(--transition-normal);
+  }
+  
+  .month-selector .btn[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+  }
+  
+  .month-selector .dropdown-menu {
+    background-color: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-2);
+    min-width: 120px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .month-selector .dropdown-item {
+    color: var(--text-light-soft);
+    font-size: 13px;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+  }
+  
+  .month-selector .dropdown-item:hover,
+  .month-selector .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+  }
+  
+  .month-selector .dropdown-item.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  
+  /* Highlight the selected term */
+  .price-term {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .price-term::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: width var(--transition-normal);
+  }
+  
+  .month-selector .btn:hover .price-term::after {
+    width: 100%;
+  }
+  
+  /* Animation for payment update */
+  @keyframes pulse-update {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  .price-monthly.updating {
+    animation: pulse-update 0.5s ease;
+  }

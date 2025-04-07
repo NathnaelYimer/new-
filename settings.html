@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dealer Gears - F&I Menu Settings</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="settings-styles.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button id="sidebar-toggle" class="sidebar-toggle">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+  </div>
+  
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="menu-label">F&I Menus</div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="menu-options sidebar-menu">
+        <a href="index.html"><i class="bi bi-grid"></i> <span class="menu-text">Menu</span></a>
+        <a href="settings.html" class="active"><i class="bi bi-gear"></i> <span class="menu-text">Settings</span></a>
+        <a href="#"><i class="bi bi-printer"></i> <span class="menu-text">Print</span></a>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="base-payment">
+        <div class="base-payment-label">Base Protected Payment</div>
+        <div class="base-payment-amount">$227.06</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="main-content">
+  <!-- Mobile Toggle Button -->
+  <div class="mobile-toggle-container">
+    <button id="mobile-toggle" class="mobile-toggle">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="mobile-title">F&I Menu Settings</div>
+  </div>
+  
+  <div class="settings-container">
+    <div class="settings-header">
+      <h2>Menu Settings</h2>
+      <button id="close-settings" class="close-button">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Settings Tabs -->
+    <div class="settings-tabs">
+      <button class="tab-button active" data-tab="column-names">Column Names</button>
+      <button class="tab-button" data-tab="product-assignment">Product Assignment</button>
+      <button class="tab-button" data-tab="manage-products">Manage Products</button>
+    </div>
+
+    <!-- Column Names Tab -->
+    <div class="tab-content active" id="column-names">
+      <div class="settings-section">
+        <h3>Column Names</h3>
+        <p>Customize the names of each column in your F&I menu.</p>
+        
+        <div class="column-names-grid">
+          <div class="column-name-item">
+            <label for="platinum-name">Platinum:</label>
+            <input type="text" id="platinum-name" class="form-control" value="Platinum">
+            <div class="color-bar platinum-bg"></div>
+          </div>
+          
+          <div class="column-name-item">
+            <label for="gold-name">Gold:</label>
+            <input type="text" id="gold-name" class="form-control" value="Gold">
+            <div class="color-bar gold-bg"></div>
+          </div>
+          
+          <div class="column-name-item">
+            <label for="silver-name">Silver:</label>
+            <input type="text" id="silver-name" class="form-control" value="Silver">
+            <div class="color-bar silver-bg"></div>
+          </div>
+          
+          <div class="column-name-item">
+            <label for="bronze-name">Bronze:</label>
+            <input type="text" id="bronze-name" class="form-control" value="Bronze">
+            <div class="color-bar bronze-bg"></div>
+          </div>
+          
+          <div class="column-name-item">
+            <label for="iron-name">Iron:</label>
+            <input type="text" id="iron-name" class="form-control" value="Iron">
+            <div class="color-bar iron-bg"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Column Visibility</h3>
+        <p>Toggle which columns are visible in your F&I menu.</p>
+        
+        <div class="column-visibility">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="platinum-visible" checked>
+            <label class="form-check-label" for="platinum-visible">Platinum</label>
+          </div>
+          
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="gold-visible" checked>
+            <label class="form-check-label" for="gold-visible">Gold</label>
+          </div>
+          
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="silver-visible" checked>
+            <label class="form-check-label" for="silver-visible">Silver</label>
+          </div>
+          
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="bronze-visible" checked>
+            <label class="form-check-label" for="bronze-visible">Bronze</label>
+          </div>
+          
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="iron-visible" checked>
+            <label class="form-check-label" for="iron-visible">Iron</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Assignment Tab -->
+    <div class="tab-content" id="product-assignment">
+      <div class="settings-section">
+        <h3>Assign Products to Columns</h3>
+        <p>Toggle which products appear in each column of your F&I menu. Drag and drop products to reorder them.</p>
+        
+        <div class="product-assignment-table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>
+                  <div class="editable-column-name" data-column="platinum">
+                    <span class="column-display-name">Platinum</span>
+                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </th>
+                <th>
+                  <div class="editable-column-name" data-column="gold">
+                    <span class="column-display-name">Gold</span>
+                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </th>
+                <th>
+                  <div class="editable-column-name" data-column="silver">
+                    <span class="column-display-name">Silver</span>
+                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </th>
+                <th>
+                  <div class="editable-column-name" data-column="bronze">
+                    <span class="column-display-name">Bronze</span>
+                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </th>
+                <th>
+                  <div class="editable-column-name" data-column="iron">
+                    <span class="column-display-name">Iron</span>
+                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> Extended Warranty</div>
+                  <div class="product-price editable-price" data-product="Extended Warranty">$613.16</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+              </tr>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> Rust Proofing</div>
+                  <div class="product-price editable-price" data-product="Rust Proofing">$617.94</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+              </tr>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> Paint Protection</div>
+                  <div class="product-price editable-price" data-product="Paint Protection">$608.39</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+              </tr>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> Fabric/Leather Protection</div>
+                  <div class="product-price editable-price" data-product="Fabric/Leather Protection">$261.84</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+              </tr>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> Key Fob Replacement</div>
+                  <div class="product-price editable-price" data-product="Key Fob Replacement">$871.21</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+              </tr>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> GAP</div>
+                  <div class="product-price editable-price" data-product="GAP">$990.27</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+              </tr>
+              <tr class="product-row" draggable="true">
+                <td class="product-cell">
+                  <div><i class="bi bi-grip-vertical product-handle"></i> Scratch/Dent Repair</div>
+                  <div class="product-price editable-price" data-product="Scratch/Dent Repair">$1095.96</div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" checked>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox">
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Products Tab -->
+    <div class="tab-content" id="manage-products">
+      <div class="settings-section">
+        <h3>Available Products</h3>
+        <p>Manage the products that can be assigned to columns in your F&I menu.</p>
+        
+        <div class="products-grid">
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>Extended Warranty</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$613.16</div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>Rust Proofing</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$617.94</div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>Paint Protection</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$608.39</div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>Fabric/Leather Protection</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$261.84</div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>Key Fob Replacement</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$871.21</div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>GAP</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$990.27</div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-card-header">
+              <h4>Scratch/Dent Repair</h4>
+              <div class="product-actions">
+                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+            <div class="product-price-display">$1095.96</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Add New Product</h3>
+        <div class="add-product-form">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="new-product-name" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="new-product-name" placeholder="Enter product name">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="new-product-price" class="form-label">Product Value ($)</label>
+                <input type="number" class="form-control" id="new-product-price" placeholder="0.00" step="0.01" min="0">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="new-product-description" class="form-label">Product Description</label>
+                <textarea class="form-control" id="new-product-description" rows="1" placeholder="Enter product description"></textarea>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary add-product-btn">
+            <i class="bi bi-plus-circle"></i> Add Product
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Settings Button -->
+    <div class="settings-footer">
+      <button class="btn btn-primary save-settings-btn">
+        <i class="bi bi-save"></i> Save Settings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="edit-product-name" class="form-label">Product Name</label>
+          <input type="text" class="form-control" id="edit-product-name">
+        </div>
+        <div class="mb-3">
+          <label for="edit-product-price" class="form-label">Product Price ($)</label>
+          <input type="number" class="form-control" id="edit-product-price" step="0.01" min="0">
+        </div>
+        <div class="mb-3">
+          <label for="edit-product-description" class="form-label">Product Description</label>
+          <textarea class="form-control" id="edit-product-description" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary save-edit-btn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="settings.js"></script>
+</body>
+</html>
+
