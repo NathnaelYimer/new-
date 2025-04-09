@@ -534,3 +534,82 @@ body {
   color: var(--text-light-soft);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+/* Existing :root and base styles remain unchanged */
+
+/* iPad Mini */
+@media (max-width: 768px) and (min-width: 744px) {
+  .sidebar {
+    width: 260px;
+    transform: translateX(-100%);
+    background: var(--bg-dark);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .main-content { margin-left: 0; width: 100%; }
+  .menu-table { display: block; overflow-x: auto; border-spacing: 5px; }
+  .menu-table td { width: 240px; min-height: 400px; background: var(--bg-dark); box-shadow: var(--shadow-lg), var(--shadow-glow-blue); }
+  .price-main { font-size: 30px; }
+  .menu-title-section h1 { font-size: 22px; }
+  .choose-button { background: var(--platinum-gradient); }
+}
+
+/* iPad, iPad Air, Galaxy Tab A8, Lenovo M10, Fire HD 10 */
+@media (max-width: 820px) and (min-width: 769px) {
+  .sidebar { width: 280px; background: var(--bg-dark-soft); }
+  .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); }
+  .menu-table td { width: 260px; background: var(--bg-glass); }
+  .price-main { font-size: 32px; }
+  .menu-title-section h1 { font-size: 24px; }
+  .choose-button { background: var(--bronze-gradient); }
+}
+
+/* iPad Pro 11-inch */
+@media (max-width: 834px) and (min-width: 821px) {
+  .sidebar { width: 280px; }
+  .menu-table td { width: 270px; }
+  .price-main { font-size: 34px; }
+}
+
+/* iPad Pro 12.9-inch */
+@media (max-width: 1024px) and (min-width: 835px) {
+  .sidebar { width: 300px; }
+  .menu-table td { width: 18%; background: var(--bg-dark-soft); }
+  .price-main { font-size: 36px; }
+  .choose-button { background: var(--platinum-gradient); }
+}
+
+/* Galaxy Tab S9, Pixel Tablet */
+@media (max-width: 853px) and (min-width: 821px) {
+  .sidebar { width: 280px; }
+  .menu-table td { width: 260px; }
+  .price-main { font-size: 34px; }
+}
+
+/* Surface Go 3, Galaxy Tab S9 Ultra */
+@media (max-width: 986px) and (min-width: 854px) {
+  .sidebar { width: 290px; }
+  .menu-table td { width: 17%; box-shadow: var(--shadow-glow-red); }
+  .price-main { font-size: 36px; }
+}
+
+/* Smartphones */
+@media (max-width: 576px) {
+  .sidebar { width: 100%; }
+  .menu-table td { width: 280px; min-height: 350px; }
+  .price-main { font-size: 28px; }
+  .menu-title-section h1 { font-size: 20px; }
+  .choose-button { background: var(--silver-gradient); }
+}
