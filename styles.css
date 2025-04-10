@@ -180,7 +180,6 @@ body::before {
   border-radius: var(--radius-md);
   transition: var(--transition-fast);
 }
-
 .sidebar-toggle:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -199,6 +198,34 @@ body::before {
   flex-direction: column;
   padding: var(--space-4);
   gap: var(--space-6);
+}
+
+.sidebar.collapsed .sidebar-content {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.sidebar.collapsed .menu-title-section h1 {
+  display: none;
+}
+.sidebar.collapsed .menu-title-section p {
+  display: none;
+}
+
+.sidebar.collapsed .menu-text {
+  display: none;
+}
+
+.sidebar.collapsed .menu-label {
+  display: none;
+}
+
+.sidebar.collapsed .base-payment {
+  display: none;
 }
 
 .sidebar-section {
@@ -230,7 +257,6 @@ body::before {
   flex-direction: column;
   gap: var(--space-3);
 }
-
 .sidebar-menu a {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
@@ -773,7 +799,8 @@ body::before {
   text-align: left;
   list-style: none;
   padding-top: 10px;
-  overflow-y: none;
+  margin-left: 0; /* Add this */
+  padding-left: 0; /* Add this if you want it flush with the left edge */
   max-height: none;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
@@ -782,6 +809,7 @@ body::before {
   margin-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 
 .feature-list::-webkit-scrollbar {
   width: 4px;
@@ -839,7 +867,6 @@ body::before {
 }
 
 .feature-item.dragging {
-  z-index: 15; /* Higher than regular content but lower than dropdowns */
   opacity: 0.8;
   background-color: rgba(255, 255, 255, 0.15);
   box-shadow: var(--shadow-lg);
@@ -1354,71 +1381,62 @@ body::before {
 
 
 .remove-product-btn {
-  margin-left: auto;
-  width: 2.25rem;
-  height: 2.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
+  position: relative;
+  width: 20px;
+  height: 20px;
   border: none;
   border-radius: 50%;
-  color: #888;
-  font-size: 1.25rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
-  position: relative;
-  flex-shrink: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0;
 }
 
-.remove-product-btn:hover,
-.remove-product-btn:focus-visible {
-  background-color: rgba(200, 0, 0, 0.1);
-  color: #d00000;
+.feature-item:hover .remove-product-btn {
+  opacity: 1;
+}
+
+.remove-product-btn:hover {
   transform: scale(1.1);
-  outline: none;
+  opacity: 0.9;
 }
 
-.remove-product-btn:active {
-  transform: scale(0.95);
-  background-color: rgba(200, 0, 0, 0.2);
+/* Plan-specific background colors for the remove button */
+[data-plan="platinum"] .remove-product-btn {
+  background: linear-gradient(135deg, #434343, #000000);
 }
 
-.remove-product-btn i {
-  pointer-events: none; /* prevent accidental clicks on the icon itself */
+[data-plan="gold"] .remove-product-btn {
+  background:linear-gradient(135deg, #434343, #000000);
 }
 
-@media (hover: none) {
-  .remove-product-btn:hover {
-    background-color: transparent; /* skip hover color on mobile */
-    transform: none;
-  }
+[data-plan="silver"] .remove-product-btn {
+  background: linear-gradient(135deg, #434343, #000000);
+}
+[data-plan="bronze"] .remove-product-btn {
+  background: linear-gradient(135deg, #434343, #000000);
 }
 
-@media (prefers-color-scheme: dark) {
-  .remove-product-btn {
-    color: #bbb;
-  }
-
-  .remove-product-btn:hover,
-  .remove-product-btn:focus-visible {
-    background-color: rgba(255, 0, 0, 0.1);
-    color: #ff5f5f;
-  }
-
-  .remove-product-btn:active {
-    background-color: rgba(236, 84, 13, 0.904);
-  }
+[data-plan="iron"] .remove-product-btn {
+  background: linear-gradient(135deg, #434343, #000000);
 }
 
-
-.remove-product-btn:focus-visible {
-  box-shadow: 0 0 0 2px rgba(208, 0, 0, 0.4);
+/* Add the "X" using pseudo-element */
+.remove-product-btn::before {
+  content: "×";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  line-height: 1;
 }
-
 
 
 
@@ -1756,4 +1774,36 @@ body::before {
   .menu-table td {
     padding: var(--space-5) var(--space-4);
   }
+}
+
+
+
+
+
+
+
+
+
+/* Add Product Button Styles */
+.add-product-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  margin: var(--space-4) 2px;
+  transition: var(--transition-fast);
+  font-size: 0.9rem;
+}
+
+.add-product-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.add-product-btn i {
+  font-size: 0.8rem;
 }

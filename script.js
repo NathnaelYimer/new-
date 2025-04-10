@@ -3,111 +3,119 @@ document.addEventListener("DOMContentLoaded", () => {
   const setupRemoveProductListeners = () => {
     document.querySelectorAll(".remove-product-btn").forEach((button) => {
       button.addEventListener("click", function (e) {
-        e.stopPropagation() // Prevent event bubbling
-
-        // Get the product item and remove only this specific instance
-        const productItem = this.closest(".feature-item")
+        e.stopPropagation(); // Prevent event bubbling
+        const productItem = this.closest(".feature-item");
         if (productItem) {
-          productItem.remove()
+          productItem.remove();
         }
-      })
-    })
-  }
+      });
+    });
+  };
 
   // Call the function to set up listeners when the page loads
-  setupRemoveProductListeners()
+  setupRemoveProductListeners();
 
-  // Original code below
   // Sidebar toggle functionality
-  const sidebar = document.getElementById("sidebar")
-  const mainContent = document.getElementById("main-content")
-  const sidebarToggle = document.getElementById("sidebar-toggle")
-  const mobileToggle = document.getElementById("mobile-toggle")
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("main-content");
+  const sidebarToggle = document.getElementById("sidebar-toggle");
+  const mobileToggle = document.getElementById("mobile-toggle");
+
+  // Set the sidebar to collapsed by default
+  sidebar.classList.add("collapsed");
+  mainContent.classList.add("expanded");
 
   // Toggle sidebar on desktop
   sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("collapsed")
-    mainContent.classList.toggle("expanded")
-  })
+    sidebar.classList.toggle("collapsed");
+    mainContent.classList.toggle("expanded");
+  });
 
   // Toggle sidebar on mobile
   mobileToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("mobile-open")
-  })
+    sidebar.classList.toggle("mobile-open");
+  });
 
   // Close sidebar when clicking outside on mobile
   document.addEventListener("click", (e) => {
     if (window.innerWidth <= 768) {
-      if (!sidebar.contains(e.target) && e.target !== mobileToggle && sidebar.classList.contains("mobile-open")) {
-        sidebar.classList.remove("mobile-open")
+      if (
+        !sidebar.contains(e.target) &&
+        e.target !== mobileToggle &&
+        sidebar.classList.contains("mobile-open")
+      ) {
+        sidebar.classList.remove("mobile-open");
       }
     }
-  })
+  });
 
   // Resize handler
   window.addEventListener("resize", () => {
     if (window.innerWidth > 768) {
-      sidebar.classList.remove("mobile-open")
+      sidebar.classList.remove("mobile-open");
     }
-  })
+  });
 
   // Get all draggable items
-  const draggableItems = document.querySelectorAll(".feature-item")
+  const draggableItems = document.querySelectorAll(".feature-item");
 
   // Get all dropzones
-  const dropzones = document.querySelectorAll(".kanban-dropzone")
+  const dropzones = document.querySelectorAll(".kanban-dropzone");
 
   // Get all "Choose" buttons
-  const chooseButtons = document.querySelectorAll(".choose-button")
+  const chooseButtons = document.querySelectorAll(".choose-button");
 
   // Get all month selectors
-  const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item")
+  const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item");
 
   // Fix for dropdown toggle buttons - ensure they work properly
-  const dropdownToggles = document.querySelectorAll(".dropdown-toggle")
+  const dropdownToggles = document.querySelectorAll(".dropdown-toggle");
   dropdownToggles.forEach((toggle) => {
     toggle.addEventListener("click", (e) => {
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
 
       // Close all other dropdowns
       dropdownToggles.forEach((otherToggle) => {
-        if (otherToggle !== toggle && otherToggle.getAttribute("aria-expanded") === "true") {
-          otherToggle.setAttribute("aria-expanded", "false")
-          const menu = otherToggle.nextElementSibling
+        if (
+          otherToggle !== toggle &&
+          otherToggle.getAttribute("aria-expanded") === "true"
+        ) {
+          otherToggle.setAttribute("aria-expanded", "false");
+          const menu = otherToggle.nextElementSibling;
           if (menu && menu.classList.contains("dropdown-menu")) {
-            menu.style.display = "none"
+            menu.style.display = "none";
           }
         }
-      })
+      });
 
       // Toggle current dropdown
-      const isExpanded = toggle.getAttribute("aria-expanded") === "true"
-      toggle.setAttribute("aria-expanded", !isExpanded)
+      const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", !isExpanded);
 
-      const menu = toggle.nextElementSibling
+      const menu = toggle.nextElementSibling;
       if (menu && menu.classList.contains("dropdown-menu")) {
-        menu.style.display = isExpanded ? "none" : "block"
+        menu.style.display = isExpanded ? "none" : "block";
       }
-    })
-  })
+    });
+  });
 
   // Close dropdowns when clicking outside
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".dropdown")) {
       dropdownToggles.forEach((toggle) => {
-        toggle.setAttribute("aria-expanded", "false")
-        const menu = toggle.nextElementSibling
+        toggle.setAttribute("aria-expanded", "false");
+        const menu = toggle.nextElementSibling;
         if (menu && menu.classList.contains("dropdown-menu")) {
-          menu.style.display = "none"
+          menu.style.display = "none";
         }
-      })
+      });
     }
-  })
+  });
 
   // Variable to store the currently dragged item
-  let draggedItem = null
-  let originalPlan = null
+  let draggedItem = null;
+  let originalPlan = null;
 
   // Payment data by plan and term
   const paymentData = {
@@ -156,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
       75: { monthly: 229.25 },
       84: { monthly: 209.1 },
     },
-  }
+  };
 
   // Product explanations data
   const productExplanations = {
@@ -173,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     GAP: "Guaranteed Asset Protection (GAP) covers the difference between what you owe on your vehicle and what your insurance pays if your vehicle is totaled or stolen. This prevents you from making payments on a vehicle you no longer have.",
     "Scratch/Dent Repair":
       "Coverage for minor cosmetic repairs to your vehicle's exterior, including small dents, dings, and scratches. Helps maintain your vehicle's appearance and value without filing insurance claims.",
-  }
+  };
 
   // Terms and conditions data for each plan
   const termsAndConditions = {
@@ -350,113 +358,141 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `,
     },
-  }
+  };
 
   // Add event listeners to all draggable items
   draggableItems.forEach((item) => {
-    // Drag start event
     item.addEventListener("dragstart", function (e) {
-      draggedItem = this
-      originalPlan = this.getAttribute("data-plan")
-
-      // Add dragging class for visual feedback
+      console.log("Drag started for item:", this);
+      draggedItem = this;
+      originalPlan = this.getAttribute("data-plan");
+      console.log("Dragged item:", draggedItem, "Original plan:", originalPlan);
       setTimeout(() => {
-        this.classList.add("dragging")
-      }, 0)
+        this.classList.add("dragging");
+      }, 0);
+      e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
+    });
 
-      // Set data transfer
-      e.dataTransfer.setData("text/plain", this.getAttribute("data-id"))
-    })
-
-    // Drag end event
     item.addEventListener("dragend", function () {
-      // Remove dragging class
-      this.classList.remove("dragging")
-      draggedItem = null
-      originalPlan = null
-    })
-  })
+      console.log("Drag ended for item:", this);
+      this.classList.remove("dragging");
+      draggedItem = null;
+      originalPlan = null;
+    });
+  });
 
   // Add event listeners to all dropzones
   dropzones.forEach((zone) => {
-    // Dragover event
     zone.addEventListener("dragover", function (e) {
-      e.preventDefault()
-      this.classList.add("highlight")
-    })
+      e.preventDefault();
+      console.log("Dragover on zone:", this);
+      this.classList.add("highlight");
+    });
 
-    // Dragleave event
     zone.addEventListener("dragleave", function () {
-      this.classList.remove("highlight")
-    })
+      console.log("Dragleave on zone:", this);
+      this.classList.remove("highlight");
+    });
 
-    // Drop event
     zone.addEventListener("drop", function (e) {
-      e.preventDefault()
-      this.classList.remove("highlight")
+      e.preventDefault();
+      this.classList.remove("highlight");
+      console.log("Drop event triggered on zone:", this);
+      console.log("Dragged item:", draggedItem);
 
       if (draggedItem) {
-        const targetPlan = this.getAttribute("data-plan")
+        const targetPlan = this.getAttribute("data-plan");
+        console.log("Target plan:", targetPlan, "Original plan:", originalPlan);
 
-        // Only move if dropping to a different plan
         if (originalPlan !== targetPlan) {
-          // Clone the item to keep its event listeners
-          const clonedItem = draggedItem.cloneNode(true)
+          const productName = draggedItem.querySelector(".product-name").textContent;
+          console.log("Product name:", productName);
 
-          // Update the plan attribute
-          clonedItem.setAttribute("data-plan", targetPlan)
+          // Check for duplicates
+          const targetItems = this.querySelectorAll(".feature-item");
+          let isDuplicate = false;
+
+          targetItems.forEach((item) => {
+            const existingProductName = item.querySelector(".product-name").textContent;
+            console.log("Checking against:", existingProductName);
+            if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+              isDuplicate = true;
+            }
+          });
+
+          console.log("Is duplicate:", isDuplicate);
+
+          if (isDuplicate) {
+            console.log(`Duplicate found: "${productName}" already exists in ${targetPlan} plan.`);
+            alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
+            return;
+          }
+
+          console.log("No duplicate found, proceeding with move...");
+          const clonedItem = draggedItem.cloneNode(true);
+          console.log("Cloned item:", clonedItem);
+
+          // Ensure the cloned item is draggable
+          clonedItem.setAttribute("draggable", "true");
+          clonedItem.setAttribute("data-plan", targetPlan);
 
           // Update the checkmark color
-          const checkmark = clonedItem.querySelector(".feature-check")
-          checkmark.className = `feature-check ${targetPlan}-check`
+          const checkmark = clonedItem.querySelector(".feature-check");
+          if (checkmark) {
+            checkmark.className = `feature-check ${targetPlan}-check`;
+          }
 
           // Add the item to the new dropzone
-          this.appendChild(clonedItem)
+          this.appendChild(clonedItem);
+          console.log("Cloned item appended to target zone:", this);
 
           // Remove the original item
-          draggedItem.remove()
+          draggedItem.remove();
+          console.log("Original item removed");
 
           // Add event listeners to the cloned item
-          setupDragListeners(clonedItem)
-
-          // Add product explanation click event to the cloned item
-          setupProductExplanationListener(clonedItem)
-
-          // Add remove button event listener to the cloned item
-          setupRemoveButtonListener(clonedItem.querySelector(".remove-product-btn"))
+          setupDragListeners(clonedItem);
+          setupProductExplanationListener(clonedItem);
+          setupRemoveButtonListener(clonedItem.querySelector(".remove-product-btn"));
+          console.log("Event listeners set up on cloned item");
+        } else {
+          console.log("Same plan, no move needed");
         }
+      } else {
+        console.log("No dragged item available");
       }
-    })
-  })
+    });
+  });
 
   // Function to set up drag listeners for a new item
   function setupDragListeners(item) {
     item.addEventListener("dragstart", function (e) {
-      draggedItem = this
-      originalPlan = this.getAttribute("data-plan")
-
+      console.log("Setting up dragstart for cloned item:", this);
+      draggedItem = this;
+      originalPlan = this.getAttribute("data-plan");
       setTimeout(() => {
-        this.classList.add("dragging")
-      }, 0)
-
-      e.dataTransfer.setData("text/plain", this.getAttribute("data-id"))
-    })
+        this.classList.add("dragging");
+      }, 0);
+      e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
+    });
 
     item.addEventListener("dragend", function () {
-      this.classList.remove("dragging")
-      draggedItem = null
-      originalPlan = null
-    })
+      console.log("Drag ended for cloned item:", this);
+      this.classList.remove("dragging");
+      draggedItem = null;
+      originalPlan = null;
+    });
   }
 
   // Function to set up product explanation click event
   function setupProductExplanationListener(item) {
-    const productNameElement = item.querySelector(".product-name")
+    const productNameElement = item.querySelector(".product-name");
     if (productNameElement) {
-      productNameElement.addEventListener("click", function () {
-        const productName = this.textContent
-        showProductExplanation(productName)
-      })
+      productNameElement.addEventListener("click", function (e) {
+        e.stopPropagation(); // Prevent drag events from interfering
+        const productName = this.textContent;
+        showProductExplanation(productName);
+      });
     }
   }
 
@@ -464,182 +500,253 @@ document.addEventListener("DOMContentLoaded", () => {
   function setupRemoveButtonListener(button) {
     if (button) {
       button.addEventListener("click", function (e) {
-        e.stopPropagation() // Prevent event bubbling
-
-        // Get the product item and remove only this specific instance
-        const productItem = this.closest(".feature-item")
+        e.stopPropagation(); // Prevent event bubbling
+        const productItem = this.closest(".feature-item");
         if (productItem) {
-          productItem.remove()
+          productItem.remove();
         }
-      })
+      });
     }
   }
 
   // Add click event listeners to all "Choose" buttons
   chooseButtons.forEach((button) => {
     button.addEventListener("click", function () {
-      // Get the plan type based on button class
-      let planType = ""
-      if (this.classList.contains("platinum")) planType = "Platinum"
-      else if (this.classList.contains("gold")) planType = "Gold"
-      else if (this.classList.contains("silver")) planType = "Silver"
-      else if (this.classList.contains("bronze")) planType = "Bronze"
-      else if (this.classList.contains("iron")) planType = "Iron"
+      let planType = "";
+      if (this.classList.contains("platinum")) planType = "Platinum";
+      else if (this.classList.contains("gold")) planType = "Gold";
+      else if (this.classList.contains("silver")) planType = "Silver";
+      else if (this.classList.contains("bronze")) planType = "Bronze";
+      else if (this.classList.contains("iron")) planType = "Iron";
 
-      // Alert for demonstration
-      alert(`You've selected the ${planType} plan.`)
-    })
-  })
+      alert(`You've selected the ${planType} plan.`);
+    });
+  });
 
   // Add click event listeners to month selector dropdown items
   monthSelectors.forEach((item) => {
     item.addEventListener("click", function (e) {
-      e.preventDefault()
-      e.stopPropagation() // Prevent event bubbling
+      e.preventDefault();
+      e.stopPropagation();
 
-      const months = Number.parseInt(this.getAttribute("data-months"))
-      const plan = this.getAttribute("data-plan")
+      const months = Number.parseInt(this.getAttribute("data-months"));
+      const plan = this.getAttribute("data-plan");
 
-      // Update the term text
-      const termElement = document.querySelector(`.${plan}-term`)
+      const termElement = document.querySelector(`.${plan}-term`);
       if (termElement) {
-        termElement.textContent = `for ${months} months`
+        termElement.textContent = `for ${months} months`;
       }
 
-      // Update the monthly payment
-      const monthlyElement = document.querySelector(`.${plan}-monthly`)
+      const monthlyElement = document.querySelector(`.${plan}-monthly`);
       if (monthlyElement && paymentData[plan] && paymentData[plan][months]) {
-        // Add updating animation class
-        monthlyElement.classList.add("updating")
-
-        // Update the text after a short delay for animation effect
+        monthlyElement.classList.add("updating");
         setTimeout(() => {
-          monthlyElement.textContent = `$${paymentData[plan][months].monthly.toFixed(2)} Monthly`
-          monthlyElement.classList.remove("updating")
-        }, 300)
+          monthlyElement.textContent = `$${paymentData[plan][months].monthly.toFixed(2)} Monthly`;
+          monthlyElement.classList.remove("updating");
+        }, 300);
       }
 
-      // Mark the selected item as active
-      const dropdownItems = this.parentElement.parentElement.querySelectorAll(".dropdown-item")
+      const dropdownItems = this.parentElement.parentElement.querySelectorAll(".dropdown-item");
       dropdownItems.forEach((dropItem) => {
-        dropItem.classList.remove("active")
-      })
-      this.classList.add("active")
+        dropItem.classList.remove("active");
+      });
+      this.classList.add("active");
 
-      // Close the dropdown after selection
-      const dropdown = this.closest(".dropdown")
+      const dropdown = this.closest(".dropdown");
       if (dropdown) {
-        const toggle = dropdown.querySelector(".dropdown-toggle")
+        const toggle = dropdown.querySelector(".dropdown-toggle");
         if (toggle) {
-          toggle.setAttribute("aria-expanded", "false")
-          const menu = toggle.nextElementSibling
+          toggle.setAttribute("aria-expanded", "false");
+          const menu = toggle.nextElementSibling;
           if (menu && menu.classList.contains("dropdown-menu")) {
-            menu.style.display = "none"
+            menu.style.display = "none";
           }
         }
       }
-    })
-  })
+    });
+  });
 
   // Add click event listeners to product names for showing explanations
   document.querySelectorAll(".product-name").forEach((productElement) => {
-    productElement.addEventListener("click", function () {
-      const productName = this.textContent
-      showProductExplanation(productName)
-    })
-  })
+    productElement.addEventListener("click", function (e) {
+      e.stopPropagation(); // Prevent drag events from interfering
+      const productName = this.textContent;
+      showProductExplanation(productName);
+    });
+  });
 
   // Function to show product explanation in modal
   function showProductExplanation(productName) {
-    const explanation = productExplanations[productName]
+    const explanation = productExplanations[productName];
     if (explanation) {
-      const modalContent = document.getElementById("productExplanationContent")
-      const modalTitle = document.getElementById("productExplanationModalLabel")
+      const modalContent = document.getElementById("productExplanationContent");
+      const modalTitle = document.getElementById("productExplanationModalLabel");
 
-      modalTitle.textContent = productName
-      modalContent.innerHTML = `<p>${explanation}</p>`
+      modalTitle.textContent = productName;
+      modalContent.innerHTML = `<p>${explanation}</p>`;
 
-      // Declare bootstrap variable
-      const productModalElement = document.getElementById("productExplanationModal")
-      const productModal = new bootstrap.Modal(productModalElement)
-      productModal.show()
+      const productModalElement = document.getElementById("productExplanationModal");
+      const productModal = new bootstrap.Modal(productModalElement);
+      productModal.show();
+    } else {
+      alert(`No explanation available for "${productName}".`);
     }
   }
 
   // Add click event listeners to "View Full Terms & Conditions" links
   document.querySelectorAll(".view-terms-link").forEach((link) => {
     link.addEventListener("click", function (e) {
-      e.preventDefault()
-      const plan = this.getAttribute("data-plan")
-      showTermsAndConditions(plan)
-    })
-  })
+      e.preventDefault();
+      const plan = this.getAttribute("data-plan");
+      showTermsAndConditions(plan);
+    });
+  });
 
   // Function to show terms and conditions in modal
   function showTermsAndConditions(plan) {
-    const termsData = termsAndConditions[plan]
+    const termsData = termsAndConditions[plan];
     if (termsData) {
-      const modalContent = document.getElementById("termsModalContent")
-      const modalTitle = document.getElementById("termsModalLabel")
+      const modalContent = document.getElementById("termsModalContent");
+      const modalTitle = document.getElementById("termsModalLabel");
 
-      modalTitle.textContent = termsData.title
-      modalContent.innerHTML = termsData.content
+      modalTitle.textContent = termsData.title;
+      modalContent.innerHTML = termsData.content;
 
-      // Declare bootstrap variable
-      const termsModalElement = document.getElementById("termsModal")
-      const termsModal = new bootstrap.Modal(termsModalElement)
-      termsModal.show()
+      const termsModalElement = document.getElementById("termsModal");
+      const termsModal = new bootstrap.Modal(termsModalElement);
+      termsModal.show();
     }
   }
 
-  document.querySelectorAll('.remove-product-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.closest('.product-item')?.classList.add('fade-out');
-      setTimeout(() => {
-        btn.closest('.product-item')?.remove();
-      }, 300);
+  // Additional remove button animation
+  document.querySelectorAll(".remove-product-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const productItem = btn.closest(".feature-item");
+      if (productItem) {
+        productItem.classList.add("fade-out");
+        setTimeout(() => {
+          productItem.remove();
+        }, 300);
+      }
     });
   });
-  
 
   // Load settings if they exist
   const loadSettings = () => {
-    const savedSettings = localStorage.getItem("menuSettings")
+    const savedSettings = localStorage.getItem("menuSettings");
     if (savedSettings) {
-      const settings = JSON.parse(savedSettings)
+      const settings = JSON.parse(savedSettings);
 
       // Apply column names
       if (settings.columnNames) {
         document.querySelectorAll("th").forEach((th) => {
-          if (th.classList.contains("platinum-bg")) th.textContent = settings.columnNames.platinum
-          else if (th.classList.contains("gold-bg")) th.textContent = settings.columnNames.gold
-          else if (th.classList.contains("silver-bg")) th.textContent = settings.columnNames.silver
-          else if (th.classList.contains("bronze-bg")) th.textContent = settings.columnNames.bronze
-          else if (th.classList.contains("iron-bg")) th.textContent = settings.columnNames.iron
-        })
+          if (th.classList.contains("platinum-bg")) th.textContent = settings.columnNames.platinum;
+          else if (th.classList.contains("gold-bg")) th.textContent = settings.columnNames.gold;
+          else if (th.classList.contains("silver-bg")) th.textContent = settings.columnNames.silver;
+          else if (th.classList.contains("bronze-bg")) th.textContent = settings.columnNames.bronze;
+          else if (th.classList.contains("iron-bg")) th.textContent = settings.columnNames.iron;
+        });
       }
 
       // Apply column visibility
       if (settings.columnVisibility) {
-        const table = document.querySelector(".menu-table")
+        const table = document.querySelector(".menu-table");
         if (table) {
-          const rows = table.querySelectorAll("tr")
+          const rows = table.querySelectorAll("tr");
           rows.forEach((row) => {
-            const cells = row.querySelectorAll("th, td")
+            const cells = row.querySelectorAll("th, td");
             cells.forEach((cell, index) => {
-              if (index === 0 && !settings.columnVisibility.platinum) cell.style.display = "none"
-              else if (index === 1 && !settings.columnVisibility.gold) cell.style.display = "none"
-              else if (index === 2 && !settings.columnVisibility.silver) cell.style.display = "none"
-              else if (index === 3 && !settings.columnVisibility.bronze) cell.style.display = "none"
-              else if (index === 4 && !settings.columnVisibility.iron) cell.style.display = "none"
-            })
-          })
+              if (index === 0 && !settings.columnVisibility.platinum) cell.style.display = "none";
+              else if (index === 1 && !settings.columnVisibility.gold) cell.style.display = "none";
+              else if (index === 2 && !settings.columnVisibility.silver) cell.style.display = "none";
+              else if (index === 3 && !settings.columnVisibility.bronze) cell.style.display = "none";
+              else if (index === 4 && !settings.columnVisibility.iron) cell.style.display = "none";
+            });
+          });
         }
       }
     }
-  }
+  };
 
   // Load settings when page loads
-  loadSettings()
-})
+  loadSettings();
 
+  // Add Product Functionality
+  const addProductButtons = document.querySelectorAll(".add-product-btn");
+  const addProductModalElement = document.getElementById("addProductModal");
+  const addProductModal = new bootstrap.Modal(addProductModalElement);
+  const addProductForm = document.getElementById("addProductForm");
+  const productNameInput = document.getElementById("productName");
+  const targetPlanInput = document.getElementById("targetPlan");
+  const saveProductBtn = document.getElementById("saveProductBtn");
+
+  // Open the modal when clicking the "Add Product" button
+  addProductButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const plan = button.getAttribute("data-plan");
+      targetPlanInput.value = plan;
+      addProductModal.show();
+    });
+  });
+
+  // Handle form submission to add the new product
+  saveProductBtn.addEventListener("click", () => {
+    const productName = productNameInput.value.trim();
+    const targetPlan = targetPlanInput.value;
+
+    if (productName === "") {
+      alert("Please enter a product name.");
+      return;
+    }
+
+    // Check for duplicates in the target plan
+    const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
+    const existingItems = targetDropzone.querySelectorAll(".feature-item");
+    let isDuplicate = false;
+
+    existingItems.forEach((item) => {
+      const existingProductName = item.querySelector(".product-name").textContent;
+      if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+        isDuplicate = true;
+      }
+    });
+
+    if (isDuplicate) {
+      alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
+      return;
+    }
+
+    // Create a new feature item
+    const newItem = document.createElement("li");
+    newItem.classList.add("feature-item");
+    newItem.setAttribute("draggable", "true");
+    newItem.setAttribute("data-id", `p${Date.now()}`); // Unique ID using timestamp
+    newItem.setAttribute("data-plan", targetPlan);
+
+    newItem.innerHTML = `
+      <div class="feature-content">
+        <span class="feature-check ${targetPlan}-check">✓</span>
+        <span class="product-name">${productName}</span>
+        <button class="remove-product-btn" title="Remove product"></button>
+      </div>
+    `;
+
+    // Append the new item to the target dropzone
+    targetDropzone.appendChild(newItem);
+
+    // Add event listeners to the new item
+    setupDragListeners(newItem);
+    setupProductExplanationListener(newItem);
+    setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
+
+    // Reset the form and close the modal
+    addProductForm.reset();
+    addProductModal.hide();
+  });
+
+  // Reset the form when the modal is closed
+  addProductModalElement.addEventListener("hidden.bs.modal", () => {
+    addProductForm.reset();
+  });
+});
