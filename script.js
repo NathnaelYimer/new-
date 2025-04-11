@@ -1,4 +1,63 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+
+  let settings = JSON.parse(localStorage.getItem("menuSettings")) || {
+    productData: {
+      "Extended Warranty": {
+        price: 613.16,
+        description: "Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.",
+        terms: "Coverage varies by plan level. Deductibles may apply. Valid at any authorized service center. Transferable if vehicle is sold. Exclusions apply for wear and tear items and routine maintenance."
+      },
+      "Rust Proofing": {
+        price: 617.94,
+        description: "Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.",
+        terms: "Annual inspections required to maintain coverage. Covers perforation due to rust from the inside out. Does not cover surface rust from external damage. 5-year warranty included."
+      },
+      "Paint Protection": {
+        price: 608.39,
+        description: "Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.",
+        terms: "Requires proper maintenance and care. Not a substitute for regular washing. Does not cover damage from accidents or improper care. Reapplication recommended every 2 years."
+      },
+      "Fabric/Leather Protection": {
+        price: 261.84,
+        description: "Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.",
+        terms: "Spills must be cleaned promptly. Does not prevent damage from sharp objects or burns. Reapplication may be necessary after deep cleaning. 3-year protection plan included."
+      },
+      "Key Fob Replacement": {
+        price: 871.21,
+        description: "Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.",
+        terms: "Limited to 2 replacements per contract period. $50 deductible per claim. Programming fees included. Must provide proof of loss or damage. 24-hour assistance available."
+      },
+      "GAP": {
+        price: 990.27,
+        description: "Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.",
+        terms: "Must be purchased within 30 days of vehicle financing. Maximum benefit of $50,000. Primary insurance deductible coverage up to $1,000. Not available for leased vehicles in some states."
+      },
+      "Scratch/Dent Repair": {
+        price: 1095.96,
+        description: "Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.",
+        terms: "Repairs limited to dents smaller than 4 inches in diameter. Paint touch-up for scratches less than 6 inches. Unlimited number of repairs during contract period. $0 deductible per claim."
+      }
+    },
+    productAssignments: {
+      platinum: ["Extended Warranty", "Rust Proofing", "Paint Protection", "Fabric/Leather Protection", "Key Fob Replacement", "GAP", "Scratch/Dent Repair"],
+      gold: ["Extended Warranty", "Rust Proofing", "Paint Protection", "Fabric/Leather Protection", "Key Fob Replacement", "GAP"],
+      silver: ["Extended Warranty", "Rust Proofing", "Paint Protection", "Key Fob Replacement", "GAP"],
+      bronze: ["Extended Warranty", "Key Fob Replacement", "GAP"],
+      iron: ["Extended Warranty", "Key Fob Replacement"]
+    }
+  };
+
+  let productData = settings.productData;
+  let productAssignments = settings.productAssignments;
+
+  // Derive productExplanations from productData
+  // (This block is removed as `productExplanations` is already declared later in the code)
+
+
+
+
+
   // Add event listeners to all remove product buttons
   const setupRemoveProductListeners = () => {
     document.querySelectorAll(".remove-product-btn").forEach((button) => {
@@ -167,22 +226,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Product explanations data
-  const productExplanations = {
-    "Extended Warranty":
-      "Extends the manufacturer's warranty beyond the standard coverage period. This protects you from expensive repair costs for mechanical and electrical failures after the original warranty expires. Coverage typically includes engine, transmission, drive axle, and electrical components.",
-    "Rust Proofing":
-      "A protective coating applied to the vehicle's undercarriage and other vulnerable areas to prevent rust and corrosion. This treatment extends the life of your vehicle, especially in areas with harsh winters where road salt is used.",
-    "Paint Protection":
-      "A clear, durable film or chemical coating applied to your vehicle's paint to protect against scratches, chips, UV damage, and environmental contaminants. Helps maintain your vehicle's appearance and resale value.",
-    "Fabric/Leather Protection":
-      "A special treatment that creates a barrier against stains, spills, and UV damage on your vehicle's interior surfaces. Makes cleanup easier and extends the life of your upholstery.",
-    "Key Fob Replacement":
-      "Coverage for the replacement of your vehicle's electronic key fob if it's lost, damaged, or stolen. Modern key fobs can cost hundreds of dollars to replace and program.",
-    GAP: "Guaranteed Asset Protection (GAP) covers the difference between what you owe on your vehicle and what your insurance pays if your vehicle is totaled or stolen. This prevents you from making payments on a vehicle you no longer have.",
-    "Scratch/Dent Repair":
-      "Coverage for minor cosmetic repairs to your vehicle's exterior, including small dents, dings, and scratches. Helps maintain your vehicle's appearance and value without filing insurance claims.",
-  };
-
+  const productExplanations = Object.fromEntries(
+    Object.entries(productData).map(([name, data]) => [name, data.description])
+  );
   // Terms and conditions data for each plan
   const termsAndConditions = {
     platinum: {
@@ -673,80 +719,129 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSettings();
 
   // Add Product Functionality
-  const addProductButtons = document.querySelectorAll(".add-product-btn");
-  const addProductModalElement = document.getElementById("addProductModal");
-  const addProductModal = new bootstrap.Modal(addProductModalElement);
-  const addProductForm = document.getElementById("addProductForm");
-  const productNameInput = document.getElementById("productName");
-  const targetPlanInput = document.getElementById("targetPlan");
-  const saveProductBtn = document.getElementById("saveProductBtn");
+// Add Product Functionality
+const addProductButtons = document.querySelectorAll(".add-product-btn");
+const addPlanProductModalElement = document.getElementById("addPlanProductModal");
+const addPlanProductModal = new bootstrap.Modal(addPlanProductModalElement);
+const addPlanProductForm = document.getElementById("addPlanProductForm");
+const productSelect = document.getElementById("planProductSelect");
+const targetPlanInput = document.getElementById("targetPlan");
+const addPlanProductBtn = document.getElementById("addPlanProductBtn");
 
-  // Open the modal when clicking the "Add Product" button
-  addProductButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const plan = button.getAttribute("data-plan");
-      targetPlanInput.value = plan;
-      addProductModal.show();
-    });
+// List of all available products (from productExplanations)
+const availableProducts = Object.keys(productExplanations);
+
+// Function to populate the product dropdown, excluding products already in the target plan
+function populateProductDropdown(plan) {
+  productSelect.innerHTML = '<option value="" disabled selected>Choose a product</option>';
+
+  // Get products currently in the target plan's column
+  const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+  const existingItems = targetDropzone.querySelectorAll(".feature-item");
+  const existingProducts = Array.from(existingItems).map(
+    (item) => item.querySelector(".product-name").textContent
+  );
+
+  // Filter available products to exclude those already in the column
+  const productsToShow = availableProducts.filter(
+    (product) => !existingProducts.includes(product)
+  );
+
+  // Optional: Restrict to products allowed by termsAndConditions
+  // Uncomment the following block if you want to limit products to those specified in termsAndConditions
+  /*
+  const allowedProducts = termsAndConditions[plan]?.content
+    .match(/<li>([^<]+)<\/li>/g)
+    ?.map((li) => li.replace(/<li>|<\/li>/g, "").split(" with")[0].trim()) || [];
+  const productsToShow = availableProducts.filter(
+    (product) => allowedProducts.includes(product) && !existingProducts.includes(product)
+  );
+  */
+
+  // Populate dropdown
+  productsToShow.forEach((product) => {
+    const option = document.createElement("option");
+    option.value = product;
+    option.textContent = product;
+    productSelect.appendChild(option);
   });
 
-  // Handle form submission to add the new product
-  saveProductBtn.addEventListener("click", () => {
-    const productName = productNameInput.value.trim();
-    const targetPlan = targetPlanInput.value;
+  // If no products are available, disable the select and show a message
+  if (productsToShow.length === 0) {
+    productSelect.disabled = true;
+    productSelect.innerHTML = '<option value="" disabled selected>No available products</option>';
+  } else {
+    productSelect.disabled = false;
+  }
+}
 
-    if (productName === "") {
-      alert("Please enter a product name.");
-      return;
+// Open the modal when clicking the "Add Product" button
+addProductButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const plan = button.getAttribute("data-plan");
+    targetPlanInput.value = plan;
+    populateProductDropdown(plan);
+    addPlanProductModal.show();
+  });
+});
+
+// Handle form submission to add the selected product
+addPlanProductBtn.addEventListener("click", () => {
+  const productName = productSelect.value;
+  const targetPlan = targetPlanInput.value;
+
+  if (!productName) {
+    alert("Please select a product.");
+    return;
+  }
+
+  // Check for duplicates in the target plan (redundant due to dropdown filtering, but kept for safety)
+  const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
+  const existingItems = targetDropzone.querySelectorAll(".feature-item");
+  let isDuplicate = false;
+
+  existingItems.forEach((item) => {
+    const existingProductName = item.querySelector(".product-name").textContent;
+    if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+      isDuplicate = true;
     }
-
-    // Check for duplicates in the target plan
-    const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
-    const existingItems = targetDropzone.querySelectorAll(".feature-item");
-    let isDuplicate = false;
-
-    existingItems.forEach((item) => {
-      const existingProductName = item.querySelector(".product-name").textContent;
-      if (existingProductName.toLowerCase() === productName.toLowerCase()) {
-        isDuplicate = true;
-      }
-    });
-
-    if (isDuplicate) {
-      alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
-      return;
-    }
-
-    // Create a new feature item
-    const newItem = document.createElement("li");
-    newItem.classList.add("feature-item");
-    newItem.setAttribute("draggable", "true");
-    newItem.setAttribute("data-id", `p${Date.now()}`); // Unique ID using timestamp
-    newItem.setAttribute("data-plan", targetPlan);
-
-    newItem.innerHTML = `
-      <div class="feature-content">
-        <span class="feature-check ${targetPlan}-check">✓</span>
-        <span class="product-name">${productName}</span>
-        <button class="remove-product-btn" title="Remove product"></button>
-      </div>
-    `;
-
-    // Append the new item to the target dropzone
-    targetDropzone.appendChild(newItem);
-
-    // Add event listeners to the new item
-    setupDragListeners(newItem);
-    setupProductExplanationListener(newItem);
-    setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
-
-    // Reset the form and close the modal
-    addProductForm.reset();
-    addProductModal.hide();
   });
 
-  // Reset the form when the modal is closed
-  addProductModalElement.addEventListener("hidden.bs.modal", () => {
-    addProductForm.reset();
-  });
+  if (isDuplicate) {
+    alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
+    return;
+  }
+
+  // Create a new feature item
+  const newItem = document.createElement("li");
+  newItem.classList.add("feature-item");
+  newItem.setAttribute("draggable", "true");
+  newItem.setAttribute("data-id", `p${Date.now()}`); // Unique ID using timestamp
+  newItem.setAttribute("data-plan", targetPlan);
+
+  newItem.innerHTML = `
+    <div class="feature-content">
+      <span class="feature-check ${targetPlan}-check">✓</span>
+      <span class="product-name">${productName}</span>
+      <button class="remove-product-btn" title="Remove product"></button>
+    </div>
+  `;
+
+  // Append the new item to the target dropzone
+  targetDropzone.appendChild(newItem);
+
+  // Add event listeners to the new item
+  setupDragListeners(newItem);
+  setupProductExplanationListener(newItem);
+  setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
+
+  // Reset the form and close the modal
+  addPlanProductForm.reset();
+  addPlanProductModal.hide();
+});
+
+// Reset the form when the modal is closed
+addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
+  addPlanProductForm.reset();
+});
 });

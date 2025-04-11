@@ -69,12 +69,11 @@
       </thead>
       <tbody>
         <tr>
-          <td>
+          <td data-plan="platinum">
             <div class="cell-content">
               <!-- Platinum Column -->
               <div class="price-section">
-                <div class="price-main platinum-price">$49<span class="price-cents">.99</span></div>
-                
+                <div class="price-main platinum-price platinum-total">$49<span class="price-cents">.99</span></div>
                 <!-- Month Selection Dropdown -->
                 <div class="month-selector-wrapper">
                   <div class="price-monthly platinum-monthly">$407.05 Monthly</div>
@@ -94,10 +93,6 @@
                   </div>
                 </div>
               </div>
-              <button class="add-product-btn" data-plan="platinum" title="Add a new product">
-                <i class="bi bi-plus-circle"></i> Add Product
-              </button>
-              
               <ul class="feature-list kanban-dropzone" data-plan="platinum">
                 <li class="feature-item" draggable="true" data-id="p1" data-plan="platinum">
                   <div class="feature-content">
@@ -149,13 +144,15 @@
                   </div>
                 </li>
               </ul>
-              
+              <button class="add-product-btn" data-plan="platinum" title="Add a new product">
+                <i class="bi bi-plus-circle"></i> Add Product
+              </button>
               <button class="choose-button platinum">Choose</button>
               <a href="#" class="view-terms-link" data-plan="platinum">View Full Terms & Conditions</a>
             </div>
           </td>
           
-          <td>
+          <td data-plan="Gold">
             <div class="cell-content">
               <!-- Gold Column -->
               <div class="price-section">
@@ -180,10 +177,6 @@
                   </div>
                 </div>
               </div> 
-              <button class="add-product-btn" data-plan="gold" title="Add a new product">
-                <i class="bi bi-plus-circle"></i> Add Product
-              </button>
-              
               <ul class="feature-list kanban-dropzone" data-plan="gold">
                 <li class="feature-item" draggable="true" data-id="p8" data-plan="gold">
                   <div class="feature-content">
@@ -228,13 +221,15 @@
                   </div>
                 </li>
               </ul>
-              
+              <button class="add-product-btn" data-plan="gold" title="Add a new product">
+                <i class="bi bi-plus-circle"></i> Add Product
+              </button>
               <button class="choose-button gold">Choose</button>
               <a href="#" class="view-terms-link" data-plan="gold">View Full Terms & Conditions</a>
             </div>
           </td>
           
-          <td>
+          <td data-plan="silver">
             <div class="cell-content">
               <!-- Silver Column -->
               <div class="price-section">
@@ -259,10 +254,6 @@
                   </div>
                 </div>
               </div>
-
-              <button class="add-product-btn" data-plan="silver" title="Add a new product">
-                <i class="bi bi-plus-circle"></i> Add Product
-              </button>
               
               <ul class="feature-list kanban-dropzone" data-plan="silver">
                 <li class="feature-item" draggable="true" data-id="p14" data-plan="silver">
@@ -301,13 +292,15 @@
                   </div>
                 </li>
               </ul>
-              
+              <button class="add-product-btn" data-plan="silver" title="Add a new product">
+                <i class="bi bi-plus-circle"></i> Add Product
+              </button>
               <button class="choose-button silver">Choose</button>
               <a href="#" class="view-terms-link" data-plan="silver">View Full Terms & Conditions</a>
             </div>
           </td>
           
-          <td>
+          <td data-plan="Bronze">
             <div class="cell-content">
               <!-- Bronze Column -->
               <div class="price-section">
@@ -332,11 +325,6 @@
                   </div>
                 </div>
               </div>
-
-              <button class="add-product-btn" data-plan="bronze" title="Add a new product">
-                <i class="bi bi-plus-circle"></i> Add Product
-              </button>
-              
               <ul class="feature-list kanban-dropzone" data-plan="bronze">
                 <li class="feature-item" draggable="true" data-id="p19" data-plan="bronze">
                   <div class="feature-content">
@@ -360,13 +348,15 @@
                   </div>
                 </li>
               </ul>
-              
+              <button class="add-product-btn" data-plan="bronze" title="Add a new product">
+                <i class="bi bi-plus-circle"></i> Add Product
+              </button>
               <button class="choose-button bronze">Choose</button>
               <a href="#" class="view-terms-link" data-plan="bronze">View Full Terms & Conditions</a>
             </div>
           </td>
           
-          <td>
+          <td data-plan="iron">
             <div class="cell-content">
               <!-- Iron Column -->
               <div class="price-section">
@@ -391,10 +381,6 @@
                   </div>
                 </div>
               </div>
-              
-              <button class="add-product-btn" data-plan="iron" title="Add a new product">
-                <i class="bi bi-plus-circle"></i> Add Product
-              </button>
               <ul class="feature-list kanban-dropzone" data-plan="iron">
                 <li class="feature-item" draggable="true" data-id="p22" data-plan="iron">
                   <div class="feature-content">
@@ -411,7 +397,9 @@
                   </div>
                 </li>
               </ul>
-              
+              <button class="add-product-btn" data-plan="iron" title="Add a new product">
+                <i class="bi bi-plus-circle"></i> Add Product
+              </button>
               <button class="choose-button iron">Choose</button>
               <a href="#" class="view-terms-link" data-plan="iron">View Full Terms & Conditions</a>
             </div>
@@ -478,6 +466,35 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="saveProductBtn">Add Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="addPlanProductModal" tabindex="-1" aria-labelledby="addPlanProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPlanProductModalLabel">Add Product to Plan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addPlanProductForm">
+          <div class="mb-3">
+            <label for="planProductSelect" class="form-label">Select Product</label>
+            <select class="form-select" id="planProductSelect" required>
+              <option value="" disabled selected>Choose a product</option>
+              <!-- Options will be populated dynamically -->
+            </select>
+          </div>
+          <input type="hidden" id="targetPlan" name="targetPlan">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="addPlanProductBtn">Add Product</button>
       </div>
     </div>
   </div>
