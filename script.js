@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  
 
   let settings = JSON.parse(localStorage.getItem("menuSettings")) || {
     productData: {
@@ -422,6 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
     item.addEventListener("dragend", function () {
       console.log("Drag ended for item:", this);
       this.classList.remove("dragging");
+      this.style.transform = "none"; // Explicitly reset transform
       draggedItem = null;
       originalPlan = null;
     });
