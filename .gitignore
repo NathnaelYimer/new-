@@ -1,1 +1,3 @@
 .qodo
+menu-backend/.env
+menu-backend/.env.example
