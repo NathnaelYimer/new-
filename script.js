@@ -1,7 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-  
-
   let settings = JSON.parse(localStorage.getItem("menuSettings")) || {
     productData: {
       "Extended Warranty": {
@@ -52,27 +49,69 @@ document.addEventListener("DOMContentLoaded", () => {
   let productData = settings.productData;
   let productAssignments = settings.productAssignments;
 
-  // Derive productExplanations from productData
-  // (This block is removed as `productExplanations` is already declared later in the code)
+  // Function to calculate total price for a plan
+  function calculatePlanPrice(plan) {
+    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+    const items = dropzone.querySelectorAll(".feature-item");
+    let totalPrice = 0;
 
+    items.forEach((item) => {
+      const productName = item.querySelector(".product-name").textContent;
+      if (productData[productName]) {
+        totalPrice += productData[productName].price;
+      }
+    });
 
+    return totalPrice;
+  }
 
+  // Function to update plan prices in the UI
+  function updatePlanPrice(plan) {
+    const totalPrice = calculatePlanPrice(plan);
+    const termElement = document.querySelector(`.${plan}-term`);
+    const months = termElement ? parseInt(termElement.textContent.match(/\d+/)[0]) : 60;
+    const monthlyPrice = totalPrice / months;
 
+    // Update total price
+    const priceMainElement = document.querySelector(`.${plan}-price`);
+    if (priceMainElement) {
+      priceMainElement.innerHTML = `$${Math.floor(totalPrice)}<span class="price-cents">.${(totalPrice % 1).toFixed(2).slice(2)}</span>`;
+      priceMainElement.classList.add("updating");
+      setTimeout(() => priceMainElement.classList.remove("updating"), 600);
+    }
+
+    // Update monthly price
+    const monthlyElement = document.querySelector(`.${plan}-monthly`);
+    if (monthlyElement) {
+      monthlyElement.textContent = `$${monthlyPrice.toFixed(2)} Monthly`;
+      monthlyElement.classList.add("updating");
+      setTimeout(() => monthlyElement.classList.remove("updating"), 600);
+    }
+  }
+
+  // Update prices for all plans initially
+  ["platinum", "gold", "silver", "bronze", "iron"].forEach((plan) => {
+    updatePlanPrice(plan);
+  });
 
   // Add event listeners to all remove product buttons
   const setupRemoveProductListeners = () => {
     document.querySelectorAll(".remove-product-btn").forEach((button) => {
       button.addEventListener("click", function (e) {
-        e.stopPropagation(); // Prevent event bubbling
+        e.stopPropagation();
         const productItem = this.closest(".feature-item");
         if (productItem) {
-          productItem.remove();
+          const plan = productItem.getAttribute("data-plan");
+          productItem.classList.add("fade-out");
+          setTimeout(() => {
+            productItem.remove();
+            updatePlanPrice(plan); // Update price after removal
+          }, 300);
         }
       });
     });
   };
 
-  // Call the function to set up listeners when the page loads
   setupRemoveProductListeners();
 
   // Sidebar toggle functionality
@@ -81,22 +120,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebarToggle = document.getElementById("sidebar-toggle");
   const mobileToggle = document.getElementById("mobile-toggle");
 
-  // Set the sidebar to collapsed by default
   sidebar.classList.add("collapsed");
   mainContent.classList.add("expanded");
 
-  // Toggle sidebar on desktop
   sidebarToggle.addEventListener("click", () => {
     sidebar.classList.toggle("collapsed");
     mainContent.classList.toggle("expanded");
   });
 
-  // Toggle sidebar on mobile
   mobileToggle.addEventListener("click", () => {
     sidebar.classList.toggle("mobile-open");
   });
 
-  // Close sidebar when clicking outside on mobile
   document.addEventListener("click", (e) => {
     if (window.innerWidth <= 768) {
       if (
@@ -109,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Resize handler
   window.addEventListener("resize", () => {
     if (window.innerWidth > 768) {
       sidebar.classList.remove("mobile-open");
@@ -128,14 +162,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Get all month selectors
   const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item");
 
-  // Fix for dropdown toggle buttons - ensure they work properly
+  // Fix for dropdown toggle buttons
   const dropdownToggles = document.querySelectorAll(".dropdown-toggle");
   dropdownToggles.forEach((toggle) => {
     toggle.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      // Close all other dropdowns
       dropdownToggles.forEach((otherToggle) => {
         if (
           otherToggle !== toggle &&
@@ -149,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Toggle current dropdown
       const isExpanded = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", !isExpanded);
 
@@ -160,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Close dropdowns when clicking outside
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".dropdown")) {
       dropdownToggles.forEach((toggle) => {
@@ -230,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const productExplanations = Object.fromEntries(
     Object.entries(productData).map(([name, data]) => [name, data.description])
   );
+
   // Terms and conditions data for each plan
   const termsAndConditions = {
     platinum: {
@@ -407,6 +439,132 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
+  // Export Plan as PDF
+  const exportPdfBtn = document.getElementById("export-pdf-btn");
+  exportPdfBtn.addEventListener("click", () => {
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Select Plan to Export</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="planSelect" class="form-label">Choose Plan</label>
+              <select class="form-select" id="planSelect">
+                <option value="platinum">Platinum</option>
+                <option value="gold">Gold</option>
+                <option value="silver">Silver</option>
+                <option value="bronze">Bronze</option>
+                <option value="iron">Iron</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="exportConfirmBtn">Export PDF</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+
+    document.getElementById("exportConfirmBtn").addEventListener("click", () => {
+      const plan = document.getElementById("planSelect").value;
+      generatePlanPDF(plan);
+      bsModal.hide();
+      modal.remove();
+    });
+
+    modal.addEventListener("hidden.bs.modal", () => {
+      modal.remove();
+    });
+  });
+
+  // Function to generate PDF for a plan
+  function generatePlanPDF(plan) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4"
+    });
+
+    doc.setProperties({
+      title: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan Details`,
+      subject: "Dealer Gears F&I Plan",
+      author: "Dealer Gears",
+      creator: "Dealer Gears"
+    });
+
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text(`${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`, 40, 40);
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Products Included:", 40, 80);
+
+    let yPos = 100;
+    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+    const items = dropzone.querySelectorAll(".feature-item");
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    items.forEach((item, index) => {
+      const productName = item.querySelector(".product-name").textContent;
+      const description = productData[productName]?.description || "No description available.";
+      doc.text(`${index + 1}. ${productName}`, 40, yPos);
+      yPos += 15;
+      const splitDescription = doc.splitTextToSize(description, 500);
+      doc.text(splitDescription, 50, yPos);
+      yPos += splitDescription.length * 12 + 10;
+    });
+
+    const totalPrice = calculatePlanPrice(plan);
+    const termElement = document.querySelector(`.${plan}-term`);
+    const months = termElement ? parseInt(termElement.textContent.match(/\d+/)[0]) : 60;
+    const monthlyPrice = totalPrice / months;
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Pricing:", 40, yPos);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    yPos += 20;
+    doc.text(`Total Price: $${totalPrice.toFixed(2)}`, 40, yPos);
+    yPos += 15;
+    doc.text(`Monthly Payment (${months} Months): $${monthlyPrice.toFixed(2)}`, 40, yPos);
+
+    yPos += 30;
+    if (yPos > 700) {
+      doc.addPage();
+      yPos = 40;
+    }
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Terms & Conditions:", 40, yPos);
+    yPos += 20;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+
+    const terms = termsAndConditions[plan]?.content || "No terms available.";
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = terms;
+    const plainText = tempDiv.textContent || tempDiv.innerText || "";
+    const splitTerms = doc.splitTextToSize(plainText, 500);
+    doc.text(splitTerms, 40, yPos);
+    yPos += splitTerms.length * 12;
+
+    doc.save(`${plan}-plan.pdf`);
+  }
+
   // Add event listeners to all draggable items
   draggableItems.forEach((item) => {
     item.addEventListener("dragstart", function (e) {
@@ -423,7 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
     item.addEventListener("dragend", function () {
       console.log("Drag ended for item:", this);
       this.classList.remove("dragging");
-      this.style.transform = "none"; // Explicitly reset transform
+      this.style.transform = "none";
       draggedItem = null;
       originalPlan = null;
     });
@@ -456,7 +614,6 @@ document.addEventListener("DOMContentLoaded", () => {
           const productName = draggedItem.querySelector(".product-name").textContent;
           console.log("Product name:", productName);
 
-          // Check for duplicates
           const targetItems = this.querySelectorAll(".feature-item");
           let isDuplicate = false;
 
@@ -480,29 +637,28 @@ document.addEventListener("DOMContentLoaded", () => {
           const clonedItem = draggedItem.cloneNode(true);
           console.log("Cloned item:", clonedItem);
 
-          // Ensure the cloned item is draggable
           clonedItem.setAttribute("draggable", "true");
           clonedItem.setAttribute("data-plan", targetPlan);
 
-          // Update the checkmark color
           const checkmark = clonedItem.querySelector(".feature-check");
           if (checkmark) {
             checkmark.className = `feature-check ${targetPlan}-check`;
           }
 
-          // Add the item to the new dropzone
           this.appendChild(clonedItem);
           console.log("Cloned item appended to target zone:", this);
 
-          // Remove the original item
           draggedItem.remove();
           console.log("Original item removed");
 
-          // Add event listeners to the cloned item
           setupDragListeners(clonedItem);
           setupProductExplanationListener(clonedItem);
           setupRemoveButtonListener(clonedItem.querySelector(".remove-product-btn"));
           console.log("Event listeners set up on cloned item");
+
+          // Update prices for both original and target plans
+          updatePlanPrice(originalPlan);
+          updatePlanPrice(targetPlan);
         } else {
           console.log("Same plan, no move needed");
         }
@@ -537,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const productNameElement = item.querySelector(".product-name");
     if (productNameElement) {
       productNameElement.addEventListener("click", function (e) {
-        e.stopPropagation(); // Prevent drag events from interfering
+        e.stopPropagation();
         const productName = this.textContent;
         showProductExplanation(productName);
       });
@@ -548,10 +704,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function setupRemoveButtonListener(button) {
     if (button) {
       button.addEventListener("click", function (e) {
-        e.stopPropagation(); // Prevent event bubbling
+        e.stopPropagation();
         const productItem = this.closest(".feature-item");
         if (productItem) {
-          productItem.remove();
+          const plan = productItem.getAttribute("data-plan");
+          productItem.classList.add("fade-out");
+          setTimeout(() => {
+            productItem.remove();
+            updatePlanPrice(plan);
+          }, 300);
         }
       });
     }
@@ -611,13 +772,16 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
+
+      // Update plan price to reflect new term
+      updatePlanPrice(plan);
     });
   });
 
   // Add click event listeners to product names for showing explanations
   document.querySelectorAll(".product-name").forEach((productElement) => {
     productElement.addEventListener("click", function (e) {
-      e.stopPropagation(); // Prevent drag events from interfering
+      e.stopPropagation();
       const productName = this.textContent;
       showProductExplanation(productName);
     });
@@ -666,18 +830,112 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Additional remove button animation
-  document.querySelectorAll(".remove-product-btn").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const productItem = btn.closest(".feature-item");
-      if (productItem) {
-        productItem.classList.add("fade-out");
-        setTimeout(() => {
-          productItem.remove();
-        }, 300);
+  // Add Product Functionality
+  const addProductButtons = document.querySelectorAll(".add-product-btn");
+  const addPlanProductModalElement = document.getElementById("addPlanProductModal");
+  const addPlanProductModal = new bootstrap.Modal(addPlanProductModalElement);
+  const addPlanProductForm = document.getElementById("addPlanProductForm");
+  const productSelect = document.getElementById("planProductSelect");
+  const targetPlanInput = document.getElementById("targetPlan");
+  const addPlanProductBtn = document.getElementById("addPlanProductBtn");
+
+  // List of all available products
+  const availableProducts = Object.keys(productExplanations);
+
+  // Function to populate the product dropdown
+  function populateProductDropdown(plan) {
+    productSelect.innerHTML = '<option value="" disabled selected>Choose a product</option>';
+
+    const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+    const existingItems = targetDropzone.querySelectorAll(".feature-item");
+    const existingProducts = Array.from(existingItems).map(
+      (item) => item.querySelector(".product-name").textContent
+    );
+
+    const productsToShow = availableProducts.filter(
+      (product) => !existingProducts.includes(product)
+    );
+
+    productsToShow.forEach((product) => {
+      const option = document.createElement("option");
+      option.value = product;
+      option.textContent = product;
+      productSelect.appendChild(option);
+    });
+
+    if (productsToShow.length === 0) {
+      productSelect.disabled = true;
+      productSelect.innerHTML = '<option value="" disabled selected>No available products</option>';
+    } else {
+      productSelect.disabled = false;
+    }
+  }
+
+  // Open the modal when clicking the "Add Product" button
+  addProductButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const plan = button.getAttribute("data-plan");
+      targetPlanInput.value = plan;
+      populateProductDropdown(plan);
+      addPlanProductModal.show();
+    });
+  });
+
+  // Handle form submission to add the selected product
+  addPlanProductBtn.addEventListener("click", () => {
+    const productName = productSelect.value;
+    const targetPlan = targetPlanInput.value;
+
+    if (!productName) {
+      alert("Please select a product.");
+      return;
+    }
+
+    const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
+    const existingItems = targetDropzone.querySelectorAll(".feature-item");
+    let isDuplicate = false;
+
+    existingItems.forEach((item) => {
+      const existingProductName = item.querySelector(".product-name").textContent;
+      if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+        isDuplicate = true;
       }
     });
+
+    if (isDuplicate) {
+      alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
+      return;
+    }
+
+    const newItem = document.createElement("li");
+    newItem.classList.add("feature-item");
+    newItem.setAttribute("draggable", "true");
+    newItem.setAttribute("data-id", `p${Date.now()}`);
+    newItem.setAttribute("data-plan", targetPlan);
+
+    newItem.innerHTML = `
+      <div class="feature-content">
+        <span class="feature-check ${targetPlan}-check">✓</span>
+        <span class="product-name">${productName}</span>
+        <button class="remove-product-btn" title="Remove product"></button>
+      </div>
+    `;
+
+    targetDropzone.appendChild(newItem);
+
+    setupDragListeners(newItem);
+    setupProductExplanationListener(newItem);
+    setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
+
+    updatePlanPrice(targetPlan);
+
+    addPlanProductForm.reset();
+    addPlanProductModal.hide();
+  });
+
+  // Reset the form when the modal is closed
+  addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
+    addPlanProductForm.reset();
   });
 
   // Load settings if they exist
@@ -686,7 +944,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedSettings) {
       const settings = JSON.parse(savedSettings);
 
-      // Apply column names
       if (settings.columnNames) {
         document.querySelectorAll("th").forEach((th) => {
           if (th.classList.contains("platinum-bg")) th.textContent = settings.columnNames.platinum;
@@ -697,7 +954,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // Apply column visibility
       if (settings.columnVisibility) {
         const table = document.querySelector(".menu-table");
         if (table) {
@@ -717,133 +973,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Load settings when page loads
   loadSettings();
-
-  // Add Product Functionality
-// Add Product Functionality
-const addProductButtons = document.querySelectorAll(".add-product-btn");
-const addPlanProductModalElement = document.getElementById("addPlanProductModal");
-const addPlanProductModal = new bootstrap.Modal(addPlanProductModalElement);
-const addPlanProductForm = document.getElementById("addPlanProductForm");
-const productSelect = document.getElementById("planProductSelect");
-const targetPlanInput = document.getElementById("targetPlan");
-const addPlanProductBtn = document.getElementById("addPlanProductBtn");
-
-// List of all available products (from productExplanations)
-const availableProducts = Object.keys(productExplanations);
-
-// Function to populate the product dropdown, excluding products already in the target plan
-function populateProductDropdown(plan) {
-  productSelect.innerHTML = '<option value="" disabled selected>Choose a product</option>';
-
-  // Get products currently in the target plan's column
-  const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-  const existingItems = targetDropzone.querySelectorAll(".feature-item");
-  const existingProducts = Array.from(existingItems).map(
-    (item) => item.querySelector(".product-name").textContent
-  );
-
-  // Filter available products to exclude those already in the column
-  const productsToShow = availableProducts.filter(
-    (product) => !existingProducts.includes(product)
-  );
-
-  // Optional: Restrict to products allowed by termsAndConditions
-  // Uncomment the following block if you want to limit products to those specified in termsAndConditions
-  /*
-  const allowedProducts = termsAndConditions[plan]?.content
-    .match(/<li>([^<]+)<\/li>/g)
-    ?.map((li) => li.replace(/<li>|<\/li>/g, "").split(" with")[0].trim()) || [];
-  const productsToShow = availableProducts.filter(
-    (product) => allowedProducts.includes(product) && !existingProducts.includes(product)
-  );
-  */
-
-  // Populate dropdown
-  productsToShow.forEach((product) => {
-    const option = document.createElement("option");
-    option.value = product;
-    option.textContent = product;
-    productSelect.appendChild(option);
-  });
-
-  // If no products are available, disable the select and show a message
-  if (productsToShow.length === 0) {
-    productSelect.disabled = true;
-    productSelect.innerHTML = '<option value="" disabled selected>No available products</option>';
-  } else {
-    productSelect.disabled = false;
-  }
-}
-
-// Open the modal when clicking the "Add Product" button
-addProductButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const plan = button.getAttribute("data-plan");
-    targetPlanInput.value = plan;
-    populateProductDropdown(plan);
-    addPlanProductModal.show();
-  });
-});
-
-// Handle form submission to add the selected product
-addPlanProductBtn.addEventListener("click", () => {
-  const productName = productSelect.value;
-  const targetPlan = targetPlanInput.value;
-
-  if (!productName) {
-    alert("Please select a product.");
-    return;
-  }
-
-  // Check for duplicates in the target plan (redundant due to dropdown filtering, but kept for safety)
-  const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
-  const existingItems = targetDropzone.querySelectorAll(".feature-item");
-  let isDuplicate = false;
-
-  existingItems.forEach((item) => {
-    const existingProductName = item.querySelector(".product-name").textContent;
-    if (existingProductName.toLowerCase() === productName.toLowerCase()) {
-      isDuplicate = true;
-    }
-  });
-
-  if (isDuplicate) {
-    alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
-    return;
-  }
-
-  // Create a new feature item
-  const newItem = document.createElement("li");
-  newItem.classList.add("feature-item");
-  newItem.setAttribute("draggable", "true");
-  newItem.setAttribute("data-id", `p${Date.now()}`); // Unique ID using timestamp
-  newItem.setAttribute("data-plan", targetPlan);
-
-  newItem.innerHTML = `
-    <div class="feature-content">
-      <span class="feature-check ${targetPlan}-check">✓</span>
-      <span class="product-name">${productName}</span>
-      <button class="remove-product-btn" title="Remove product"></button>
-    </div>
-  `;
-
-  // Append the new item to the target dropzone
-  targetDropzone.appendChild(newItem);
-
-  // Add event listeners to the new item
-  setupDragListeners(newItem);
-  setupProductExplanationListener(newItem);
-  setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
-
-  // Reset the form and close the modal
-  addPlanProductForm.reset();
-  addPlanProductModal.hide();
-});
-
-// Reset the form when the modal is closed
-addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
-  addPlanProductForm.reset();
-});
 });

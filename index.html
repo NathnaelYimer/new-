@@ -12,6 +12,7 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="settings-styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -32,9 +33,10 @@
       <div class="menu-options sidebar-menu">
         <a href="index.html" class="active"><i class="bi bi-grid"></i> <span class="menu-text">Menu</span></a>
         <a href="settings.html"><i class="bi bi-gear"></i> <span class="menu-text">Settings</span></a>
-        <a href="#"><i class="bi bi-printer"></i> <span class="menu-text">Print</span></a>
+        <a href="#" id="export-pdf-btn"><i class="bi bi-printer"></i> <span class="menu-text">Export Plan as PDF</span></a>
       </div>
     </div>
+</div>
     
     <div class="sidebar-section">
       <div class="base-payment">

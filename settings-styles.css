@@ -817,3 +817,16 @@ body {
   outline: 2px solid var(--platinum-color);
   outline-offset: 2px;
 }
+
+
+
+
+.modal-content {
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+}
+.modal-header {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border-bottom: none;
+}

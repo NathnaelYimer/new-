@@ -1880,3 +1880,16 @@ body::before {
     min-height: 44px;
   }
 }
+
+
+
+
+.modal-content {
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+}
+.modal-header {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border-bottom: none;
+}
