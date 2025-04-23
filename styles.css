@@ -82,6 +82,10 @@
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 60px;
   --sidebar-transition: all 0.3s ease;
+
+
+  --scale-factor: 0.67;
+  --inverse-scale: 1.4925;
 }
 
 /* Premium font setup with optimized rendering */
@@ -732,8 +736,8 @@ body::before {
 
 /* Premium pricing section with enhanced typography and effects */
 .price-section {
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-bottom: 1px;
+  padding-bottom: 5px;
   position: relative;
   z-index: 10;
 }
@@ -798,7 +802,7 @@ body::before {
 .feature-list {
   text-align: left;
   list-style: none;
-  padding-top: 10px;
+  padding-top: 0.2px;
   margin-left: 0; /* Add this */
   padding-left: 0; /* Add this if you want it flush with the left edge */
   max-height: none;
@@ -806,7 +810,6 @@ body::before {
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   position: relative;
   z-index: 5;
-  margin-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -911,55 +914,39 @@ body::before {
 
 /* Premium buttons with enhanced effects */
 .choose-button {
-  color: white;
-  border: none;
-  padding: var(--space-4) 0;
-  width: 100%;
-  cursor: pointer;
-  margin-top: var(--space-5);
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
   position: absolute;
-  bottom: 35px;
+  bottom: 40px;
   left: 0;
-  transition: all var(--transition-normal);
+  width: 100%;
+  padding: var(--space-4, 12px) 0;
+  font-size: 14px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
+  text-align: center;
+  color: var(--text-light, #ffffff);
+  background-color: var(--primary-color, #2c5282);
+  border: none;
+  border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
+  cursor: pointer;
+  box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
   z-index: 2;
 }
 
-/* Add shine effect to buttons */
-.choose-button::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -100%;
-  width: 70%;
-  height: 200%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: rotate(30deg);
-  transition: transform var(--transition-slow);
-}
-
 .choose-button:hover {
-  padding-bottom: var(--space-6);
-  box-shadow: 0 -6px 15px rgba(0, 0, 0, 0.2);
-  letter-spacing: 1.5px;
-}
-
-.choose-button:hover::after {
-  transform: translateX(300%) rotate(30deg);
+  background-color: var(--primary-hover, #2b6cb0);
+  transform: translateY(-2px);
+  box-shadow: 0 -5px 12px rgba(0, 0, 0, 0.2);
 }
 
 .choose-button:active {
-  padding-bottom: var(--space-4);
-  opacity: 0.9;
   transform: scale(0.98);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.95;
 }
 
+/* Keep original color schemes for tiers */
 .choose-button.platinum {
   background: var(--platinum-gradient);
 }
@@ -980,17 +967,22 @@ body::before {
   background: var(--iron-gradient);
 }
 
+
 .cell-content {
   position: relative;
   height: 100%;
-  padding-bottom: 95px;
-  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 120px; 
 }
 
 /* Enhanced kanban dropzone with better visual feedback */
 .kanban-dropzone {
-  min-height: 50px;
-  transition: all var(--transition-normal);
+  position: relative;
+  flex-grow: 1;
+  min-height: 200px;
+  padding-bottom: var(--space-4); /* 16px */
+  list-style: none;
   border-radius: var(--radius-sm);
   margin: var(--space-2) 0;
   border: 1px dashed transparent;
@@ -999,9 +991,9 @@ body::before {
 .kanban-dropzone.highlight {
   background-color: rgba(255, 255, 255, 0.15);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
-  transform: scale(1.03);
   border-color: rgba(255, 255, 255, 0.3);
 }
+
 
 /* Add pulsing animation to highlight dropzone */
 @keyframes pulse-border {
@@ -1231,6 +1223,23 @@ body::before {
     font-size: 12px;
     opacity: 0.8;
     animation: fade-in-out 2s infinite;
+    
+
+  width: calc(100% * var(--inverse-scale)); /* Increase width to counteract scaling */
+  max-width: calc(1400px * var(--inverse-scale)); /* Adjust max-width */
+  margin: 0 auto;
+  position: relative;
+  padding: calc(var(--space-6) * var(--inverse-scale)) calc(var(--space-10) * var(--inverse-scale));
+  box-sizing: border-box;
+  transform: scale(var(--scale-factor)); /* Scale to 67% */
+  transform-origin: top center; /* Scale from top-center */
+  will-change: transform; /
+  }
+
+
+
+  .menu-container * {
+    font-size: calc(1rem * var(--inverse-scale)); /* Scale up base font size */
   }
 
   @keyframes fade-in-out {
@@ -1303,6 +1312,7 @@ body::before {
 
 .menu-table th {
   animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+  
 }
 
 .menu-table td {
@@ -1331,18 +1341,17 @@ body::before {
 
 
 .view-terms-link {
-  display: block;
+  position: absolute;
+  bottom: 10px; /* Bottom-most element */
+  left: 0;
+  width: 100%;
+  padding: 5px 0;
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
   font-size: 12px;
   text-decoration: none;
-  margin-top: 10px;
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  width: 100%;
-  padding: 5px 0;
   transition: all 0.2s ease;
+  z-index: 2;
 }
 
 .view-terms-link:hover {
@@ -1789,22 +1798,25 @@ body::before {
 .add-product-btn {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  justify-content: center;
+  width: 32px; /* Fixed square size */
+  height: 32px; /* Fixed square size */
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm); /* 6px for subtle rounding */
   color: var(--text-light);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  margin: var(--space-4) auto;
   transition: all var(--transition-normal);
-  font-size: 0.9rem;
-  font-weight: 500;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  width: fit-content;
   box-shadow: var(--shadow-sm);
+  padding: 0; /* No padding for compact square */
+  z-index: 5;
 }
+
+.add-product-btn i {
+  font-size: 1rem; /* Proportionate icon size */
+  transition: transform var(--transition-fast);
+}
+
 
 .add-product-btn[data-plan="platinum"]:hover {
   background: var(--platinum-gradient);
@@ -1842,7 +1854,7 @@ body::before {
 }
 .add-product-btn:active {
   transform: scale(0.95);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.15);
   box-shadow: var(--shadow-inner);
 }
 
@@ -1873,6 +1885,11 @@ body::before {
 .add-product-btn:hover i {
   transform: rotate(90deg);
 }
+
+
+.add-product-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+}
 @media (max-width: 768px) {
   .add-product-btn {
     padding: var(--space-4) var(--space-5);
@@ -1892,4 +1909,125 @@ body::before {
   background-color: var(--primary-color);
   color: #ffffff;
   border-bottom: none;
+}
+
+
+
+.edit-btn-wrapper {
+  position: absolute;
+  bottom: 110px; /* Positioned at bottom, above choose button */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
+  z-index: 5;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* new position for the base payment */
+
+.top-base-payment-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-4);
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.top-base-payment {
+  position: relative;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--bg-light, #ffffff10); /* fallback value */
+  text-align: right;
+  z-index: 2;
+  overflow: hidden;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.top-base-payment::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.top-base-payment:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-xl, 0 4px 20px rgba(0, 0, 0, 0.2));
+}
+
+.top-base-payment .base-payment-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-dark-soft);
+  margin-bottom: var(--space-1);
+  position: relative;
+  z-index: 1;
+}
+
+.top-base-payment .base-payment-amount {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(to right, #1a365d, #2c5282);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.menu-table {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 1200px) {
+  .top-base-payment {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .top-base-payment .base-payment-amount {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-base-payment-wrapper {
+    justify-content: flex-start;
+    margin-bottom: var(--space-3);
+  }
+
+  .top-base-payment {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 576px) {
+  .top-base-payment .base-payment-amount {
+    font-size: 18px;
+  }
+
+  .top-base-payment .base-payment-label {
+    font-size: 12px;
+  }
 }
