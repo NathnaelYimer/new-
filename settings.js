@@ -588,50 +588,78 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Load saved settings if they exist
     const loadSavedSettings = () => {
-      const savedSettings = localStorage.getItem("menuSettings")
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings)
-  
-        // Apply column names
-        if (settings.columnNames) {
-          document.getElementById("platinum-name").value = settings.columnNames.platinum
-          document.getElementById("gold-name").value = settings.columnNames.gold
-          document.getElementById("silver-name").value = settings.columnNames.silver
-          document.getElementById("bronze-name").value = settings.columnNames.bronze
-          document.getElementById("iron-name").value = settings.columnNames.iron
-  
-          // Also update column names in the product assignment table
-          document.querySelectorAll(".editable-column-name").forEach((column) => {
-            const columnType = column.getAttribute("data-column")
-            if (settings.columnNames[columnType]) {
-              column.querySelector(".column-display-name").textContent = settings.columnNames[columnType]
-            }
-          })
-        }
-  
-        // Apply column visibility
-        if (settings.columnVisibility) {
-          document.getElementById("platinum-visible").checked = settings.columnVisibility.platinum
-          document.getElementById("gold-visible").checked = settings.columnVisibility.gold
-          document.getElementById("silver-visible").checked = settings.columnVisibility.silver
-          document.getElementById("bronze-visible").checked = settings.columnVisibility.bronze
-          document.getElementById("iron-visible").checked = settings.columnVisibility.iron
-        }
-  
-        // Load product data
-        if (settings.productData) {
-          Object.assign(productData, settings.productData)
-  
-          // Update product prices in the UI
-          for (const [productName, data] of Object.entries(settings.productData)) {
-            updateProductPriceDisplays(productName, data.price)
+      let savedSettings = localStorage.getItem("menuSettings");
+      let settings;
+    
+      // If no saved settings exist, initialize with defaults (Iron hidden)
+      if (!savedSettings) {
+        settings = {
+          columnNames: {
+            platinum: "Platinum",
+            gold: "Gold",
+            silver: "Silver",
+            bronze: "Bronze",
+            iron: "Iron",
+          },
+          columnVisibility: {
+            platinum: true,
+            gold: true,
+            silver: true,
+            bronze: true,
+            iron: false // Default to hidden
+          },
+          productData: productData,
+        };
+        localStorage.setItem("menuSettings", JSON.stringify(settings));
+      } else {
+        settings = JSON.parse(savedSettings);
+      }
+    
+      // Apply column names
+      if (settings.columnNames) {
+        document.getElementById("platinum-name").value = settings.columnNames.platinum;
+        document.getElementById("gold-name").value = settings.columnNames.gold;
+        document.getElementById("silver-name").value = settings.columnNames.silver;
+        document.getElementById("bronze-name").value = settings.columnNames.bronze;
+        document.getElementById("iron-name").value = settings.columnNames.iron;
+    
+        // Update column names in the product assignment table
+        document.querySelectorAll(".editable-column-name").forEach((column) => {
+          const columnType = column.getAttribute("data-column");
+          if (settings.columnNames[columnType]) {
+            column.querySelector(".column-display-name").textContent = settings.columnNames[columnType];
           }
+        });
+    
+        // Update column visibility labels
+        document.querySelectorAll(".column-visibility .form-check-label").forEach((label) => {
+          const columnType = label.getAttribute("for").replace("-visible", "");
+          if (settings.columnNames[columnType]) {
+            label.textContent = settings.columnNames[columnType];
+          }
+        });
+      }
+    
+      // Apply column visibility
+      if (settings.columnVisibility) {
+        document.getElementById("platinum-visible").checked = settings.columnVisibility.platinum;
+        document.getElementById("gold-visible").checked = settings.columnVisibility.gold;
+        document.getElementById("silver-visible").checked = settings.columnVisibility.silver;
+        document.getElementById("bronze-visible").checked = settings.columnVisibility.bronze;
+        document.getElementById("iron-visible").checked = settings.columnVisibility.iron;
+      }
+    
+      // Load product data
+      if (settings.productData) {
+        Object.assign(productData, settings.productData);
+        for (const [productName, data] of Object.entries(settings.productData)) {
+          updateProductPriceDisplays(productName, data.price);
         }
       }
-    }
-  
+    };
+    
     // Load settings when page loads
-    loadSavedSettings()
+    loadSavedSettings();
   
     // Add drag and drop functionality for product reordering
     function setupDragAndDrop(row) {

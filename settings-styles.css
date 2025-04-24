@@ -830,3 +830,11 @@ body {
   color: #ffffff;
   border-bottom: none;
 }
+
+
+
+/* Hide the Iron column by default in the product assignment table (before JS runs) */
+.product-assignment-table th:nth-child(6),
+.product-assignment-table td:nth-child(6) {
+  display: none;
+}

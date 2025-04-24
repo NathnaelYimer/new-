@@ -163,46 +163,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item");
 
   // Fix for dropdown toggle buttons
-  const dropdownToggles = document.querySelectorAll(".dropdown-toggle");
-  dropdownToggles.forEach((toggle) => {
-    toggle.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+  
 
-      dropdownToggles.forEach((otherToggle) => {
-        if (
-          otherToggle !== toggle &&
-          otherToggle.getAttribute("aria-expanded") === "true"
-        ) {
-          otherToggle.setAttribute("aria-expanded", "false");
-          const menu = otherToggle.nextElementSibling;
-          if (menu && menu.classList.contains("dropdown-menu")) {
-            menu.style.display = "none";
-          }
-        }
-      });
-
-      const isExpanded = toggle.getAttribute("aria-expanded") === "true";
-      toggle.setAttribute("aria-expanded", !isExpanded);
-
-      const menu = toggle.nextElementSibling;
-      if (menu && menu.classList.contains("dropdown-menu")) {
-        menu.style.display = isExpanded ? "none" : "block";
-      }
-    });
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".dropdown")) {
-      dropdownToggles.forEach((toggle) => {
-        toggle.setAttribute("aria-expanded", "false");
-        const menu = toggle.nextElementSibling;
-        if (menu && menu.classList.contains("dropdown-menu")) {
-          menu.style.display = "none";
-        }
-      });
-    }
-  });
+  // document.addEventListener("click", (e) => {
+  //   if (!e.target.closest(".dropdown")) {
+  //     dropdownToggles.forEach((toggle) => {
+  //       toggle.setAttribute("aria-expanded", "false");
+  //       const menu = toggle.nextElementSibling;
+  //       if (menu && menu.classList.contains("dropdown-menu")) {
+  //         menu.style.display = "none";
+  //       }
+  //     });
+  //   }
+  // });
 
   // Variable to store the currently dragged item
   let draggedItem = null;
@@ -737,46 +710,54 @@ document.addEventListener("DOMContentLoaded", () => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-
+  
       const months = Number.parseInt(this.getAttribute("data-months"));
-      const plan = this.getAttribute("data-plan");
-
-      const termElement = document.querySelector(`.${plan}-term`);
-      if (termElement) {
-        termElement.textContent = `for ${months} months`;
-      }
-
-      const monthlyElement = document.querySelector(`.${plan}-monthly`);
-      if (monthlyElement && paymentData[plan] && paymentData[plan][months]) {
-        monthlyElement.classList.add("updating");
-        setTimeout(() => {
-          monthlyElement.textContent = `$${paymentData[plan][months].monthly.toFixed(2)} Monthly`;
-          monthlyElement.classList.remove("updating");
-        }, 300);
-      }
-
-      const dropdownItems = this.parentElement.parentElement.querySelectorAll(".dropdown-item");
-      dropdownItems.forEach((dropItem) => {
-        dropItem.classList.remove("active");
+      const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
+  
+      allPlans.forEach((plan) => {
+        const termElement = document.querySelector(`.${plan}-term`);
+        if (termElement) {
+          termElement.textContent = `for ${months} months`;
+        }
+  
+        const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
+        dropdownItems.forEach((dropItem) => {
+          const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+          if (itemMonths === months) {
+            dropItem.classList.add("active");
+          } else {
+            dropItem.classList.remove("active");
+          }
+        });
+  
+        updatePlanPrice(plan);
       });
-      this.classList.add("active");
-
+  
+      // Let Bootstrap close the dropdown
       const dropdown = this.closest(".dropdown");
       if (dropdown) {
         const toggle = dropdown.querySelector(".dropdown-toggle");
         if (toggle) {
-          toggle.setAttribute("aria-expanded", "false");
-          const menu = toggle.nextElementSibling;
-          if (menu && menu.classList.contains("dropdown-menu")) {
-            menu.style.display = "none";
-          }
+          toggle.click(); // Trigger Bootstrap’s toggle behavior
         }
       }
-
-      // Update plan price to reflect new term
-      updatePlanPrice(plan);
     });
   });
+  
+      // Close the dropdown menu of the clicked selector
+  //     const dropdown = this.closest(".dropdown");
+  //     if (dropdown) {
+  //       const toggle = dropdown.querySelector(".dropdown-toggle");
+  //       if (toggle) {
+  //         toggle.setAttribute("aria-expanded", "false");
+  //         const menu = toggle.nextElementSibling;
+  //         if (menu && menu.classList.contains("dropdown-menu")) {
+  //           menu.style.display = "none";
+  //         }
+  //       }
+  //     }
+  //   });
+  // });
 
   // Add click event listeners to product names for showing explanations
   document.querySelectorAll(".product-name").forEach((productElement) => {
@@ -892,6 +873,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
+    const addProductWrapper = targetDropzone.querySelector(".add-product-wrapper");
     const existingItems = targetDropzone.querySelectorAll(".feature-item");
     let isDuplicate = false;
 
@@ -921,7 +903,12 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    targetDropzone.appendChild(newItem);
+    // Insert the new item before the add-product-wrapper
+    if (addProductWrapper) {
+      targetDropzone.insertBefore(newItem, addProductWrapper);
+    } else {
+      targetDropzone.appendChild(newItem); // Fallback if wrapper is not found
+    }
 
     setupDragListeners(newItem);
     setupProductExplanationListener(newItem);
@@ -931,47 +918,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addPlanProductForm.reset();
     addPlanProductModal.hide();
-  });
+});
 
-  // Reset the form when the modal is closed
-  addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
+// Reset the form when the modal is closed
+addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
     addPlanProductForm.reset();
-  });
+});
 
   // Load settings if they exist
   const loadSettings = () => {
-    const savedSettings = localStorage.getItem("menuSettings");
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-
-      if (settings.columnNames) {
-        document.querySelectorAll("th").forEach((th) => {
-          if (th.classList.contains("platinum-bg")) th.textContent = settings.columnNames.platinum;
-          else if (th.classList.contains("gold-bg")) th.textContent = settings.columnNames.gold;
-          else if (th.classList.contains("silver-bg")) th.textContent = settings.columnNames.silver;
-          else if (th.classList.contains("bronze-bg")) th.textContent = settings.columnNames.bronze;
-          else if (th.classList.contains("iron-bg")) th.textContent = settings.columnNames.iron;
+    let savedSettings = localStorage.getItem("menuSettings");
+    let settings;
+  
+    // If no saved settings exist, initialize with defaults (Iron hidden)
+    if (!savedSettings) {
+      settings = {
+        columnVisibility: {
+          platinum: true,
+          gold: true,
+          silver: true,
+          bronze: true,
+          iron: false // Default to hidden
+        },
+        columnNames: {
+          platinum: "Platinum",
+          gold: "Gold",
+          silver: "Silver",
+          bronze: "Bronze",
+          iron: "Iron"
+        }
+      };
+      localStorage.setItem("menuSettings", JSON.stringify(settings));
+    } else {
+      settings = JSON.parse(savedSettings);
+    }
+  
+    // Apply column visibility
+    if (settings.columnVisibility) {
+      const table = document.querySelector(".menu-table");
+      if (table) {
+        const rows = table.querySelectorAll("tr");
+        rows.forEach((row) => {
+          const cells = row.querySelectorAll("th, td");
+          cells.forEach((cell, index) => {
+            if (index === 0) return; // Skip the first column (product names)
+            if (index === 1 && !settings.columnVisibility.platinum) cell.style.display = "none";
+            else if (index === 2 && !settings.columnVisibility.gold) cell.style.display = "none";
+            else if (index === 3 && !settings.columnVisibility.silver) cell.style.display = "none";
+            else if (index === 4 && !settings.columnVisibility.bronze) cell.style.display = "none";
+            else if (index === 5 && !settings.columnVisibility.iron) cell.style.display = "none";
+            else cell.style.display = ""; // Reset display for visible columns
+          });
         });
       }
-
-      if (settings.columnVisibility) {
-        const table = document.querySelector(".menu-table");
-        if (table) {
-          const rows = table.querySelectorAll("tr");
-          rows.forEach((row) => {
-            const cells = row.querySelectorAll("th, td");
-            cells.forEach((cell, index) => {
-              if (index === 0 && !settings.columnVisibility.platinum) cell.style.display = "none";
-              else if (index === 1 && !settings.columnVisibility.gold) cell.style.display = "none";
-              else if (index === 2 && !settings.columnVisibility.silver) cell.style.display = "none";
-              else if (index === 3 && !settings.columnVisibility.bronze) cell.style.display = "none";
-              else if (index === 4 && !settings.columnVisibility.iron) cell.style.display = "none";
-            });
-          });
-        }
-      }
+    }
+  
+    // Apply column names
+    if (settings.columnNames) {
+      document.querySelectorAll(".menu-table th").forEach((th, index) => {
+        if (index === 0) th.textContent = settings.columnNames.platinum;
+        else if (index === 1) th.textContent = settings.columnNames.gold;
+        else if (index === 2) th.textContent = settings.columnNames.silver;
+        else if (index === 3) th.textContent = settings.columnNames.bronze;
+        else if (index === 4) th.textContent = settings.columnNames.iron;
+      });
     }
   };
-
+  
+  // Call the function to apply settings on page load
   loadSettings();
 });
