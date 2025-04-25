@@ -95,47 +95,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Add event listeners to all remove product buttons
-  // const setupRemoveProductListeners = () => {
-  //   document.querySelectorAll(".remove-product-btn").forEach((button) => {
-  //     button.addEventListener("click", function (e) {
-  //       e.stopPropagation();
-  //       const productItem = this.closest(".feature-item");
-  //       if (productItem) {
-  //         const plan = productItem.getAttribute("data-plan");
-  //         productItem.classList.add("fade-out");
-  //         setTimeout(() => {
-  //           productItem.remove();
-  //           updatePlanPrice(plan); // Update price after removal
-  //         }, 300);
-  //       }
-  //     });
-  //   });
-  // };
-
-  // setupRemoveProductListeners();
-
-
-
-
-
-  document.querySelectorAll(".feature-content").forEach((contentElement) => {
-    contentElement.addEventListener("click", function (e) {
-      if (e.target.classList.contains("remove-product-btn")) {
-        // Handle remove button click
+  const setupRemoveProductListeners = () => {
+    document.querySelectorAll(".remove-product-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
         const productItem = this.closest(".feature-item");
-        const plan = productItem.getAttribute("data-plan");
-        productItem.classList.add("fade-out");
-        setTimeout(() => {
-          productItem.remove();
-          updatePlanPrice(plan);
-        }, 300);
-      } else {
-        // Handle product description click
-        const productName = this.querySelector(".product-name").textContent;
-        showProductExplanation(productName);
-      }
+        if (productItem) {
+          const plan = productItem.getAttribute("data-plan");
+          productItem.classList.add("fade-out");
+          setTimeout(() => {
+            productItem.remove();
+            updatePlanPrice(plan); // Update price after removal
+          }, 300);
+        }
+      });
     });
-  });
+  };
+
+  setupRemoveProductListeners();
 
   // Sidebar toggle functionality
   const sidebar = document.getElementById("sidebar");
@@ -783,36 +760,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // });
 
   // Add click event listeners to product names for showing explanations
-  // document.querySelectorAll(".product-name").forEach((productElement) => {
-  //   productElement.addEventListener("click", function (e) {
-  //     e.stopPropagation();
-  //     const productName = this.textContent;
-  //     showProductExplanation(productName);
-  //   });
-  // });
-
-  // Add click event listeners to feature content for showing explanations and handling remove
-document.querySelectorAll(".feature-content").forEach((contentElement) => {
-    contentElement.addEventListener("click", function (e) {
-      console.log("Clicked on feature-content"); // Debug log
-      if (e.target.classList.contains("remove-product-btn")) {
-        const productItem = this.closest(".feature-item");
-        const plan = productItem.getAttribute("data-plan");
-        productItem.classList.add("fade-out");
-        setTimeout(() => {
-          productItem.remove();
-          updatePlanPrice(plan);
-        }, 300);
-      } else {
-        const productNameElement = this.querySelector(".product-name");
-        if (productNameElement) {
-          const productName = productNameElement.textContent.trim();
-          console.log("Product name:", productName); // Debug log
-          showProductExplanation(productName);
-        } else {
-          console.error("Product name element not found");
-        }
-      }
+  document.querySelectorAll(".product-name").forEach((productElement) => {
+    productElement.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const productName = this.textContent;
+      showProductExplanation(productName);
     });
   });
 
@@ -822,10 +774,10 @@ document.querySelectorAll(".feature-content").forEach((contentElement) => {
     if (explanation) {
       const modalContent = document.getElementById("productExplanationContent");
       const modalTitle = document.getElementById("productExplanationModalLabel");
-  
+
       modalTitle.textContent = productName;
       modalContent.innerHTML = `<p>${explanation}</p>`;
-  
+
       const productModalElement = document.getElementById("productExplanationModal");
       const productModal = new bootstrap.Modal(productModalElement);
       productModal.show();
