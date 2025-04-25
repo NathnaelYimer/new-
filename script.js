@@ -760,31 +760,72 @@ document.addEventListener("DOMContentLoaded", () => {
   // });
 
   // Add click event listeners to product names for showing explanations
-  document.querySelectorAll(".product-name").forEach((productElement) => {
-    productElement.addEventListener("click", function (e) {
-      e.stopPropagation();
-      const productName = this.textContent;
-      showProductExplanation(productName);
-    });
+// Add click event listeners to product names for showing explanations
+document.querySelectorAll(".product-name").forEach((productElement) => {
+  productElement.addEventListener("click", function (e) {
+    e.stopPropagation();
+    const productName = this.textContent;
+    const plan = this.closest(".feature-item").getAttribute("data-plan");
+    showProductExplanation(productName, plan);
   });
+});
 
   // Function to show product explanation in modal
-  function showProductExplanation(productName) {
-    const explanation = productExplanations[productName];
-    if (explanation) {
-      const modalContent = document.getElementById("productExplanationContent");
-      const modalTitle = document.getElementById("productExplanationModalLabel");
+// Function to show product explanation in modal
+function showProductExplanation(productName, plan) {
+  const explanation = productExplanations[productName];
+  if (explanation) {
+    const modalContent = document.getElementById("productExplanationContent");
+    const modalTitle = document.getElementById("productExplanationModalLabel");
+    const removeFeatureBtn = document.querySelector(".remove-feature-btn");
 
-      modalTitle.textContent = productName;
-      modalContent.innerHTML = `<p>${explanation}</p>`;
+    modalTitle.textContent = productName;
+    modalContent.innerHTML = `<p>${explanation}</p>`;
 
-      const productModalElement = document.getElementById("productExplanationModal");
-      const productModal = new bootstrap.Modal(productModalElement);
-      productModal.show();
-    } else {
-      alert(`No explanation available for "${productName}".`);
-    }
+    // Set the data attributes on the Remove Feature button
+    removeFeatureBtn.setAttribute("data-product", productName);
+    removeFeatureBtn.setAttribute("data-plan", plan);
+
+    const productModalElement = document.getElementById("productExplanationModal");
+    const productModal = new bootstrap.Modal(productModalElement);
+    productModal.show();
+  } else {
+    alert(`No explanation available for "${productName}".`);
   }
+}
+
+
+// Add click event listener to the Remove Feature button in the modal
+const removeFeatureBtn = document.querySelector(".remove-feature-btn");
+removeFeatureBtn.addEventListener("click", function () {
+  const productName = this.getAttribute("data-product");
+  const plan = this.getAttribute("data-plan");
+
+  // Find the feature item in the specified plan
+  const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+  const featureItems = dropzone.querySelectorAll(".feature-item");
+  let productItem = null;
+
+  featureItems.forEach((item) => {
+    const itemProductName = item.querySelector(".product-name").textContent;
+    if (itemProductName === productName) {
+      productItem = item;
+    }
+  });
+
+  if (productItem) {
+    productItem.classList.add("fade-out");
+    setTimeout(() => {
+      productItem.remove();
+      updatePlanPrice(plan); // Update price after removal
+    }, 300);
+
+    // Close the modal
+    const productModalElement = document.getElementById("productExplanationModal");
+    const productModal = bootstrap.Modal.getInstance(productModalElement);
+    productModal.hide();
+  }
+});
 
   // Add click event listeners to "View Full Terms & Conditions" links
   document.querySelectorAll(".view-terms-link").forEach((link) => {
