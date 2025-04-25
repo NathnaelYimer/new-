@@ -1933,7 +1933,9 @@ body::before {
 
 
 
-
+.feature-item:active {
+  background-color: #f0f0f0; /* Light gray when tapped */
+}
 
 
 /* Add Product Button Styles */
