@@ -728,60 +728,45 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Add click event listeners to month selector dropdown items
-// Add click event listeners to month selector dropdown items
-    monthSelectors.forEach((item) => {
-      item.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const months = Number.parseInt(this.getAttribute("data-months"));
-        currentTerm = months; // Update the current term
-
-        const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
-
-        allPlans.forEach((plan) => {
-          const termElement = document.querySelector(`.${plan}-term`);
-          if (termElement) {
-            termElement.textContent = `for ${months} months`;
-          }
-
-          const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
-          dropdownItems.forEach((dropItem) => {
-            const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
-            if (itemMonths === months) {
-              dropItem.classList.add("active");
-            } else {
-              dropItem.classList.remove("active");
-            }
-          });
-
-          updatePlanPrice(plan);
-        });
-
-        // Update the base payment display
-        updateBasePayment();
-
-        // Let Bootstrap close the dropdown
-        const dropdown = this.closest(".dropdown");
-        if (dropdown) {
-          const toggle = dropdown.querySelector(".dropdown-toggle");
-          if (toggle) {
-            toggle.click(); // Trigger Bootstrap’s toggle behavior
-          }
+  monthSelectors.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+  
+      const months = Number.parseInt(this.getAttribute("data-months"));
+      const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
+  
+      allPlans.forEach((plan) => {
+        const termElement = document.querySelector(`.${plan}-term`);
+        if (termElement) {
+          termElement.textContent = `for ${months} months`;
         }
-      });
-    });
-      
-          // Let Bootstrap close the dropdown
-          const dropdown = this.closest(".dropdown");
-          if (dropdown) {
-            const toggle = dropdown.querySelector(".dropdown-toggle");
-            if (toggle) {
-              toggle.click(); // Trigger Bootstrap’s toggle behavior
-            }
+  
+        const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
+        dropdownItems.forEach((dropItem) => {
+          const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+          if (itemMonths === months) {
+            dropItem.classList.add("active");
+          } else {
+            dropItem.classList.remove("active");
           }
-    
-  // Close the dropdown menu of the clicked selector
+        });
+  
+        updatePlanPrice(plan);
+      });
+  
+      // Let Bootstrap close the dropdown
+      const dropdown = this.closest(".dropdown");
+      if (dropdown) {
+        const toggle = dropdown.querySelector(".dropdown-toggle");
+        if (toggle) {
+          toggle.click(); // Trigger Bootstrap’s toggle behavior
+        }
+      }
+    });
+  });
+  
+      // Close the dropdown menu of the clicked selector
   //     const dropdown = this.closest(".dropdown");
   //     if (dropdown) {
   //       const toggle = dropdown.querySelector(".dropdown-toggle");
