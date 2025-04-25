@@ -114,83 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setupRemoveProductListeners();
 
-  // Swipe functionality for removing products on mobile
-  const setupSwipeToRemove = () => {
-    const featureItems = document.querySelectorAll(".feature-item");
-    const swipeThreshold = 50; // Minimum distance (in pixels) to consider it a swipe
-
-    featureItems.forEach((item) => {
-      let touchStartX = 0;
-      let touchEndX = 0;
-
-      item.addEventListener("touchstart", (e) => {
-        touchStartX = e.touches[0].clientX;
-      });
-
-      item.addEventListener("touchmove", (e) => {
-        touchEndX = e.touches[0].clientX;
-        const deltaX = touchEndX - touchStartX;
-        // Optionally, provide visual feedback by translating the item
-        item.style.transform = `translateX(${deltaX}px)`;
-      });
-
-      item.addEventListener("touchend", () => {
-        const deltaX = touchEndX - touchStartX;
-
-        if (deltaX < -swipeThreshold) { // Swipe left
-          const plan = item.getAttribute("data-plan");
-          item.classList.add("fade-out");
-          setTimeout(() => {
-            item.remove();
-            updatePlanPrice(plan); // Update price after removal
-          }, 300);
-        }
-
-        // Reset the transform
-        item.style.transform = "translateX(0)";
-      });
-    });
-  };
-
-  setupSwipeToRemove();
-
-  // Swipe functionality for closing the product explanation modal on mobile
-  const setupSwipeToCloseModal = () => {
-    const modal = document.getElementById("productExplanationModal");
-    const modalDialog = modal.querySelector(".modal-dialog");
-    const swipeThreshold = 50; // Minimum distance (in pixels) to consider it a swipe
-
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    modalDialog.addEventListener("touchstart", (e) => {
-      touchStartX = e.touches[0].clientX;
-    });
-
-    modalDialog.addEventListener("touchmove", (e) => {
-      touchEndX = e.touches[0].clientX;
-      const deltaX = touchEndX - touchStartX;
-      // Provide visual feedback by translating the modal
-      modalDialog.style.transform = `translateX(${deltaX}px)`;
-    });
-
-    modalDialog.addEventListener("touchend", () => {
-      const deltaX = touchEndX - touchStartX;
-
-      if (deltaX < -swipeThreshold) { // Swipe left
-        const productModal = bootstrap.Modal.getInstance(modal);
-        if (productModal) {
-          productModal.hide();
-        }
-      }
-
-      // Reset the transform
-      modalDialog.style.transform = "translateX(0)";
-    });
-  };
-
-  setupSwipeToCloseModal();
-
   // Sidebar toggle functionality
   const sidebar = document.getElementById("sidebar");
   const mainContent = document.getElementById("main-content");
@@ -238,6 +161,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Get all month selectors
   const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item");
+
+  // Fix for dropdown toggle buttons
+  
+
+  // document.addEventListener("click", (e) => {
+  //   if (!e.target.closest(".dropdown")) {
+  //     dropdownToggles.forEach((toggle) => {
+  //       toggle.setAttribute("aria-expanded", "false");
+  //       const menu = toggle.nextElementSibling;
+  //       if (menu && menu.classList.contains("dropdown-menu")) {
+  //         menu.style.display = "none";
+  //       }
+  //     });
+  //   }
+  // });
 
   // Variable to store the currently dragged item
   let draggedItem = null;
@@ -664,6 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (isDuplicate) {
             console.log(`Duplicate found: "${productName}" already exists in ${targetPlan} plan.`);
+            // alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
             return;
           }
 
@@ -804,6 +743,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+  
+      // Close the dropdown menu of the clicked selector
+  //     const dropdown = this.closest(".dropdown");
+  //     if (dropdown) {
+  //       const toggle = dropdown.querySelector(".dropdown-toggle");
+  //       if (toggle) {
+  //         toggle.setAttribute("aria-expanded", "false");
+  //         const menu = toggle.nextElementSibling;
+  //         if (menu && menu.classList.contains("dropdown-menu")) {
+  //           menu.style.display = "none";
+  //         }
+  //       }
+  //     }
+  //   });
+  // });
 
   // Add click event listeners to product names for showing explanations
   document.querySelectorAll(".product-name").forEach((productElement) => {
@@ -959,18 +913,17 @@ document.addEventListener("DOMContentLoaded", () => {
     setupDragListeners(newItem);
     setupProductExplanationListener(newItem);
     setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
-    setupSwipeToRemove(); // Re-apply swipe listeners for the new item
 
     updatePlanPrice(targetPlan);
 
     addPlanProductForm.reset();
     addPlanProductModal.hide();
-  });
+});
 
-  // Reset the form when the modal is closed
-  addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
+// Reset the form when the modal is closed
+addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
     addPlanProductForm.reset();
-  });
+});
 
   // Load settings if they exist
   const loadSettings = () => {

@@ -1938,6 +1938,13 @@ body::before {
 }
 
 
+.feature-item {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.modal-dialog {
+  transition: transform 0.3s ease;
+}
+
 /* Add Product Button Styles */
 .add-product-btn {
   display: flex;
