@@ -1,7 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-
-  
   let settings = JSON.parse(localStorage.getItem("menuSettings")) || {
     productData: {
       "Extended Warranty": {
@@ -48,28 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
       iron: ["Extended Warranty", "Key Fob Replacement"]
     }
   };
+
   let productData = settings.productData;
   let productAssignments = settings.productAssignments;
-
-  // Base Protected Payment
-  const basePaymentTotal = 227.06 * 60; // Total base payment (monthly * default 60 months)
-  let currentTerm = 60; // Default term
-
-  // Function to update the Base Protected Payment display
-  function updateBasePayment() {
-    const monthlyBasePayment = basePaymentTotal / currentTerm;
-    const basePaymentAmountElement = document.querySelector(".base-payment-amount");
-    const basePaymentTermElement = document.querySelector(".base-payment-term");
-    if (basePaymentAmountElement && basePaymentTermElement) {
-      basePaymentAmountElement.innerHTML = `$${monthlyBasePayment.toFixed(2)} <span class="base-payment-term">for ${currentTerm} months</span>`;
-    }
-  }
-
-  // Initial update of base payment
-  updateBasePayment();
-  // ... rest of the script
-  // let productData = settings.productData;
-  // let productAssignments = settings.productAssignments;
 
   // Function to calculate total price for a plan
   function calculatePlanPrice(plan) {
