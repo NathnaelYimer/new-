@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+
+  
   let settings = JSON.parse(localStorage.getItem("menuSettings")) || {
     productData: {
       "Extended Warranty": {
@@ -45,9 +48,28 @@ document.addEventListener("DOMContentLoaded", () => {
       iron: ["Extended Warranty", "Key Fob Replacement"]
     }
   };
-
   let productData = settings.productData;
   let productAssignments = settings.productAssignments;
+
+  // Base Protected Payment
+  const basePaymentTotal = 227.06 * 60; // Total base payment (monthly * default 60 months)
+  let currentTerm = 60; // Default term
+
+  // Function to update the Base Protected Payment display
+  function updateBasePayment() {
+    const monthlyBasePayment = basePaymentTotal / currentTerm;
+    const basePaymentAmountElement = document.querySelector(".base-payment-amount");
+    const basePaymentTermElement = document.querySelector(".base-payment-term");
+    if (basePaymentAmountElement && basePaymentTermElement) {
+      basePaymentAmountElement.innerHTML = `$${monthlyBasePayment.toFixed(2)} <span class="base-payment-term">for ${currentTerm} months</span>`;
+    }
+  }
+
+  // Initial update of base payment
+  updateBasePayment();
+  // ... rest of the script
+  // let productData = settings.productData;
+  // let productAssignments = settings.productAssignments;
 
   // Function to calculate total price for a plan
   function calculatePlanPrice(plan) {
@@ -706,45 +728,60 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Add click event listeners to month selector dropdown items
-  monthSelectors.forEach((item) => {
-    item.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-  
-      const months = Number.parseInt(this.getAttribute("data-months"));
-      const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
-  
-      allPlans.forEach((plan) => {
-        const termElement = document.querySelector(`.${plan}-term`);
-        if (termElement) {
-          termElement.textContent = `for ${months} months`;
-        }
-  
-        const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
-        dropdownItems.forEach((dropItem) => {
-          const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
-          if (itemMonths === months) {
-            dropItem.classList.add("active");
-          } else {
-            dropItem.classList.remove("active");
+// Add click event listeners to month selector dropdown items
+    monthSelectors.forEach((item) => {
+      item.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const months = Number.parseInt(this.getAttribute("data-months"));
+        currentTerm = months; // Update the current term
+
+        const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
+
+        allPlans.forEach((plan) => {
+          const termElement = document.querySelector(`.${plan}-term`);
+          if (termElement) {
+            termElement.textContent = `for ${months} months`;
           }
+
+          const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
+          dropdownItems.forEach((dropItem) => {
+            const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+            if (itemMonths === months) {
+              dropItem.classList.add("active");
+            } else {
+              dropItem.classList.remove("active");
+            }
+          });
+
+          updatePlanPrice(plan);
         });
-  
-        updatePlanPrice(plan);
-      });
-  
-      // Let Bootstrap close the dropdown
-      const dropdown = this.closest(".dropdown");
-      if (dropdown) {
-        const toggle = dropdown.querySelector(".dropdown-toggle");
-        if (toggle) {
-          toggle.click(); // Trigger Bootstrap’s toggle behavior
+
+        // Update the base payment display
+        updateBasePayment();
+
+        // Let Bootstrap close the dropdown
+        const dropdown = this.closest(".dropdown");
+        if (dropdown) {
+          const toggle = dropdown.querySelector(".dropdown-toggle");
+          if (toggle) {
+            toggle.click(); // Trigger Bootstrap’s toggle behavior
+          }
         }
-      }
+      });
     });
-  });
-  
-      // Close the dropdown menu of the clicked selector
+      
+          // Let Bootstrap close the dropdown
+          const dropdown = this.closest(".dropdown");
+          if (dropdown) {
+            const toggle = dropdown.querySelector(".dropdown-toggle");
+            if (toggle) {
+              toggle.click(); // Trigger Bootstrap’s toggle behavior
+            }
+          }
+    
+  // Close the dropdown menu of the clicked selector
   //     const dropdown = this.closest(".dropdown");
   //     if (dropdown) {
   //       const toggle = dropdown.querySelector(".dropdown-toggle");
