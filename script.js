@@ -1,7 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-
-  
   let settings = JSON.parse(localStorage.getItem("menuSettings")) || {
     productData: {
       "Extended Warranty": {
@@ -67,9 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial update of base payment
   updateBasePayment();
-  // ... rest of the script
-  // let productData = settings.productData;
-  // let productAssignments = settings.productAssignments;
 
   // Function to calculate total price for a plan
   function calculatePlanPrice(plan) {
@@ -183,21 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Get all month selectors
   const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item");
-
-  // Fix for dropdown toggle buttons
-  
-
-  // document.addEventListener("click", (e) => {
-  //   if (!e.target.closest(".dropdown")) {
-  //     dropdownToggles.forEach((toggle) => {
-  //       toggle.setAttribute("aria-expanded", "false");
-  //       const menu = toggle.nextElementSibling;
-  //       if (menu && menu.classList.contains("dropdown-menu")) {
-  //         menu.style.display = "none";
-  //       }
-  //     });
-  //   }
-  // });
 
   // Variable to store the currently dragged item
   let draggedItem = null;
@@ -624,7 +603,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (isDuplicate) {
             console.log(`Duplicate found: "${productName}" already exists in ${targetPlan} plan.`);
-            // alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
             return;
           }
 
@@ -690,7 +668,8 @@ document.addEventListener("DOMContentLoaded", () => {
       productNameElement.addEventListener("click", function (e) {
         e.stopPropagation();
         const productName = this.textContent;
-        showProductExplanation(productName);
+        const plan = item.getAttribute("data-plan");
+        showProductExplanation(productName, plan);
       });
     }
   }
@@ -728,145 +707,114 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Add click event listeners to month selector dropdown items
-// Add click event listeners to month selector dropdown items
-    monthSelectors.forEach((item) => {
-      item.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+  monthSelectors.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
 
-        const months = Number.parseInt(this.getAttribute("data-months"));
-        currentTerm = months; // Update the current term
+      const months = Number.parseInt(this.getAttribute("data-months"));
+      currentTerm = months; // Update the current term
 
-        const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
+      const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
 
-        allPlans.forEach((plan) => {
-          const termElement = document.querySelector(`.${plan}-term`);
-          if (termElement) {
-            termElement.textContent = `for ${months} months`;
+      allPlans.forEach((plan) => {
+        const termElement = document.querySelector(`.${plan}-term`);
+        if (termElement) {
+          termElement.textContent = `for ${months} months`;
+        }
+
+        const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
+        dropdownItems.forEach((dropItem) => {
+          const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+          if (itemMonths === months) {
+            dropItem.classList.add("active");
+          } else {
+            dropItem.classList.remove("active");
           }
-
-          const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
-          dropdownItems.forEach((dropItem) => {
-            const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
-            if (itemMonths === months) {
-              dropItem.classList.add("active");
-            } else {
-              dropItem.classList.remove("active");
-            }
-          });
-
-          updatePlanPrice(plan);
         });
 
-        // Update the base payment display
-        updateBasePayment();
-
-        // Let Bootstrap close the dropdown
-        const dropdown = this.closest(".dropdown");
-        if (dropdown) {
-          const toggle = dropdown.querySelector(".dropdown-toggle");
-          if (toggle) {
-            toggle.click(); // Trigger Bootstrap’s toggle behavior
-          }
-        }
+        updatePlanPrice(plan);
       });
+
+      // Update the base payment display
+      updateBasePayment();
+
+      // Let Bootstrap close the dropdown
+      const dropdown = this.closest(".dropdown");
+      if (dropdown) {
+        const toggle = dropdown.querySelector(".dropdown-toggle");
+        if (toggle) {
+          toggle.click(); // Trigger Bootstrap’s toggle behavior
+        }
+      }
     });
-      
-          // Let Bootstrap close the dropdown
-          const dropdown = this.closest(".dropdown");
-          if (dropdown) {
-            const toggle = dropdown.querySelector(".dropdown-toggle");
-            if (toggle) {
-              toggle.click(); // Trigger Bootstrap’s toggle behavior
-            }
-          }
-    
-  // Close the dropdown menu of the clicked selector
-  //     const dropdown = this.closest(".dropdown");
-  //     if (dropdown) {
-  //       const toggle = dropdown.querySelector(".dropdown-toggle");
-  //       if (toggle) {
-  //         toggle.setAttribute("aria-expanded", "false");
-  //         const menu = toggle.nextElementSibling;
-  //         if (menu && menu.classList.contains("dropdown-menu")) {
-  //           menu.style.display = "none";
-  //         }
-  //       }
-  //     }
-  //   });
-  // });
+  });
 
   // Add click event listeners to product names for showing explanations
-// Add click event listeners to product names for showing explanations
-// Add click event listeners to product names for showing explanations
-document.querySelectorAll(".product-name").forEach((productElement) => {
-  productElement.addEventListener("click", function (e) {
-    e.stopPropagation();
-    const productName = this.textContent;
-    const plan = this.closest(".feature-item").getAttribute("data-plan");
-    showProductExplanation(productName, plan);
+  document.querySelectorAll(".product-name").forEach((productElement) => {
+    productElement.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const productName = this.textContent;
+      const plan = this.closest(".feature-item").getAttribute("data-plan");
+      showProductExplanation(productName, plan);
+    });
   });
-});
 
   // Function to show product explanation in modal
-// Function to show product explanation in modal
-// Function to show product explanation in modal
-function showProductExplanation(productName, plan) {
-  const explanation = productExplanations[productName];
-  if (explanation) {
-    const modalContent = document.getElementById("productExplanationContent");
-    const modalTitle = document.getElementById("productExplanationModalLabel");
-    const removeProductBtn = document.querySelector(".remove-product-btn-modal");
+  function showProductExplanation(productName, plan) {
+    const explanation = productExplanations[productName];
+    if (explanation) {
+      const modalContent = document.getElementById("productExplanationContent");
+      const modalTitle = document.getElementById("productExplanationModalLabel");
+      const removeProductBtn = document.querySelector(".remove-product-btn-modal");
 
-    modalTitle.textContent = productName;
-    modalContent.innerHTML = `<p>${explanation}</p>`;
+      modalTitle.textContent = productName;
+      modalContent.innerHTML = `<p>${explanation}</p>`;
 
-    // Set the data attributes and update button label
-    removeProductBtn.setAttribute("data-product", productName);
-    removeProductBtn.setAttribute("data-plan", plan);
-    removeProductBtn.textContent = `Remove ${productName}`;
+      // Set the data attributes and update button label
+      removeProductBtn.setAttribute("data-product", productName);
+      removeProductBtn.setAttribute("data-plan", plan);
+      removeProductBtn.textContent = `Remove ${productName}`;
 
-    const productModalElement = document.getElementById("productExplanationModal");
-    const productModal = new bootstrap.Modal(productModalElement);
-    productModal.show();
-  } else {
-    alert(`No explanation available for "${productName}".`);
+      const productModalElement = document.getElementById("productExplanationModal");
+      const productModal = new bootstrap.Modal(productModalElement);
+      productModal.show();
+    } else {
+      alert(`No explanation available for "${productName}".`);
+    }
   }
-}
 
+  // Add click event listener to the Remove Product button in the modal
+  const removeProductBtn = document.querySelector(".remove-product-btn-modal");
+  removeProductBtn.addEventListener("click", function () {
+    const productName = this.getAttribute("data-product");
+    const plan = this.getAttribute("data-plan");
 
-// Add click event listener to the Remove Feature button in the modal
-// Add click event listener to the Remove Product button in the modal
-const removeProductBtn = document.querySelector(".remove-product-btn-modal");
-removeProductBtn.addEventListener("click", function () {
-  const productName = this.getAttribute("data-product");
-  const plan = this.getAttribute("data-plan");
+    // Find the feature item in the specified plan
+    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+    const featureItems = dropzone.querySelectorAll(".feature-item");
+    let productItem = null;
 
-  // Find the feature item in the specified plan
-  const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-  const featureItems = dropzone.querySelectorAll(".feature-item");
-  let productItem = null;
+    featureItems.forEach((item) => {
+      const itemProductName = item.querySelector(".product-name").textContent;
+      if (itemProductName === productName) {
+        productItem = item;
+      }
+    });
 
-  featureItems.forEach((item) => {
-    const itemProductName = item.querySelector(".product-name").textContent;
-    if (itemProductName === productName) {
-      productItem = item;
+    if (productItem) {
+      productItem.classList.add("fade-out");
+      setTimeout(() => {
+        productItem.remove();
+        updatePlanPrice(plan); // Update price after removal
+      }, 300);
+
+      // Close the modal
+      const productModalElement = document.getElementById("productExplanationModal");
+      const productModal = bootstrap.Modal.getInstance(productModalElement);
+      productModal.hide();
     }
   });
-
-  if (productItem) {
-    productItem.classList.add("fade-out");
-    setTimeout(() => {
-      productItem.remove();
-      updatePlanPrice(plan); // Update price after removal
-    }, 300);
-
-    // Close the modal
-    const productModalElement = document.getElementById("productExplanationModal");
-    const productModal = bootstrap.Modal.getInstance(productModalElement);
-    productModal.hide();
-  }
-});
 
   // Add click event listeners to "View Full Terms & Conditions" links
   document.querySelectorAll(".view-terms-link").forEach((link) => {
@@ -1000,18 +948,18 @@ removeProductBtn.addEventListener("click", function () {
 
     addPlanProductForm.reset();
     addPlanProductModal.hide();
-});
+  });
 
-// Reset the form when the modal is closed
-addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
+  // Reset the form when the modal is closed
+  addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
     addPlanProductForm.reset();
-});
+  });
 
   // Load settings if they exist
   const loadSettings = () => {
     let savedSettings = localStorage.getItem("menuSettings");
     let settings;
-  
+
     // If no saved settings exist, initialize with defaults (Iron hidden)
     if (!savedSettings) {
       settings = {
@@ -1034,7 +982,7 @@ addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
     } else {
       settings = JSON.parse(savedSettings);
     }
-  
+
     // Apply column visibility
     if (settings.columnVisibility) {
       const table = document.querySelector(".menu-table");
@@ -1054,7 +1002,7 @@ addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
         });
       }
     }
-  
+
     // Apply column names
     if (settings.columnNames) {
       document.querySelectorAll(".menu-table th").forEach((th, index) => {
@@ -1066,7 +1014,7 @@ addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
       });
     }
   };
-  
+
   // Call the function to apply settings on page load
   loadSettings();
 });
