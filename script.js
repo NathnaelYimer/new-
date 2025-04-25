@@ -761,6 +761,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add click event listeners to product names for showing explanations
 // Add click event listeners to product names for showing explanations
+// Add click event listeners to product names for showing explanations
 document.querySelectorAll(".product-name").forEach((productElement) => {
   productElement.addEventListener("click", function (e) {
     e.stopPropagation();
@@ -772,19 +773,21 @@ document.querySelectorAll(".product-name").forEach((productElement) => {
 
   // Function to show product explanation in modal
 // Function to show product explanation in modal
+// Function to show product explanation in modal
 function showProductExplanation(productName, plan) {
   const explanation = productExplanations[productName];
   if (explanation) {
     const modalContent = document.getElementById("productExplanationContent");
     const modalTitle = document.getElementById("productExplanationModalLabel");
-    const removeFeatureBtn = document.querySelector(".remove-feature-btn");
+    const removeProductBtn = document.querySelector(".remove-product-btn-modal");
 
     modalTitle.textContent = productName;
     modalContent.innerHTML = `<p>${explanation}</p>`;
 
-    // Set the data attributes on the Remove Feature button
-    removeFeatureBtn.setAttribute("data-product", productName);
-    removeFeatureBtn.setAttribute("data-plan", plan);
+    // Set the data attributes and update button label
+    removeProductBtn.setAttribute("data-product", productName);
+    removeProductBtn.setAttribute("data-plan", plan);
+    removeProductBtn.textContent = `Remove ${productName}`;
 
     const productModalElement = document.getElementById("productExplanationModal");
     const productModal = new bootstrap.Modal(productModalElement);
@@ -796,8 +799,9 @@ function showProductExplanation(productName, plan) {
 
 
 // Add click event listener to the Remove Feature button in the modal
-const removeFeatureBtn = document.querySelector(".remove-feature-btn");
-removeFeatureBtn.addEventListener("click", function () {
+// Add click event listener to the Remove Product button in the modal
+const removeProductBtn = document.querySelector(".remove-product-btn-modal");
+removeProductBtn.addEventListener("click", function () {
   const productName = this.getAttribute("data-product");
   const plan = this.getAttribute("data-plan");
 
