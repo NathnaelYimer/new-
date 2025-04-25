@@ -792,7 +792,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // });
 
   // Add click event listeners to feature content for showing explanations and handling remove
-  document.querySelectorAll(".feature-content").forEach((contentElement) => {
+document.querySelectorAll(".feature-content").forEach((contentElement) => {
     contentElement.addEventListener("click", function (e) {
       console.log("Clicked on feature-content"); // Debug log
       if (e.target.classList.contains("remove-product-btn")) {
@@ -819,21 +819,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to show product explanation in modal
   function showProductExplanation(productName) {
     const explanation = productExplanations[productName];
-    console.log("Explanation for", productName, ":", explanation); // Debug log
     if (explanation) {
       const modalContent = document.getElementById("productExplanationContent");
       const modalTitle = document.getElementById("productExplanationModalLabel");
-
+  
       modalTitle.textContent = productName;
       modalContent.innerHTML = `<p>${explanation}</p>`;
-
+  
       const productModalElement = document.getElementById("productExplanationModal");
-      if (productModalElement) {
-        const productModal = new bootstrap.Modal(productModalElement);
-        productModal.show();
-      } else {
-        console.error("Modal element not found");
-      }
+      const productModal = new bootstrap.Modal(productModalElement);
+      productModal.show();
     } else {
       alert(`No explanation available for "${productName}".`);
     }
