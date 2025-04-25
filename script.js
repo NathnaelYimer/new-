@@ -602,7 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (isDuplicate) {
             console.log(`Duplicate found: "${productName}" already exists in ${targetPlan} plan.`);
-            alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
+            // alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
             return;
           }
 
