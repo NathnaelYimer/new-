@@ -2019,10 +2019,10 @@ td.price-bottom .cell-content .price-section {
 
 
 /* Hide the Iron column by default in the menu table (before JS runs) */
-.menu-table th:nth-child(5),
+/* .menu-table th:nth-child(5),
 .menu-table td:nth-child(5) {
   display: none;
-}
+} */
 
 
 
