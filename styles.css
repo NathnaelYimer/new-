@@ -777,13 +777,13 @@ body::before {
   text-shadow: 0 0 15px rgba(189, 195, 199, 0.4), 0 1px 0 #95a5a6, 0 2px 0 #7f8c8d, 0 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-.price-cents {
+/* .price-cents {
   font-size: 20px;
   vertical-align: super;
   font-weight: 600;
   margin-left: var(--space-1);
   opacity: 0.9;
-}
+} */
 
 .price-monthly {
   font-size: 15px;
@@ -792,11 +792,11 @@ body::before {
   font-weight: 500;
 }
 
-.price-term {
+/* .price-term {
   font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
-}
+} */
 
 /* Premium feature list with enhanced scrolling and animations */
 .feature-list {
@@ -1053,15 +1053,11 @@ td.price-bottom .cell-content .price-section {
 }
 
 .price-cents {
-  font-size: 20px;
+  font-size: 20px; 
   vertical-align: super;
-  font-weight: 600;
-  margin-left: var(--space-1);
-  opacity: 0.9;
 }
 .price-term {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 13px; 
   font-style: italic;
 }
 
