@@ -54,6 +54,103 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentTerm = 60; // Default term
 
   // Function to update the Base Protected Payment display
+
+  let priceSettings = JSON.parse(localStorage.getItem("priceSettings")) || {
+    position: "top",
+    type: "cash",
+  };
+
+  // Function to update the Base Protected Payment display
+  function updateBasePayment() {
+    const monthlyBasePayment = basePaymentTotal / currentTerm;
+    const basePaymentAmountElement = document.querySelector(".base-payment-amount");
+    const basePaymentTermElement = document.querySelector(".base-payment-term");
+    if (basePaymentAmountElement && basePaymentTermElement) {
+      basePaymentAmountElement.innerHTML = `$${monthlyBasePayment.toFixed(2)} <span class="base-payment-term">for ${currentTerm} months</span>`;
+    }
+  }
+
+  // Function to calculate total price for a plan
+  function calculatePlanPrice(plan) {
+    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+    const items = dropzone.querySelectorAll(".feature-item");
+    let totalPrice = 0;
+
+    items.forEach((item) => {
+      const productName = item.querySelector(".product-name").textContent;
+      if (productData[productName]) {
+        totalPrice += productData[productName].price;
+      }
+    });
+
+    return totalPrice;
+  }
+
+  // **New Updated Function to Calculate and Display Plan Prices Based on Settings**
+  function updatePlanPrice(plan) {
+    const totalPrice = calculatePlanPrice(plan);
+    const termElement = document.querySelector(`.${plan}-term`);
+    const months = termElement ? parseInt(termElement.textContent.match(/\d+/)[0]) : 60;
+    const monthlyPrice = totalPrice / months;
+
+    const priceDisplayElement = document.querySelector(`td[data-plan="${plan}"] .price-display`);
+    if (priceDisplayElement) {
+      if (priceSettings.type === "cash") {
+        priceDisplayElement.innerHTML = `$${Math.floor(totalPrice)}<span class="price-cents">.${(totalPrice % 1).toFixed(2).slice(2)}</span>`;
+      } else if (priceSettings.type === "financed") {
+        priceDisplayElement.innerHTML = `$${monthlyPrice.toFixed(2)} <span class="price-term">per month for ${months} months</span>`;
+      }
+      priceDisplayElement.classList.add("updating");
+      setTimeout(() => priceDisplayElement.classList.remove("updating"), 600);
+    }
+  }
+
+  // **New Function to Apply Price Settings**
+  function applyPriceSettings() {
+    const menuContainer = document.querySelector(".menu-container");
+    menuContainer.classList.remove("price-top", "price-bottom");
+    menuContainer.classList.add(`price-${priceSettings.position}`);
+
+    // Update all plan prices
+    ["platinum", "gold", "silver", "bronze", "iron"].forEach((plan) => {
+      updatePlanPrice(plan);
+    });
+  }
+
+  // Initial update of base payment
+  updateBasePayment();
+
+  // **Apply Price Settings on Page Load (Replaces Initial Price Updates)**
+  applyPriceSettings();
+
+  // **Make Price Tappable to Open Settings Modal**
+  document.querySelectorAll(".price-display").forEach((priceElement) => {
+    priceElement.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent interference with other click events
+      // Populate modal with current settings
+      document.querySelector(`input[name="pricePosition"][value="${priceSettings.position}"]`).checked = true;
+      document.querySelector(`input[name="priceType"][value="${priceSettings.type}"]`).checked = true;
+
+      const priceSettingsModal = new bootstrap.Modal(document.getElementById("priceSettingsModal"));
+      priceSettingsModal.show();
+    });
+  });
+
+  // **Save Settings When User Clicks "Save Changes"**
+  document.getElementById("savePriceSettings").addEventListener("click", () => {
+    const position = document.querySelector("input[name='pricePosition']:checked").value;
+    const type = document.querySelector("input[name='priceType']:checked").value;
+
+    priceSettings = { position, type };
+    localStorage.setItem("priceSettings", JSON.stringify(priceSettings));
+    applyPriceSettings();
+
+    const priceSettingsModal = bootstrap.Modal.getInstance(document.getElementById("priceSettingsModal"));
+    priceSettingsModal.hide();
+  });
+
+  // Add event listeners to all remove product buttons
+  
   function updateBasePayment() {
     const monthlyBasePayment = basePaymentTotal / currentTerm;
     const basePaymentAmountElement = document.querySelector(".base-payment-amount");
