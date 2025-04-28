@@ -81,7 +81,7 @@
             <div class="cell-content">
               <!-- Platinum Column -->
               <div class="price-section">
-                <div class="price-main platinum-price platinum-total">$49<span class="price-cents">.99</span></div>
+                <div class="price-display platinum-price platinum-total">$49<span class="price-cents">.99</span></div>
                 <!-- Month Selection Dropdown -->
                 <div class="month-selector-wrapper">
                   <!-- <div class="price-monthly platinum-monthly">$407.05 Monthly</div> -->
@@ -166,7 +166,7 @@
             <div class="cell-content">
               <!-- Gold Column -->
               <div class="price-section">
-                <div class="price-main gold-price">$45<span class="price-cents">.19</span></div>
+                <div class="price-display gold-price">$45<span class="price-cents">.19</span></div>
                 
                 <!-- Month Selection Dropdown -->
                 <div class="month-selector-wrapper">
@@ -245,7 +245,7 @@
             <div class="cell-content">
               <!-- Silver Column -->
               <div class="price-section">
-                <div class="price-main silver-price">$43<span class="price-cents">.11</div>
+                <div class="price-display silver-price">$43<span class="price-cents">.11</div>
                 
                 <!-- Month Selection Dropdown -->
                 <div class="month-selector-wrapper">
@@ -318,7 +318,7 @@
             <div class="cell-content">
               <!-- Bronze Column -->
               <div class="price-section">
-                <div class="price-main bronze-price">$39<span class="price-cents">.44</span></div>
+                <div class="price-display bronze-price">$39<span class="price-cents">.44</span></div>
                 
                 <!-- Month Selection Dropdown -->
                 <div class="month-selector-wrapper">
@@ -376,7 +376,7 @@
             <div class="cell-content">
               <!-- Iron Column -->
               <div class="price-section">
-                <div class="price-main iron-price">$28<span class="price-cents">.44</span></div>
+                <div class="price-display iron-price">$28<span class="price-cents">.44</span></div>
                 
                 <!-- Month Selection Dropdown -->
                 <div class="month-selector-wrapper">
@@ -520,7 +520,47 @@
     </div>
   </div>
 </div>
-
+<!-- Price Settings Modal -->
+<div class="modal fade" id="priceSettingsModal" tabindex="-1" aria-labelledby="priceSettingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--bg-dark-soft); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <h5 class="modal-title" id="priceSettingsModalLabel" style="color: var(--text-light); font-weight: 600;">Price Display Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+      </div>
+      <div class="modal-body">
+        <form id="priceSettingsForm" style="color: var(--text-light-soft);">
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 500;">Price Position</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="pricePosition" id="priceTop" value="top" checked style="accent-color: var(--platinum-color);">
+              <label class="form-check-label" for="priceTop">Top</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="pricePosition" id="priceBottom" value="bottom" style="accent-color: var(--platinum-color);">
+              <label class="form-check-label" for="priceBottom">Bottom</label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 500;">Price Type</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="priceType" id="priceCash" value="cash" checked style="accent-color: var(--platinum-color);">
+              <label class="form-check-label" for="priceCash">Cash (Total Price)</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="priceType" id="priceFinanced" value="financed" style="accent-color: var(--platinum-color);">
+              <label class="form-check-label" for="priceFinanced">Financed (Monthly Payment)</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: rgba(255, 255, 255, 0.1); color: var(--text-light); border: none;">Close</button>
+        <button type="button" class="btn btn-primary" id="savePriceSettings" style="background: var(--platinum-gradient); border: none; box-shadow: var(--shadow-md);">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Bootstrap JS Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script>

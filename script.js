@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
       bronze: ["Extended Warranty", "Key Fob Replacement", "GAP"],
       iron: ["Extended Warranty", "Key Fob Replacement"]
     }
+    
   };
   let productData = settings.productData;
   let productAssignments = settings.productAssignments;
@@ -618,8 +619,15 @@ document.addEventListener("DOMContentLoaded", () => {
             checkmark.className = `feature-check ${targetPlan}-check`;
           }
 
-          this.appendChild(clonedItem);
-          console.log("Cloned item appended to target zone:", this);
+          // Insert the cloned item before the "Add Product" wrapper
+          const addProductWrapper = this.querySelector('.add-product-wrapper');
+          if (addProductWrapper) {
+            this.insertBefore(clonedItem, addProductWrapper);
+            console.log("Cloned item inserted before addProductWrapper");
+          } else {
+            this.appendChild(clonedItem);
+            console.log("Add product wrapper not found, appended to end as fallback");
+          }
 
           draggedItem.remove();
           console.log("Original item removed");
