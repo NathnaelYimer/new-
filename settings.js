@@ -677,8 +677,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".product-cell").forEach((cell) => {
         const firstDiv = cell.querySelector("div:first-child")
         if (firstDiv) {
-          const text = firstDiv.textContent
-          firstDiv.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${text}`
+            const text = firstDiv.textContent.trim();
+          firstDiv.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${text}`;        
         }
       })
   
