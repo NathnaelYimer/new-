@@ -65,6 +65,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentPlan = null; // Tracks the plan being edited
 
+  // Mock function to calculate total price (replace with real logic)
+  function calculatePlanPrice(plan) {
+    const prices = {
+      platinum: 49.99,
+      gold: 39.99,
+      silver: 29.99,
+      bronze: 19.99,
+      iron: 9.99
+    };
+    return prices[plan] || 0;
+  }
+
   // Apply settings to each column
   function applyPriceSettings() {
     ["platinum", "gold", "silver", "bronze", "iron"].forEach(plan => {
@@ -79,41 +91,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Update price display for a specific plan
   function updatePlanPrice(plan) {
-    const totalPrice = calculatePlanPrice(plan); // Assume this function exists
-    const months = 60; // Example; adjust based on your logic
+    const totalPrice = calculatePlanPrice(plan);
+    const months = 60; // Assume a fixed term; adjust as needed
     const monthlyPrice = totalPrice / months;
-    const priceDisplay = document.querySelector(`td[data-plan="${plan}"] .price-display`);
 
-    if (priceSettings[plan].type === "cash") {
-      priceDisplay.innerHTML = `$${Math.floor(totalPrice)}<span class="price-cents">.${(totalPrice % 1).toFixed(2).slice(2)}</span>`;
-    } else if (priceSettings[plan].type === "financed") {
-      priceDisplay.innerHTML = `$${monthlyPrice.toFixed(2)} <span class="price-term">per month for ${months} months</span>`;
+    const priceDisplayElement = document.querySelector(`td[data-plan="${plan}"] .price-display`);
+    if (priceDisplayElement) {
+      if (priceSettings[plan].type === "cash") {
+        priceDisplayElement.innerHTML = `$${Math.floor(totalPrice)}<span class="price-cents">.${(totalPrice % 1).toFixed(2).slice(2)}</span>`;
+      } else if (priceSettings[plan].type === "financed") {
+        priceDisplayElement.innerHTML = `$${monthlyPrice.toFixed(2)} <span class="price-term">per month for ${months} months</span>`;
+      }
+      priceDisplayElement.classList.add("updating");
+      setTimeout(() => priceDisplayElement.classList.remove("updating"), 600);
     }
-  }
-
-  // Dummy price calculation (replace with your logic)
-  function calculatePlanPrice(plan) {
-    const prices = { platinum: 49.99, gold: 39.99, silver: 29.99, bronze: 19.99, iron: 9.99 };
-    return prices[plan] || 0;
   }
 
   // Apply settings on load
   applyPriceSettings();
 
-  // Open modal when price is tapped
-  document.querySelectorAll(".price-display").forEach(priceElement => {
+  // Make price tappable to open settings modal
+  document.querySelectorAll(".price-display").forEach((priceElement) => {
     priceElement.addEventListener("click", (e) => {
       e.stopPropagation();
       currentPlan = priceElement.closest("td").getAttribute("data-plan");
-      document.getElementById("priceSettingsModalLabel").textContent = 
-        `Price Display Settings for ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Plan`;
+      document.getElementById("priceSettingsModalLabel").textContent = `Price Display Settings for ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Plan`;
       document.querySelector(`input[name="pricePosition"][value="${priceSettings[currentPlan].position}"]`).checked = true;
       document.querySelector(`input[name="priceType"][value="${priceSettings[currentPlan].type}"]`).checked = true;
-      new bootstrap.Modal(document.getElementById("priceSettingsModal")).show();
+      const priceSettingsModal = new bootstrap.Modal(document.getElementById("priceSettingsModal"));
+      priceSettingsModal.show();
     });
   });
 
-  // Save settings for the specific plan
+  // Save settings when the user clicks "Save Changes"
   document.getElementById("savePriceSettings").addEventListener("click", () => {
     if (currentPlan) {
       const position = document.querySelector("input[name='pricePosition']:checked").value;
@@ -121,10 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
       priceSettings[currentPlan] = { position, type };
       localStorage.setItem("priceSettings", JSON.stringify(priceSettings));
       applyPriceSettings();
-      bootstrap.Modal.getInstance(document.getElementById("priceSettingsModal")).hide();
+      const priceSettingsModal = bootstrap.Modal.getInstance(document.getElementById("priceSettingsModal"));
+      priceSettingsModal.hide();
     }
   });
-
   // Add event listeners to all remove product buttons
   
   function updateBasePayment() {

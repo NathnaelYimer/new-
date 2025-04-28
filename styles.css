@@ -934,6 +934,7 @@ body::before {
   box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.15);
   transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
   z-index: 2;
+  margin-top: 1rem;
 }
 
 .choose-button:hover {
@@ -974,6 +975,7 @@ body::before {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
   padding-bottom: 120px; /* Space for buttons/links */
 }
 .cell-content .price-section { order: 0; }
@@ -1011,9 +1013,10 @@ td.price-bottom .cell-content .price-section {
   margin-top: var(--space-4); /* Adds spacing when price is at bottom */
 }
 .price-display {
-  font-size: 42px;
-  font-weight: 800;
   cursor: pointer;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
 }
 .price-display:hover {
   transform: scale(1.05);
@@ -1025,6 +1028,16 @@ td.price-bottom .cell-content .price-section {
 }
 .price-display.updating {
   animation: fadeInOut 0.6s ease;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+td {
+  vertical-align: top;
+  padding: 1rem;
 }
 
 .platinum-price {
@@ -1053,12 +1066,14 @@ td.price-bottom .cell-content .price-section {
 }
 
 .price-cents {
-  font-size: 20px; 
+  font-size: 0.75em;
   vertical-align: super;
 }
 .price-term {
-  font-size: 13px; 
+  /* font-size: 13px;  */
   font-style: italic;
+  font-size: 0.75em;
+  color: #666;
 }
 
 /* Enhanced kanban dropzone with better visual feedback */
@@ -1437,6 +1452,8 @@ td.price-bottom .cell-content .price-section {
   text-decoration: none;
   transition: all 0.2s ease;
   z-index: 2;
+  display: block;
+  margin-top: 0.5rem;
 }
 
 .view-terms-link:hover {
