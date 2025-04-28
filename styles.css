@@ -974,8 +974,16 @@ body::before {
   display: flex;
   flex-direction: column;
   height: 100%;
-  position: relative;
-  padding-bottom: 120px; /* Retained from your original CSS */
+  padding-bottom: 120px; /* Space for buttons/links */
+}
+.cell-content .price-section { order: 0; }
+.cell-content .feature-list { order: 1; }
+.cell-content .choose-button { order: 2; }
+.cell-content .view-terms-link { order: 3; }
+td.price-bottom .cell-content .feature-list { order: 0; }
+td.price-bottom .cell-content .price-section { 
+  order: 1; 
+  margin-top: var(--space-4); /* Adjust spacing as needed */
 }
 
 .cell-content .price-section {
@@ -1003,10 +1011,9 @@ body::before {
   margin-top: var(--space-4); /* Adds spacing when price is at bottom */
 }
 .price-display {
+  font-size: 42px;
+  font-weight: 800;
   cursor: pointer;
-  transition: transform var(--transition-fast), opacity var(--transition-fast);
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
 }
 .price-display:hover {
   transform: scale(1.05);
