@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
       bronze: ["Extended Warranty", "Key Fob Replacement", "GAP"],
       iron: ["Extended Warranty", "Key Fob Replacement"]
     }
-    
   };
   let productData = settings.productData;
   let productAssignments = settings.productAssignments;
@@ -52,8 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Base Protected Payment
   const basePaymentTotal = 227.06 * 60; // Total base payment (monthly * default 60 months)
   let currentTerm = 60; // Default term
-
-  // Function to update the Base Protected Payment display
 
   let priceSettings = JSON.parse(localStorage.getItem("priceSettings")) || {
     platinum: { position: "top", type: "cash" },
@@ -65,19 +62,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentPlan = null; // Tracks the plan being edited
 
-  // Mock function to calculate total price (replace with real logic)
+  // Function to calculate total price for a plan
   function calculatePlanPrice(plan) {
-    const prices = {
-      platinum: 49.99,
-      gold: 39.99,
-      silver: 29.99,
-      bronze: 19.99,
-      iron: 9.99
-    };
-    return prices[plan] || 0;
+    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+    const items = dropzone ? dropzone.querySelectorAll(".feature-item") : [];
+    let totalPrice = 0;
+
+    items.forEach((item) => {
+      const productName = item.querySelector(".product-name").textContent;
+      if (productData[productName]) {
+        totalPrice += productData[productName].price;
+      }
+    });
+
+    return totalPrice;
   }
 
-  // Apply settings to each column
+  // Function to apply price settings to each column
   function applyPriceSettings() {
     ["platinum", "gold", "silver", "bronze", "iron"].forEach(plan => {
       const td = document.querySelector(`td[data-plan="${plan}"]`);
@@ -89,11 +90,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Update price display for a specific plan
+  // Function to update plan prices in the UI
   function updatePlanPrice(plan) {
     const totalPrice = calculatePlanPrice(plan);
-    const months = 60; // Assume a fixed term; adjust as needed
+    const termElement = document.querySelector(`.${plan}-term`);
+    const months = termElement ? parseInt(termElement.textContent.match(/\d+/)[0]) : 60;
     const monthlyPrice = totalPrice / months;
+
+    const priceMainElement = document.querySelector(`.${plan}-price`);
+    if (priceMainElement) {
+      priceMainElement.innerHTML = `$${Math.floor(totalPrice)}<span class="price-cents">.${(totalPrice % 1).toFixed(2).slice(2)}</span>`;
+      priceMainElement.classList.add("updating");
+      setTimeout(() => priceMainElement.classList.remove("updating"), 600);
+    }
 
     const priceDisplayElement = document.querySelector(`td[data-plan="${plan}"] .price-display`);
     if (priceDisplayElement) {
@@ -115,84 +124,50 @@ document.addEventListener("DOMContentLoaded", () => {
     priceElement.addEventListener("click", (e) => {
       e.stopPropagation();
       currentPlan = priceElement.closest("td").getAttribute("data-plan");
-      document.getElementById("priceSettingsModalLabel").textContent = `Price Display Settings for ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Plan`;
-      document.querySelector(`input[name="pricePosition"][value="${priceSettings[currentPlan].position}"]`).checked = true;
-      document.querySelector(`input[name="priceType"][value="${priceSettings[currentPlan].type}"]`).checked = true;
-      const priceSettingsModal = new bootstrap.Modal(document.getElementById("priceSettingsModal"));
-      priceSettingsModal.show();
+      const modalLabel = document.getElementById("priceSettingsModalLabel");
+      const positionInput = document.querySelector(`input[name="pricePosition"][value="${priceSettings[currentPlan].position}"]`);
+      const typeInput = document.querySelector(`input[name="priceType"][value="${priceSettings[currentPlan].type}"]`);
+      if (modalLabel && positionInput && typeInput) {
+        modalLabel.textContent = `Price Display Settings for ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Plan`;
+        positionInput.checked = true;
+        typeInput.checked = true;
+        const priceSettingsModal = new bootstrap.Modal(document.getElementById("priceSettingsModal"));
+        priceSettingsModal.show();
+      }
     });
   });
 
   // Save settings when the user clicks "Save Changes"
-  document.getElementById("savePriceSettings").addEventListener("click", () => {
-    if (currentPlan) {
-      const position = document.querySelector("input[name='pricePosition']:checked").value;
-      const type = document.querySelector("input[name='priceType']:checked").value;
-      priceSettings[currentPlan] = { position, type };
-      localStorage.setItem("priceSettings", JSON.stringify(priceSettings));
-      applyPriceSettings();
-      const priceSettingsModal = bootstrap.Modal.getInstance(document.getElementById("priceSettingsModal"));
-      priceSettingsModal.hide();
-    }
-  });
-  // Add event listeners to all remove product buttons
-  
+  const savePriceSettingsBtn = document.getElementById("savePriceSettings");
+  if (savePriceSettingsBtn) {
+    savePriceSettingsBtn.addEventListener("click", () => {
+      if (currentPlan) {
+        const position = document.querySelector("input[name='pricePosition']:checked")?.value;
+        const type = document.querySelector("input[name='priceType']:checked")?.value;
+        if (position && type) {
+          priceSettings[currentPlan] = { position, type };
+          localStorage.setItem("priceSettings", JSON.stringify(priceSettings));
+          applyPriceSettings();
+          const priceSettingsModal = bootstrap.Modal.getInstance(document.getElementById("priceSettingsModal"));
+          if (priceSettingsModal) {
+            priceSettingsModal.hide();
+          }
+        }
+      }
+    });
+  }
+
+  // Function to update the Base Protected Payment display
   function updateBasePayment() {
     const monthlyBasePayment = basePaymentTotal / currentTerm;
     const basePaymentAmountElement = document.querySelector(".base-payment-amount");
-    const basePaymentTermElement = document.querySelector(".base-payment-term");
-    if (basePaymentAmountElement && basePaymentTermElement) {
+    if (basePaymentAmountElement) {
       basePaymentAmountElement.innerHTML = `$${monthlyBasePayment.toFixed(2)} <span class="base-payment-term">for ${currentTerm} months</span>`;
     }
   }
 
   // Initial update of base payment
   updateBasePayment();
-
-  // Function to calculate total price for a plan
-  function calculatePlanPrice(plan) {
-    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-    const items = dropzone.querySelectorAll(".feature-item");
-    let totalPrice = 0;
-
-    items.forEach((item) => {
-      const productName = item.querySelector(".product-name").textContent;
-      if (productData[productName]) {
-        totalPrice += productData[productName].price;
-      }
-    });
-
-    return totalPrice;
-  }
-
-  // Function to update plan prices in the UI
-  function updatePlanPrice(plan) {
-    const totalPrice = calculatePlanPrice(plan);
-    const termElement = document.querySelector(`.${plan}-term`);
-    const months = termElement ? parseInt(termElement.textContent.match(/\d+/)[0]) : 60;
-    const monthlyPrice = totalPrice / months;
-
-    // Update total price
-    const priceMainElement = document.querySelector(`.${plan}-price`);
-    if (priceMainElement) {
-      priceMainElement.innerHTML = `$${Math.floor(totalPrice)}<span class="price-cents">.${(totalPrice % 1).toFixed(2).slice(2)}</span>`;
-      priceMainElement.classList.add("updating");
-      setTimeout(() => priceMainElement.classList.remove("updating"), 600);
-    }
-
-    // Update monthly price
-    const monthlyElement = document.querySelector(`.${plan}-monthly`);
-    if (monthlyElement) {
-      monthlyElement.textContent = `$${monthlyPrice.toFixed(2)} Monthly`;
-      monthlyElement.classList.add("updating");
-      setTimeout(() => monthlyElement.classList.remove("updating"), 600);
-    }
-  }
-
-  // Update prices for all plans initially
-  ["platinum", "gold", "silver", "bronze", "iron"].forEach((plan) => {
-    updatePlanPrice(plan);
-  });
 
   // Add event listeners to all remove product buttons
   const setupRemoveProductListeners = () => {
@@ -220,20 +195,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebarToggle = document.getElementById("sidebar-toggle");
   const mobileToggle = document.getElementById("mobile-toggle");
 
-  sidebar.classList.add("collapsed");
-  mainContent.classList.add("expanded");
+  if (sidebar && mainContent) {
+    sidebar.classList.add("collapsed");
+    mainContent.classList.add("expanded");
+  }
 
-  sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("collapsed");
-    mainContent.classList.toggle("expanded");
-  });
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener("click", () => {
+      if (sidebar && mainContent) {
+        sidebar.classList.toggle("collapsed");
+        mainContent.classList.toggle("expanded");
+      }
+    });
+  }
 
-  mobileToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("mobile-open");
-  });
+  if (mobileToggle) {
+    mobileToggle.addEventListener("click", () => {
+      if (sidebar) {
+        sidebar.classList.toggle("mobile-open");
+      }
+    });
+  }
 
   document.addEventListener("click", (e) => {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 768 && sidebar && mobileToggle) {
       if (
         !sidebar.contains(e.target) &&
         e.target !== mobileToggle &&
@@ -245,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > 768 && sidebar) {
       sidebar.classList.remove("mobile-open");
     }
   });
@@ -499,51 +484,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Export Plan as PDF
   const exportPdfBtn = document.getElementById("export-pdf-btn");
-  exportPdfBtn.addEventListener("click", () => {
-    const modal = document.createElement("div");
-    modal.className = "modal fade";
-    modal.innerHTML = `
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Select Plan to Export</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="planSelect" class="form-label">Choose Plan</label>
-              <select class="form-select" id="planSelect">
-                <option value="platinum">Platinum</option>
-                <option value="gold">Gold</option>
-                <option value="silver">Silver</option>
-                <option value="bronze">Bronze</option>
-                <option value="iron">Iron</option>
-              </select>
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener("click", () => {
+      const modal = document.createElement("div");
+      modal.className = "modal fade";
+      modal.innerHTML = `
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Select Plan to Export</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="planSelect" class="form-label">Choose Plan</label>
+                <select class="form-select" id="planSelect">
+                  <option value="platinum">Platinum</option>
+                  <option value="gold">Gold</option>
+                  <option value="silver">Silver</option>
+                  <option value="bronze">Bronze</option>
+                  <option value="iron">Iron</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="exportConfirmBtn">Export PDF</button>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="exportConfirmBtn">Export PDF</button>
-          </div>
         </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
+      `;
+      document.body.appendChild(modal);
 
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
 
-    document.getElementById("exportConfirmBtn").addEventListener("click", () => {
-      const plan = document.getElementById("planSelect").value;
-      generatePlanPDF(plan);
-      bsModal.hide();
-      modal.remove();
+      const exportConfirmBtn = document.getElementById("exportConfirmBtn");
+      if (exportConfirmBtn) {
+        exportConfirmBtn.addEventListener("click", () => {
+          const plan = document.getElementById("planSelect").value;
+          generatePlanPDF(plan);
+          bsModal.hide();
+          modal.remove();
+        });
+      }
+
+      modal.addEventListener("hidden.bs.modal", () => {
+        modal.remove();
+      });
     });
-
-    modal.addEventListener("hidden.bs.modal", () => {
-      modal.remove();
-    });
-  });
+  }
 
   // Function to generate PDF for a plan
   function generatePlanPDF(plan) {
@@ -571,7 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let yPos = 100;
     const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-    const items = dropzone.querySelectorAll(".feature-item");
+    const items = dropzone ? dropzone.querySelectorAll(".feature-item") : [];
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
@@ -588,7 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalPrice = calculatePlanPrice(plan);
     const termElement = document.querySelector(`.${plan}-term`);
     const months = termElement ? parseInt(termElement.textContent.match(/\d+/)[0]) : 60;
-    const monthlyPrice = totalPrice / months;
+    const monthlyPrice = paymentData[plan][months]?.monthly || (totalPrice / months);
 
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -702,7 +692,6 @@ document.addEventListener("DOMContentLoaded", () => {
             checkmark.className = `feature-check ${targetPlan}-check`;
           }
 
-          // Insert the cloned item before the "Add Product" wrapper
           const addProductWrapper = this.querySelector('.add-product-wrapper');
           if (addProductWrapper) {
             this.insertBefore(clonedItem, addProductWrapper);
@@ -720,7 +709,6 @@ document.addEventListener("DOMContentLoaded", () => {
           setupRemoveButtonListener(clonedItem.querySelector(".remove-product-btn"));
           console.log("Event listeners set up on cloned item");
 
-          // Update prices for both original and target plans
           updatePlanPrice(originalPlan);
           updatePlanPrice(targetPlan);
         } else {
@@ -734,22 +722,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to set up drag listeners for a new item
   function setupDragListeners(item) {
-    item.addEventListener("dragstart", function (e) {
-      console.log("Setting up dragstart for cloned item:", this);
-      draggedItem = this;
-      originalPlan = this.getAttribute("data-plan");
-      setTimeout(() => {
-        this.classList.add("dragging");
-      }, 0);
-      e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
-    });
+    if (item) {
+      item.addEventListener("dragstart", function (e) {
+        console.log("Setting up dragstart for cloned item:", this);
+        draggedItem = this;
+        originalPlan = this.getAttribute("data-plan");
+        setTimeout(() => {
+          this.classList.add("dragging");
+        }, 0);
+        e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
+      });
 
-    item.addEventListener("dragend", function () {
-      console.log("Drag ended for cloned item:", this);
-      this.classList.remove("dragging");
-      draggedItem = null;
-      originalPlan = null;
-    });
+      item.addEventListener("dragend", function () {
+        console.log("Drag ended for cloned item:", this);
+        this.classList.remove("dragging");
+        draggedItem = null;
+        originalPlan = null;
+      });
+    }
   }
 
   // Function to set up product explanation click event
@@ -804,7 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.stopPropagation();
 
       const months = Number.parseInt(this.getAttribute("data-months"));
-      currentTerm = months; // Update the current term
+      currentTerm = months;
 
       const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
 
@@ -827,15 +817,13 @@ document.addEventListener("DOMContentLoaded", () => {
         updatePlanPrice(plan);
       });
 
-      // Update the base payment display
       updateBasePayment();
 
-      // Let Bootstrap close the dropdown
       const dropdown = this.closest(".dropdown");
       if (dropdown) {
         const toggle = dropdown.querySelector(".dropdown-toggle");
         if (toggle) {
-          toggle.click(); // Trigger Bootstrap’s toggle behavior
+          toggle.click();
         }
       }
     });
@@ -859,17 +847,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const modalTitle = document.getElementById("productExplanationModalLabel");
       const removeProductBtn = document.querySelector(".remove-product-btn-modal");
 
-      modalTitle.textContent = productName;
-      modalContent.innerHTML = `<p>${explanation}</p>`;
+      if (modalContent && modalTitle && removeProductBtn) {
+        modalTitle.textContent = productName;
+        modalContent.innerHTML = `<p>${explanation}</p>`;
+        removeProductBtn.setAttribute("data-product", productName);
+        removeProductBtn.setAttribute("data-plan", plan);
+        removeProductBtn.textContent = `Remove ${productName}`;
 
-      // Set the data attributes and update button label
-      removeProductBtn.setAttribute("data-product", productName);
-      removeProductBtn.setAttribute("data-plan", plan);
-      removeProductBtn.textContent = `Remove ${productName}`;
-
-      const productModalElement = document.getElementById("productExplanationModal");
-      const productModal = new bootstrap.Modal(productModalElement);
-      productModal.show();
+        const productModalElement = document.getElementById("productExplanationModal");
+        if (productModalElement) {
+          const productModal = new bootstrap.Modal(productModalElement);
+          productModal.show();
+        }
+      } else {
+        alert(`No explanation available for "${productName}".`);
+      }
     } else {
       alert(`No explanation available for "${productName}".`);
     }
@@ -877,35 +869,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add click event listener to the Remove Product button in the modal
   const removeProductBtn = document.querySelector(".remove-product-btn-modal");
-  removeProductBtn.addEventListener("click", function () {
-    const productName = this.getAttribute("data-product");
-    const plan = this.getAttribute("data-plan");
+  if (removeProductBtn) {
+    removeProductBtn.addEventListener("click", function () {
+      const productName = this.getAttribute("data-product");
+      const plan = this.getAttribute("data-plan");
 
-    // Find the feature item in the specified plan
-    const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-    const featureItems = dropzone.querySelectorAll(".feature-item");
-    let productItem = null;
+      const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+      const featureItems = dropzone ? dropzone.querySelectorAll(".feature-item") : [];
+      let productItem = null;
 
-    featureItems.forEach((item) => {
-      const itemProductName = item.querySelector(".product-name").textContent;
-      if (itemProductName === productName) {
-        productItem = item;
+      featureItems.forEach((item) => {
+        const itemProductName = item.querySelector(".product-name").textContent;
+        if (itemProductName === productName) {
+          productItem = item;
+        }
+      });
+
+      if (productItem) {
+        productItem.classList.add("fade-out");
+        setTimeout(() => {
+          productItem.remove();
+          updatePlanPrice(plan);
+        }, 300);
+
+        const productModalElement = document.getElementById("productExplanationModal");
+        const productModal = bootstrap.Modal.getInstance(productModalElement);
+        if (productModal) {
+          productModal.hide();
+        }
       }
     });
-
-    if (productItem) {
-      productItem.classList.add("fade-out");
-      setTimeout(() => {
-        productItem.remove();
-        updatePlanPrice(plan); // Update price after removal
-      }, 300);
-
-      // Close the modal
-      const productModalElement = document.getElementById("productExplanationModal");
-      const productModal = bootstrap.Modal.getInstance(productModalElement);
-      productModal.hide();
-    }
-  });
+  }
 
   // Add click event listeners to "View Full Terms & Conditions" links
   document.querySelectorAll(".view-terms-link").forEach((link) => {
@@ -923,19 +917,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const modalContent = document.getElementById("termsModalContent");
       const modalTitle = document.getElementById("termsModalLabel");
 
-      modalTitle.textContent = termsData.title;
-      modalContent.innerHTML = termsData.content;
+      if (modalContent && modalTitle) {
+        modalTitle.textContent = termsData.title;
+        modalContent.innerHTML = termsData.content;
 
-      const termsModalElement = document.getElementById("termsModal");
-      const termsModal = new bootstrap.Modal(termsModalElement);
-      termsModal.show();
+        const termsModalElement = document.getElementById("termsModal");
+        if (termsModalElement) {
+          const termsModal = new bootstrap.Modal(termsModalElement);
+          termsModal.show();
+        }
+      }
     }
   }
 
   // Add Product Functionality
   const addProductButtons = document.querySelectorAll(".add-product-btn");
   const addPlanProductModalElement = document.getElementById("addPlanProductModal");
-  const addPlanProductModal = new bootstrap.Modal(addPlanProductModalElement);
+  const addPlanProductModal = addPlanProductModalElement ? new bootstrap.Modal(addPlanProductModalElement) : null;
   const addPlanProductForm = document.getElementById("addPlanProductForm");
   const productSelect = document.getElementById("planProductSelect");
   const targetPlanInput = document.getElementById("targetPlan");
@@ -946,30 +944,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to populate the product dropdown
   function populateProductDropdown(plan) {
-    productSelect.innerHTML = '<option value="" disabled selected>Choose a product</option>';
+    if (productSelect) {
+      productSelect.innerHTML = '<option value="" disabled selected>Choose a product</option>';
 
-    const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-    const existingItems = targetDropzone.querySelectorAll(".feature-item");
-    const existingProducts = Array.from(existingItems).map(
-      (item) => item.querySelector(".product-name").textContent
-    );
+      const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
+      const existingItems = targetDropzone ? targetDropzone.querySelectorAll(".feature-item") : [];
+      const existingProducts = Array.from(existingItems).map(
+        (item) => item.querySelector(".product-name").textContent
+      );
 
-    const productsToShow = availableProducts.filter(
-      (product) => !existingProducts.includes(product)
-    );
+      const productsToShow = availableProducts.filter(
+        (product) => !existingProducts.includes(product)
+      );
 
-    productsToShow.forEach((product) => {
-      const option = document.createElement("option");
-      option.value = product;
-      option.textContent = product;
-      productSelect.appendChild(option);
-    });
+      productsToShow.forEach((product) => {
+        const option = document.createElement("option");
+        option.value = product;
+        option.textContent = product;
+        productSelect.appendChild(option);
+      });
 
-    if (productsToShow.length === 0) {
-      productSelect.disabled = true;
-      productSelect.innerHTML = '<option value="" disabled selected>No available products</option>';
-    } else {
-      productSelect.disabled = false;
+      if (productsToShow.length === 0) {
+        productSelect.disabled = true;
+        productSelect.innerHTML = '<option value="" disabled selected>No available products</option>';
+      } else {
+        productSelect.disabled = false;
+      }
     }
   }
 
@@ -977,81 +977,91 @@ document.addEventListener("DOMContentLoaded", () => {
   addProductButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const plan = button.getAttribute("data-plan");
-      targetPlanInput.value = plan;
-      populateProductDropdown(plan);
-      addPlanProductModal.show();
+      if (targetPlanInput && addPlanProductModal) {
+        targetPlanInput.value = plan;
+        populateProductDropdown(plan);
+        addPlanProductModal.show();
+      }
     });
   });
 
   // Handle form submission to add the selected product
-  addPlanProductBtn.addEventListener("click", () => {
-    const productName = productSelect.value;
-    const targetPlan = targetPlanInput.value;
+  if (addPlanProductBtn) {
+    addPlanProductBtn.addEventListener("click", () => {
+      const productName = productSelect?.value;
+      const targetPlan = targetPlanInput?.value;
 
-    if (!productName) {
-      alert("Please select a product.");
-      return;
-    }
+      if (!productName) {
+        alert("Please select a product.");
+        return;
+      }
 
-    const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
-    const addProductWrapper = targetDropzone.querySelector(".add-product-wrapper");
-    const existingItems = targetDropzone.querySelectorAll(".feature-item");
-    let isDuplicate = false;
+      const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`);
+      const addProductWrapper = targetDropzone?.querySelector(".add-product-wrapper");
+      const existingItems = targetDropzone ? targetDropzone.querySelectorAll(".feature-item") : [];
+      let isDuplicate = false;
 
-    existingItems.forEach((item) => {
-      const existingProductName = item.querySelector(".product-name").textContent;
-      if (existingProductName.toLowerCase() === productName.toLowerCase()) {
-        isDuplicate = true;
+      existingItems.forEach((item) => {
+        const existingProductName = item.querySelector(".product-name").textContent;
+        if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+          isDuplicate = true;
+        }
+      });
+
+      if (isDuplicate) {
+        alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
+        return;
+      }
+
+      const newItem = document.createElement("li");
+      newItem.classList.add("feature-item");
+      newItem.setAttribute("draggable", "true");
+      newItem.setAttribute("data-id", `p${Date.now()}`);
+      newItem.setAttribute("data-plan", targetPlan);
+
+      newItem.innerHTML = `
+        <div class="feature-content">
+          <span class="feature-check ${targetPlan}-check">✓</span>
+          <span class="product-name">${productName}</span>
+          <button class="remove-product-btn" title="Remove product"></button>
+        </div>
+      `;
+
+      if (addProductWrapper) {
+        targetDropzone.insertBefore(newItem, addProductWrapper);
+      } else if (targetDropzone) {
+        targetDropzone.appendChild(newItem);
+      }
+
+      setupDragListeners(newItem);
+      setupProductExplanationListener(newItem);
+      setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
+
+      updatePlanPrice(targetPlan);
+
+      if (addPlanProductForm) {
+        addPlanProductForm.reset();
+      }
+      if (addPlanProductModal) {
+        addPlanProductModal.hide();
       }
     });
-
-    if (isDuplicate) {
-      alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
-      return;
-    }
-
-    const newItem = document.createElement("li");
-    newItem.classList.add("feature-item");
-    newItem.setAttribute("draggable", "true");
-    newItem.setAttribute("data-id", `p${Date.now()}`);
-    newItem.setAttribute("data-plan", targetPlan);
-
-    newItem.innerHTML = `
-      <div class="feature-content">
-        <span class="feature-check ${targetPlan}-check">✓</span>
-        <span class="product-name">${productName}</span>
-        <button class="remove-product-btn" title="Remove product"></button>
-      </div>
-    `;
-
-    // Insert the new item before the add-product-wrapper
-    if (addProductWrapper) {
-      targetDropzone.insertBefore(newItem, addProductWrapper);
-    } else {
-      targetDropzone.appendChild(newItem); // Fallback if wrapper is not found
-    }
-
-    setupDragListeners(newItem);
-    setupProductExplanationListener(newItem);
-    setupRemoveButtonListener(newItem.querySelector(".remove-product-btn"));
-
-    updatePlanPrice(targetPlan);
-
-    addPlanProductForm.reset();
-    addPlanProductModal.hide();
-  });
+  }
 
   // Reset the form when the modal is closed
-  addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
-    addPlanProductForm.reset();
-  });
+  if (addPlanProductModalElement) {
+    addPlanProductModalElement.addEventListener("hidden.bs.modal", () => {
+      if (addPlanProductForm) {
+        addPlanProductForm.reset();
+      }
+    });
+  }
 
   // Load settings if they exist
   const loadSettings = () => {
     let savedSettings = localStorage.getItem("menuSettings");
     let settings;
 
-    // If no saved settings exist, initialize with defaults (Iron hidden)
     if (!savedSettings) {
       settings = {
         columnVisibility: {
@@ -1059,7 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
           gold: true,
           silver: true,
           bronze: true,
-          iron: false // Default to hidden
+          iron: false
         },
         columnNames: {
           platinum: "Platinum",
@@ -1074,7 +1084,6 @@ document.addEventListener("DOMContentLoaded", () => {
       settings = JSON.parse(savedSettings);
     }
 
-    // Apply column visibility
     if (settings.columnVisibility) {
       const table = document.querySelector(".menu-table");
       if (table) {
@@ -1082,26 +1091,24 @@ document.addEventListener("DOMContentLoaded", () => {
         rows.forEach((row) => {
           const cells = row.querySelectorAll("th, td");
           cells.forEach((cell, index) => {
-            if (index === 0) return; // Skip the first column (product names)
-            if (index === 1 && !settings.columnVisibility.platinum) cell.style.display = "none";
-            else if (index === 2 && !settings.columnVisibility.gold) cell.style.display = "none";
-            else if (index === 3 && !settings.columnVisibility.silver) cell.style.display = "none";
-            else if (index === 4 && !settings.columnVisibility.bronze) cell.style.display = "none";
-            else if (index === 5 && !settings.columnVisibility.iron) cell.style.display = "none";
-            else cell.style.display = ""; // Reset display for visible columns
+            if (index === 0 && !settings.columnVisibility.iron) cell.style.display = "none";
+            else if (index === 1 && !settings.columnVisibility.bronze) cell.style.display = "none";
+            else if (index === 2 && !settings.columnVisibility.silver) cell.style.display = "none";
+            else if (index === 3 && !settings.columnVisibility.gold) cell.style.display = "none";
+            else if (index === 4 && !settings.columnVisibility.platinum) cell.style.display = "none";
+            else cell.style.display = "";
           });
         });
       }
     }
 
-    // Apply column names
     if (settings.columnNames) {
       document.querySelectorAll(".menu-table th").forEach((th, index) => {
-        if (index === 0) th.textContent = settings.columnNames.platinum;
-        else if (index === 1) th.textContent = settings.columnNames.gold;
+        if (index === 0) th.textContent = settings.columnNames.iron;
+        else if (index === 1) th.textContent = settings.columnNames.bronze;
         else if (index === 2) th.textContent = settings.columnNames.silver;
-        else if (index === 3) th.textContent = settings.columnNames.bronze;
-        else if (index === 4) th.textContent = settings.columnNames.iron;
+        else if (index === 3) th.textContent = settings.columnNames.gold;
+        else if (index === 4) th.textContent = settings.columnNames.platinum;
       });
     }
   };
