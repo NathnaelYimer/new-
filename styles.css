@@ -1070,10 +1070,8 @@ td {
   vertical-align: super;
 }
 .price-term {
-  /* font-size: 13px;  */
+  font-size: 13px; 
   font-style: italic;
-  font-size: 0.75em;
-  color: #666;
 }
 
 /* Enhanced kanban dropzone with better visual feedback */
