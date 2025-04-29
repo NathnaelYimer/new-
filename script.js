@@ -538,6 +538,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to generate PDF for a plan
   function generatePlanPDF(plan) {
     const { jsPDF } = window.jspdf;
+    
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "pt",
@@ -788,14 +789,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Add click event listeners to month selector dropdown items
-  monthSelectors.forEach((item) => {
-    item.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
+// Add click event listeners to month selector dropdown items
+monthSelectors.forEach((item) => {
+  item.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-      const months = Number.parseInt(this.getAttribute("data-months"));
+    const months = Number.parseInt(this.getAttribute("data-months"));
+    const selectedPlan = this.getAttribute("data-plan"); // Get the plan of the selected dropdown
+    const leaderColumn = settings.columnVisibility.iron ? "iron" : "bronze"; // Determine the leader column
+
+    if (selectedPlan === leaderColumn) {
+      // If the selected column is the leader column, update all columns
       currentTerm = months;
-
       const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
 
       allPlans.forEach((plan) => {
@@ -818,16 +824,35 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       updateBasePayment();
-
-      const dropdown = this.closest(".dropdown");
-      if (dropdown) {
-        const toggle = dropdown.querySelector(".dropdown-toggle");
-        if (toggle) {
-          toggle.click();
-        }
+    } else {
+      // If the selected column is not the leader column, update only the selected column
+      const termElement = document.querySelector(`.${selectedPlan}-term`);
+      if (termElement) {
+        termElement.textContent = `for ${months} months`;
       }
-    });
+
+      const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${selectedPlan}"]`);
+      dropdownItems.forEach((dropItem) => {
+        const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+        if (itemMonths === months) {
+          dropItem.classList.add("active");
+        } else {
+          dropItem.classList.remove("active");
+        }
+      });
+
+      updatePlanPrice(selectedPlan);
+    }
+
+    const dropdown = this.closest(".dropdown");
+    if (dropdown) {
+      const toggle = dropdown.querySelector(".dropdown-toggle");
+      if (toggle) {
+        toggle.click();
+      }
+    }
   });
+});
 
   // Add click event listeners to product names for showing explanations
   document.querySelectorAll(".product-name").forEach((productElement) => {
