@@ -150,7 +150,7 @@ body::before {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-modal);
+  z-index: 1001; /* Increased from var(--z-modal) to ensure dominance */
   transition: var(--sidebar-transition);
   display: flex;
   flex-direction: column;
@@ -553,7 +553,7 @@ body::before {
   border-collapse: separate;
   border-spacing: 10px;
   table-layout: fixed;
-  margin: 0 auto;
+  margin: 80px auto 0; /* Added top margin to prevent overlap */
   position: relative;
 }
 
@@ -2113,3 +2113,429 @@ td.price-bottom .cell-content .price-section {
   padding: var(--space-2) 0; /* NEW: Adds vertical spacing */
 }
 
+
+
+
+/* iPad and Tablet Optimizations (max-width: 1024px) */
+@media (max-width: 1024px) {
+  /* Adjust the menu-table to use Flexbox for reordering */
+  .menu-table thead,
+  .menu-table tbody {
+    display: block;
+  }
+
+  .menu-table tr {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Reorder the th elements (headers) */
+  .menu-table thead tr {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-table th.platinum-bg {
+    order: 1; /* Platinum first */
+  }
+  .menu-table th.iron-bg {
+    order: 2; /* Iron second */
+  }
+  .menu-table th.bronze-bg {
+    order: 3; /* Bronze third */
+  }
+  .menu-table th.silver-bg {
+    order: 4; /* Silver fourth */
+  }
+  .menu-table th.gold-bg {
+    order: 5; /* Gold fifth */
+  }
+
+  /* Reorder the td elements (content) */
+  .menu-table tbody tr {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-table td[data-plan="platinum"] {
+    order: 1; /* Platinum first */
+  }
+  .menu-table td[data-plan="iron"] {
+    order: 2; /* Iron second */
+  }
+  .menu-table td[data-plan="bronze"] {
+    order: 3; /* Bronze third */
+  }
+  .menu-table td[data-plan="silver"] {
+    order: 4; /* Silver fourth */
+  }
+  .menu-table td[data-plan="gold"] {
+    order: 5; /* Gold fifth */
+  }
+
+  /* Ensure the features are displayed below each plan */
+  .menu-table td .cell-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-table td .feature-list {
+    margin-top: var(--space-2);
+  }
+}
+
+
+/* iPad Optimization (1024px and below, covering iPad Pro, Air, and Mini) */
+/* iPad Optimization (1024px and below, covering iPad Pro, Air, and Mini) */
+@media (max-width: 1024px) {
+  /* Menu Container - Adjust padding and remove scaling */
+  .menu-container {
+    padding: var(--space-4) var(--space-5);
+    max-width: 100%;
+    transform: none;
+    transform-origin: initial;
+    font-size: 1rem;
+  }
+
+  /* Menu Table - Convert to block layout for vertical stacking */
+  .menu-table {
+    display: block;
+    width: 100%;
+    border-spacing: 0;
+    margin-bottom: var(--space-8);
+    overflow-x: visible;
+    white-space: normal;
+  }
+
+  /* Container for paired sections */
+  .menu-table-pairs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* Each paired section (header + content) */
+  .menu-table-pair {
+    display: block;
+    width: 100%;
+  }
+
+  /* Style the header within each pair */
+  .menu-table-pair .menu-table-header {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: var(--space-5);
+    font-size: clamp(16px, 2.5vw, 18px);
+    position: relative;
+    z-index: var(--z-above);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Style the content within each pair */
+  .menu-table-pair .menu-table-content {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 380px;
+    margin-top: 0; /* Ensure it connects directly to the header */
+    margin-bottom: var(--space-6);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    padding: var(--space-6) var(--space-5);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Remove width constraints for columns */
+  .platinum-bg, .gold-bg, .silver-bg, .bronze-bg, .iron-bg {
+    width: 100%;
+  }
+
+  /* Cell Content - Ensure proper spacing */
+  .cell-content {
+    padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Price Section - Larger and touch-friendly */
+  .price-display {
+    font-size: clamp(30px, 4vw, 34px);
+  }
+  .price-cents {
+    font-size: clamp(16px, 2vw, 18px);
+  }
+  .price-term {
+    font-size: clamp(13px, 1.8vw, 14px);
+  }
+
+  /* Feature List - Scrollable with optimized height */
+  .feature-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: var(--space-4);
+    padding-right: var(--space-2);
+  }
+  .feature-item {
+    padding: var(--space-3) var(--space-4);
+    font-size: clamp(12px, 1.8vw, 13px);
+    margin-bottom: var(--space-3);
+    min-height: 44px;
+    align-items: center;
+  }
+  .feature-check {
+    font-size: 18px;
+    margin-right: var(--space-3);
+  }
+
+  /* Buttons - Larger touch targets */
+  .choose-button {
+    bottom: 30px;
+    padding: var(--space-4) 0;
+    font-size: 14px;
+    min-height: 48px;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+  .add-product-btn {
+    min-height: 48px;
+    font-size: 14px;
+    padding: var(--space-3) var(--space-4);
+  }
+  .remove-product-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.35rem;
+    right: 10px;
+    top: 10px;
+  }
+
+  /* Top Base Payment - Centered and larger */
+  .top-base-payment-wrapper {
+    justify-content: center;
+    margin-bottom: var(--space-4);
+  }
+  .top-base-payment {
+    max-width: 450px;
+    width: 100%;
+    padding: var(--space-4) var(--space-6);
+    min-height: 65px;
+  }
+  .top-base-payment .base-payment-label {
+    font-size: 16px;
+  }
+  .top-base-payment .base-payment-amount {
+    font-size: 22px;
+  }
+
+  /* Sidebar - Adjusted width and overlay */
+  .sidebar {
+    width: 280px;
+    transform: translateX(-100%);
+    z-index: var(--z-overlay);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  .mobile-toggle-container {
+    display: flex;
+    padding: var(--space-5);
+    background-color: var(--bg-dark-soft);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .mobile-toggle {
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 26px;
+  }
+
+  /* Modals - Optimized for iPad */
+  .modal-dialog {
+    max-width: 90%;
+    margin: var(--space-4) auto;
+  }
+  .modal-content {
+    background-color: var(--bg-dark);
+    backdrop-filter: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+  }
+  .modal-header {
+    background: var(--platinum-gradient);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: var(--space-4);
+  }
+  .modal-footer {
+    padding: var(--space-4);
+  }
+  .modal-body {
+    padding: var(--space-5);
+  }
+
+  /* Performance Optimizations - Remove heavy effects */
+  .menu-table td,
+  .menu-top-section,
+  .sidebar,
+  .modal-content {
+    backdrop-filter: none;
+    background-color: var(--bg-dark);
+  }
+}
+
+
+/* iPad Mini and Smaller Tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .menu-container {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .menu-table th,
+  .menu-table td {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .menu-table td {
+    min-height: 350px;
+  }
+
+  .price-display {
+    font-size: clamp(28px, 4vw, 32px);
+  }
+
+  .feature-list {
+    max-height: 200px;
+  }
+
+  .feature-item {
+    font-size: 12px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .choose-button {
+    bottom: 25px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .add-product-btn {
+    min-height: 44px;
+    font-size: 13px;
+  }
+
+  .top-base-payment {
+    padding: var(--space-3) var(--space-5);
+    min-height: 60px;
+  }
+  .top-base-payment .base-payment-label {
+    font-size: 15px;
+  }
+  .top-base-payment .base-payment-amount {
+    font-size: 20px;
+  }
+
+  .sidebar {
+    width: 260px;
+  }
+
+  .modal-dialog {
+    max-width: 95%;
+  }
+}
+
+
+
+/* @media (max-width: 1024px) {
+  .fi-header, 
+  .menu-header,
+  .header-container {
+    display: none !important;
+  }
+} */
+
+
+ /* Add these CSS rules */
+.base-payment-top-left {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.mobile-toggle-container {
+  display: none !important;
+}
+/* @media (max-width: 1024px) {
+  /* Hide the mobile title header */
+  .mobile-title {
+    display: none !important;
+  }
+  
+  /* Hide any other top headers */
+  .main-content h1,
+  .main-content .header-title {
+    display: none !important;
+  }
+  
+  /* Keep the sidebar and its header visible */
+  .sidebar, 
+  .sidebar-header {
+    display: block !important;
+  }
+
+/* Add to your CSS */
+/* Hide mobile header on iPad */
+@media (max-width: 1024px) {
+  .mobile-toggle-container {
+    display: none !important;
+  }
+}
+
+/* Ensure sidebar remains accessible */
+.sidebar-header .sidebar-toggle {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  z-index: 1002; /* Higher than both sidebar and payment */
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+/* Mobile header removal */
+.mobile-toggle-container {
+  display: none !important;
+}
+
+/* Base Payment positioning */
+.base-payment-top-left {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width); /* Dynamic positioning */
+  width: calc(100% - var(--sidebar-width));
+  margin-left: 20px; /* Breathing space */
+  z-index: 999; /* Lower than sidebar elements */
+  /* Rest of your existing styles */
+}
+.sidebar.collapsed ~ .main-content .base-payment-top-left {
+  left: 60px; /* Match collapsed sidebar width */
+  width: calc(100% - 60px);
+}
+@media (max-width: 768px) {
+  .base-payment-top-left {
+    padding: 8px 15px;
+    font-size: 0.9em;
+  }
+  
+  .menu-table {
+    margin-top: 60px; /* Reduce top margin on mobile */
+  }
+}

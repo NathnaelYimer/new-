@@ -233,6 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.innerWidth > 768 && sidebar) {
       sidebar.classList.remove("mobile-open");
     }
+    adjustTableLayout(); // Call the layout adjustment on resize
   });
 
   // Get all draggable items
@@ -788,6 +789,302 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+
+// Function to reattach event listeners to dynamically created elements
+function reattachEventListeners() {
+  // Reattach draggable item listeners
+  const draggableItems = document.querySelectorAll(".feature-item");
+  draggableItems.forEach((item) => {
+    item.addEventListener("dragstart", function (e) {
+      draggedItem = this;
+      originalPlan = this.getAttribute("data-plan");
+      setTimeout(() => {
+        this.classList.add("dragging");
+      }, 0);
+      e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
+    });
+
+    item.addEventListener("dragend", function () {
+      this.classList.remove("dragging");
+      this.style.transform = "none";
+      draggedItem = null;
+      originalPlan = null;
+    });
+  });
+
+  // Reattach dropzone listeners
+  const dropzones = document.querySelectorAll(".kanban-dropzone");
+  dropzones.forEach((zone) => {
+    zone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      this.classList.add("highlight");
+    });
+
+    zone.addEventListener("dragleave", function () {
+      this.classList.remove("highlight");
+    });
+
+    zone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      this.classList.remove("highlight");
+
+      if (draggedItem) {
+        const targetPlan = this.getAttribute("data-plan");
+
+        if (originalPlan !== targetPlan) {
+          const productName = draggedItem.querySelector(".product-name").textContent;
+          const targetItems = this.querySelectorAll(".feature-item");
+          let isDuplicate = false;
+
+          targetItems.forEach((item) => {
+            const existingProductName = item.querySelector(".product-name").textContent;
+            if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+              isDuplicate = true;
+            }
+          });
+
+          if (isDuplicate) return;
+
+          const clonedItem = draggedItem.cloneNode(true);
+          clonedItem.setAttribute("draggable", "true");
+          clonedItem.setAttribute("data-plan", targetPlan);
+
+          const checkmark = clonedItem.querySelector(".feature-check");
+          if (checkmark) {
+            checkmark.className = `feature-check ${targetPlan}-check`;
+          }
+
+          const addProductWrapper = this.querySelector('.add-product-wrapper');
+          if (addProductWrapper) {
+            this.insertBefore(clonedItem, addProductWrapper);
+          } else {
+            this.appendChild(clonedItem);
+          }
+
+          draggedItem.remove();
+
+          setupDragListeners(clonedItem);
+          setupProductExplanationListener(clonedItem);
+          setupRemoveButtonListener(clonedItem.querySelector(".remove-product-btn"));
+
+          updatePlanPrice(originalPlan);
+          updatePlanPrice(targetPlan);
+        }
+      }
+    });
+  });
+
+  // Reattach choose button listeners
+  const chooseButtons = document.querySelectorAll(".choose-button");
+  chooseButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      let planType = "";
+      if (this.classList.contains("platinum")) planType = "Platinum";
+      else if (this.classList.contains("gold")) planType = "Gold";
+      else if (this.classList.contains("silver")) planType = "Silver";
+      else if (this.classList.contains("bronze")) planType = "Bronze";
+      else if (this.classList.contains("iron")) planType = "Iron";
+
+      alert(`You've selected the ${planType} plan.`);
+    });
+  });
+
+  // Reattach month selector listeners
+  const monthSelectors = document.querySelectorAll(".month-selector .dropdown-item");
+  monthSelectors.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const months = Number.parseInt(this.getAttribute("data-months"));
+      const selectedPlan = this.getAttribute("data-plan");
+      const leaderColumn = settings.columnVisibility.iron ? "iron" : "bronze";
+
+      if (selectedPlan === leaderColumn) {
+        currentTerm = months;
+        const allPlans = ["platinum", "gold", "silver", "bronze", "iron"];
+
+        allPlans.forEach((plan) => {
+          const termElement = document.querySelector(`.${plan}-term`);
+          if (termElement) {
+            termElement.textContent = `for ${months} months`;
+          }
+
+          const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${plan}"]`);
+          dropdownItems.forEach((dropItem) => {
+            const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+            if (itemMonths === months) {
+              dropItem.classList.add("active");
+            } else {
+              dropItem.classList.remove("active");
+            }
+          });
+
+          updatePlanPrice(plan);
+        });
+
+        updateBasePayment();
+      } else {
+        const termElement = document.querySelector(`.${selectedPlan}-term`);
+        if (termElement) {
+          termElement.textContent = `for ${months} months`;
+        }
+
+        const dropdownItems = document.querySelectorAll(`.dropdown-item[data-plan="${selectedPlan}"]`);
+        dropdownItems.forEach((dropItem) => {
+          const itemMonths = Number.parseInt(dropItem.getAttribute("data-months"));
+          if (itemMonths === months) {
+            dropItem.classList.add("active");
+          } else {
+            dropItem.classList.remove("active");
+          }
+        });
+
+        updatePlanPrice(selectedPlan);
+      }
+
+      const dropdown = this.closest(".dropdown");
+      if (dropdown) {
+        const toggle = dropdown.querySelector(".dropdown-toggle");
+        if (toggle) {
+          toggle.click();
+        }
+      }
+    });
+  });
+
+  // Reattach product name listeners
+  document.querySelectorAll(".product-name").forEach((productElement) => {
+    productElement.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const productName = this.textContent;
+      const plan = this.closest(".feature-item").getAttribute("data-plan");
+      showProductExplanation(productName, plan);
+    });
+  });
+
+  // Reattach remove product button listeners
+  setupRemoveProductListeners();
+
+  // Reattach view terms link listeners
+  document.querySelectorAll(".view-terms-link").forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const plan = this.getAttribute("data-plan");
+      showTermsAndConditions(plan);
+    });
+  });
+
+  // Reattach add product button listeners
+  const addProductButtons = document.querySelectorAll(".add-product-btn");
+  addProductButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const plan = button.getAttribute("data-plan");
+      if (targetPlanInput && addPlanProductModal) {
+        targetPlanInput.value = plan;
+        populateProductDropdown(plan);
+        addPlanProductModal.show();
+      }
+    });
+  });
+
+  // Reattach price display listeners
+  document.querySelectorAll(".price-display").forEach((priceElement) => {
+    priceElement.addEventListener("click", (e) => {
+      e.stopPropagation();
+      currentPlan = priceElement.closest("td").getAttribute("data-plan");
+      const modalLabel = document.getElementById("priceSettingsModalLabel");
+      const positionInput = document.querySelector(`input[name="pricePosition"][value="${priceSettings[currentPlan].position}"]`);
+      const typeInput = document.querySelector(`input[name="priceType"][value="${priceSettings[currentPlan].type}"]`);
+      if (modalLabel && positionInput && typeInput) {
+        modalLabel.textContent = `Price Display Settings for ${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Plan`;
+        positionInput.checked = true;
+        typeInput.checked = true;
+        const priceSettingsModal = new bootstrap.Modal(document.getElementById("priceSettingsModal"));
+        priceSettingsModal.show();
+      }
+    });
+  });
+}
+  // Function to adjust table layout for iPad devices
+let originalTableContent = null;
+function adjustTableLayout() {
+  const table = document.querySelector(".menu-table");
+  if (!table) return;
+
+  const isIpad = window.innerWidth <= 1024;
+
+  // ===== Remove Mobile Header =====
+  if (isIpad) {
+    const mobileHeader = document.querySelector(".mobile-toggle-container");
+    if (mobileHeader) mobileHeader.remove();
+    
+    // Move Base Protected Payment to top-left
+    const basePayment = document.querySelector(".top-base-payment-wrapper");
+    if (basePayment) {
+      basePayment.classList.add("base-payment-top-left");
+      basePayment.classList.remove("top-base-payment-wrapper");
+    }
+  }
+
+  // ===== iPad Table Layout =====
+  if (isIpad) {
+    if (!originalTableContent) {
+      originalTableContent = table.cloneNode(true);
+    }
+    table.innerHTML = '';
+
+    const plans = [
+      { thClass: "iron-bg", tdDataPlan: "iron" },
+      { thClass: "bronze-bg", tdDataPlan: "bronze" },
+      { thClass: "silver-bg", tdDataPlan: "silver" },
+      { thClass: "gold-bg", tdDataPlan: "gold" },
+      { thClass: "platinum-bg", tdDataPlan: "platinum" }
+    ];
+
+    const originalHeaders = originalTableContent.querySelectorAll("thead th");
+    const originalCells = originalTableContent.querySelectorAll("tbody td");
+
+    const container = document.createElement("div");
+    container.className = "menu-table-pairs";
+
+    plans.forEach((plan) => {
+      const header = Array.from(originalHeaders).find(h => h.classList.contains(plan.thClass));
+      const content = Array.from(originalCells).find(c => c.getAttribute("data-plan") === plan.tdDataPlan);
+
+      if (!header || !content) return;
+
+      const pair = document.createElement("div");
+      pair.className = "menu-table-pair";
+      pair.setAttribute("data-plan", plan.tdDataPlan);
+
+      const clonedHeader = header.cloneNode(true);
+      clonedHeader.classList.add("menu-table-header");
+      pair.appendChild(clonedHeader);
+
+      const clonedContent = content.cloneNode(true);
+      clonedContent.classList.add("menu-table-content");
+      pair.appendChild(clonedContent);
+
+      container.appendChild(pair);
+    });
+
+    table.appendChild(container);
+  } else {
+    if (originalTableContent) {
+      table.innerHTML = originalTableContent.innerHTML;
+      originalTableContent = null;
+    }
+    // Reset Base Payment position on desktop
+    const basePayment = document.querySelector(".base-payment-top-left");
+    if (basePayment) {
+      basePayment.classList.add("top-base-payment-wrapper");
+      basePayment.classList.remove("base-payment-top-left");
+    }
+  }
+
+  reattachEventListeners();
+}
   // Add click event listeners to month selector dropdown items
 // Add click event listeners to month selector dropdown items
 monthSelectors.forEach((item) => {
@@ -1140,4 +1437,6 @@ monthSelectors.forEach((item) => {
 
   // Call the function to apply settings on page load
   loadSettings();
+  // Call the layout adjustment on page load
+adjustTableLayout();
 });
