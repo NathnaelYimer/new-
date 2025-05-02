@@ -1014,20 +1014,27 @@ function adjustTableLayout() {
 
   const isIpad = window.innerWidth <= 1024;
 
-  // ===== Remove Mobile Header =====
+  // Remove Mobile Header
   if (isIpad) {
     const mobileHeader = document.querySelector(".mobile-toggle-container");
     if (mobileHeader) mobileHeader.remove();
-    
+
     // Move Base Protected Payment to top-left
     const basePayment = document.querySelector(".top-base-payment-wrapper");
     if (basePayment) {
       basePayment.classList.add("base-payment-top-left");
       basePayment.classList.remove("top-base-payment-wrapper");
     }
+  } else {
+    // Reset Base Payment position on desktop
+    const basePayment = document.querySelector(".base-payment-top-left");
+    if (basePayment) {
+      basePayment.classList.add("top-base-payment-wrapper");
+      basePayment.classList.remove("base-payment-top-left");
+    }
   }
 
-  // ===== iPad Table Layout =====
+  // iPad Table Layout
   if (isIpad) {
     if (!originalTableContent) {
       originalTableContent = table.cloneNode(true);
@@ -1075,14 +1082,9 @@ function adjustTableLayout() {
       table.innerHTML = originalTableContent.innerHTML;
       originalTableContent = null;
     }
-    // Reset Base Payment position on desktop
-    const basePayment = document.querySelector(".base-payment-top-left");
-    if (basePayment) {
-      basePayment.classList.add("top-base-payment-wrapper");
-      basePayment.classList.remove("base-payment-top-left");
-    }
   }
 
+  // Reattach event listeners after layout change
   reattachEventListeners();
 }
   // Add click event listeners to month selector dropdown items
