@@ -520,12 +520,10 @@ body::before {
 }
 
 .base-payment-label {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-dark-soft);
-  margin-bottom: var(--space-1);
-  position: relative;
-  z-index: 1;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-light);
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .base-payment-amount {
@@ -629,31 +627,31 @@ body::before {
 }
 
 .platinum-bg {
-  background: var(--platinum-gradient);
+  background-color: #e5e4e2;
   width: 20%;
   box-shadow: 0 -2px 15px var(--platinum-glow);
 }
 
 .gold-bg {
-  background: var(--gold-gradient);
+  background-color: #ffd700;
   width: 20%;
   box-shadow: 0 -2px 15px var(--gold-glow);
 }
 
 .silver-bg {
-  background: var(--silver-gradient);
+  background-color: #c0c0c0;
   width: 20%;
   box-shadow: 0 -2px 15px var(--silver-glow);
 }
 
 .bronze-bg {
-  background: var(--bronze-gradient);
+  background-color: #cd7f32;
   width: 20%;
   box-shadow: 0 -2px 15px var(--bronze-glow);
 }
 
 .iron-bg {
-  background: var(--iron-gradient);
+  background-color: #43464b;
   width: 20%;
   box-shadow: 0 -2px 15px var(--iron-glow);
 }
@@ -1115,7 +1113,7 @@ td.price-bottom .cell-content .price-section {
 
 .month-selector .btn:hover,
 .month-selector .btn:focus {
-  color: #7d0ca0;
+  color: #716c71;
 }
 
 .month-selector .dropdown-menu {
@@ -1929,12 +1927,21 @@ td.price-bottom .cell-content .price-section {
 /* new position for the base payment */
 
 .top-base-payment-wrapper {
+  background: var(--bg-glass);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  min-width: 200px; /* Ensure enough space for text */
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--space-3);
-  width: 100%;
-  position: relative;
-  z-index: 1;
+  justify-content: flex-end; /* Align content to the right */
+}
+
+.top-base-payment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
 }
 .top-base-payment {
   display: flex;
@@ -2457,7 +2464,7 @@ td.price-bottom .cell-content .price-section {
 
 
  /* Add these CSS rules */
-.base-payment-top-left {
+/* .base-payment-top-left {
   position: fixed;
   top: 20px;
   left: 20px;
@@ -2466,7 +2473,7 @@ td.price-bottom .cell-content .price-section {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-}
+} */
 
 .mobile-toggle-container {
   display: none !important;
@@ -2537,5 +2544,87 @@ td.price-bottom .cell-content .price-section {
   
   .menu-table {
     margin-top: 60px; /* Reduce top margin on mobile */
+  }
+}
+/* Style add-product-selector to match month-selector */
+.add-product-selector {
+  display: inline-block;
+  width: auto;
+  position: relative; /* Ensure proper positioning for dropdown */
+}
+
+.add-product-selector .dropdown-toggle {
+  border: 1px solid #e0e0e0; /* Light gray border */
+  color: #333333; /* Dark text for contrast */
+  padding: var(--space-2) var(--space-5);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: white; /* White background */
+}
+
+.add-product-selector .dropdown-toggle:hover,
+.add-product-selector .dropdown-toggle:focus {
+  background: #f8f9fa; /* Very light gray on hover */
+  border-color: #d0d0d0;
+}
+
+/* Dropdown menu styling */
+.add-product-selector .dropdown-menu {
+  background: white; /* Pure white background */
+  border: 1px solid #f0f0f0; /* Light border */
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); /* Light shadow */
+  padding: var(--space-3);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.add-product-selector .dropdown-item {
+  color: #404040; /* Dark text */
+  padding: var(--space-1) var(--space-4);
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+}
+
+.add-product-selector .dropdown-item:hover,
+.add-product-selector .dropdown-item:focus {
+  background: #f8f9fa; /* Light gray background on hover */
+  color: #000000; /* Black text */
+}
+
+.add-product-selector .dropdown-item.disabled {
+  color: #a0a0a0; /* Medium gray for disabled items */
+}
+
+/* Responsive adjustments remain the same */
+@media (max-width: 1024px) {
+  .add-product-selector .dropdown-toggle {
+    font-size: 0.9rem;
+    padding: var(--space-2) var(--space-4);
+  }
+  .add-product-selector .dropdown-menu {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-product-selector {
+    width: 100%;
+  }
+  .add-product-selector .dropdown-toggle {
+    font-size: 0.85rem;
+    padding: var(--space-1) var(--space-3);
+    width: 100%;
+  }
+  .add-product-selector .dropdown-menu {
+    max-height: 180px;
   }
 }

@@ -34,11 +34,36 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   
     // Close settings and go back to menu
-    if (closeSettings) {
-      closeSettings.addEventListener("click", () => {
-        window.location.href = "index.html"
-      })
-    }
+      if (closeSettings) {
+    closeSettings.addEventListener("click", () => {
+      // Save settings before redirecting
+      const settings = {
+        columnNames: {
+          platinum: document.getElementById("platinum-name").value,
+          gold: document.getElementById("gold-name").value,
+          silver: document.getElementById("silver-name").value,
+          bronze: document.getElementById("bronze-name").value,
+          iron: document.getElementById("iron-name").value,
+        },
+        columnVisibility: {
+          platinum: document.getElementById("platinum-visible").checked,
+          gold: document.getElementById("gold-visible").checked,
+          silver: document.getElementById("silver-visible").checked,
+          bronze: document.getElementById("bronze-visible").checked,
+          iron: document.getElementById("iron-visible").checked,
+        },
+        productData: productData,
+      };
+
+      // Save settings to localStorage
+      localStorage.setItem("menuSettings", JSON.stringify(settings));
+
+      // Redirect to the menu (index.html) after a short delay
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 500);
+    });
+  }
   
     // Tab switching functionality
     const tabButtons = document.querySelectorAll(".tab-button")
@@ -557,8 +582,8 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   
     // Save settings functionality
-    const saveSettingsBtn = document.querySelector(".save-settings-btn")
-  
+    const saveSettingsBtn = document.querySelector(".save-settings-btn");
+
     saveSettingsBtn.addEventListener("click", () => {
       // Collect all settings data
       const settings = {
@@ -578,13 +603,17 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         // Product assignments would be collected here in a real app
         productData: productData,
-      }
-  
+      };
+    
       // Save to localStorage
-      localStorage.setItem("menuSettings", JSON.stringify(settings))
-  
-      alert("Settings saved successfully!")
-    })
+      localStorage.setItem("menuSettings", JSON.stringify(settings));
+    
+      // Redirect to index.html after a short delay (500ms)
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 500);
+    });
+    
   
     // Load saved settings if they exist
     const loadSavedSettings = () => {

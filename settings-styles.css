@@ -1,4 +1,6 @@
 /* Enhanced Settings and Sidebar Styling - Optimized for UI/UX */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 :root {
   /* Refined colors */
   --platinum-color: #1e90ff;
@@ -11,6 +13,8 @@
   --bronze-gradient: linear-gradient(135deg, #2e7d32, #1b5e20);
   --iron-color: #37474f;
   --iron-gradient: linear-gradient(135deg, #37474f, #263238);
+  --primary-color: #1e90ff; /* Added for modal-header */
+  --card-shadow: var(--shadow-md); /* Added for modal-content */
 
   /* Text and backgrounds */
   --text-light: #ffffff;
@@ -49,9 +53,6 @@
   --sidebar-transition: transform var(--transition-normal), width var(--transition-normal);
 }
 
-/* Font setup */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 body {
   font-family: "Inter", sans-serif;
   background-color: #1e1e2d;
@@ -66,7 +67,7 @@ body {
   background-color: transparent;
   margin-left: var(--sidebar-width);
   width: calc(100% - var(--sidebar-width));
-  padding: var(--space-6);
+  padding: var(--space-6) var(--space-6) var(--space-6) 0; /* Remove left padding */
   transition: var(--sidebar-transition);
 }
 
@@ -208,7 +209,7 @@ body {
 .settings-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-6);
+  padding:24px; /* Remove left padding */
   background: var(--bg-dark);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -329,7 +330,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
+
 
 .column-name-item label {
   font-size: 0.9rem;
@@ -354,6 +357,27 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.column-visibility h3 {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-3);
+}
+platinum-first-toggle {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: rgba(30, 144, 255, 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(30, 144, 255, 0.2);
+}
+.platinum-first-toggle .form-check-input {
+  width: 2.5rem;
+  height: 1.25rem;
+}
+.platinum-first-toggle .form-check-label {
+  font-weight: 600;
+  color: var(--platinum-color);
 }
 
 .form-check {
@@ -397,24 +421,45 @@ body {
   border-spacing: 0;
 }
 
-.product-assignment-table th {
+/* .product-assignment-table th {
   background: var(--bg-dark-soft);
   padding: var(--space-3);
   font-weight: 600;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+} */
+.product-assignment-table th,
+.product-assignment-table td {
+  vertical-align: middle;
+  text-align: center;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
-
+product-assignment-table table td .form-check.form-switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.product-assignment-table table td .form-check.form-switch input.form-check-input {
+  margin: 12px;
+  vertical-align: middle;
+  transform: scale(1.2); /* Slightly enlarge toggle for better visibility */
+}
 .product-assignment-table th:first-child {
   text-align: left;
 }
-
-.product-assignment-table td {
-  padding: var(--space-3);
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: middle;
+.product-assignment-table td:first-child {
+  padding-left: 0; /* Remove left padding for the first column */
+  text-align: left; /* Align text to the left */
 }
+/* .product-assignment-table td {
+  padding: 0 var(--space-3) 0 0; 
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+} */
 
 .product-assignment-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -430,6 +475,20 @@ body {
 .product-price {
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.product-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  margin: 0; /* Remove margin */
+}
+.product-cell > div {
+  margin: 0; /* Remove margin */
+  padding: 0; /* Remove padding */
+}
+.product-assignment-table tbody tr:hover .product-handle,
+.product-handle:hover {
+  color: var(--text-light);
 }
 
 /* Editable Column Names */
@@ -618,11 +677,11 @@ body {
   width: 100%;
   height: 45px;
   padding: var(--space-3) var(--space-4);
-  background-color: #0a0101c2; /* Dark grey background */
+  background-color: var(--bg-dark); /* Use variable instead of hardcoded color */
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-sm);
   font-size: 13px;
-  color: #ffffff; /* White text/icon */
+  color: #ffffff;
   transition: all var(--transition-normal);
   cursor: pointer;
   position: relative;
@@ -674,10 +733,13 @@ body {
   color: var(--text-light);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
 }
 
 .modal-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border-bottom: none;
 }
 
 .modal-footer {
@@ -701,18 +763,6 @@ body {
 .product-row.dragging {
   opacity: 0.7;
   background: rgba(255, 255, 255, 0.1);
-}
-
-.product-handle {
-  cursor: grab;
-  color: var(--text-muted);
-  margin-right: var(--space-2);
-  transition: var(--transition-fast);
-}
-
-.product-row:hover .product-handle,
-.product-handle:hover {
-  color: var(--text-light);
 }
 
 /* Form Controls */
@@ -765,7 +815,7 @@ body {
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
   .settings-container {
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-4) 0; /* Keep no left padding */
   }
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -774,7 +824,6 @@ body {
 
 @media (max-width: 834px) {
   .sidebar {
-    width: 280px;
     transform: translateX(-100%);
     transition: var(--sidebar-transition);
   }
@@ -784,7 +833,7 @@ body {
   .main-content {
     margin-left: 0;
     width: 100%;
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-4) 0; /* Remove left padding */
   }
   .column-names-grid,
   .column-visibility {
@@ -793,9 +842,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    width: 280px;
-  }
   .products-grid {
     grid-template-columns: 1fr;
   }
@@ -819,6 +865,9 @@ body {
   .settings-section {
     padding: var(--space-3);
   }
+  .product-assignment-table td {
+    padding: 0 var(--space-2) 0 0; /* Consistent padding for small screens */
+  }
 }
 
 /* Accessibility */
@@ -826,21 +875,6 @@ body {
   outline: 2px solid var(--platinum-color);
   outline-offset: 2px;
 }
-
-
-
-
-.modal-content {
-  border-radius: 8px;
-  box-shadow: var(--card-shadow);
-}
-.modal-header {
-  background-color: var(--primary-color);
-  color: #ffffff;
-  border-bottom: none;
-}
-
-
 
 /* Hide the Iron column by default in the product assignment table (before JS runs) */
 .product-assignment-table th:nth-child(6),

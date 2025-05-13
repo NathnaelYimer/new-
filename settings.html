@@ -72,63 +72,64 @@
         <p>Customize the names of each column in your F&I menu.</p>
         
         <div class="column-names-grid">
-          <div class="column-name-item">
-            <label for="platinum-name">Platinum:</label>
-            <input type="text" id="platinum-name" class="form-control" value="Platinum">
-            <div class="color-bar platinum-bg"></div>
-          </div>
-          
-          <div class="column-name-item">
-            <label for="gold-name">Gold:</label>
-            <input type="text" id="gold-name" class="form-control" value="Gold">
-            <div class="color-bar gold-bg"></div>
-          </div>
-          
-          <div class="column-name-item">
-            <label for="silver-name">Silver:</label>
-            <input type="text" id="silver-name" class="form-control" value="Silver">
-            <div class="color-bar silver-bg"></div>
-          </div>
-          
-          <div class="column-name-item">
-            <label for="bronze-name">Bronze:</label>
-            <input type="text" id="bronze-name" class="form-control" value="Bronze">
-            <div class="color-bar bronze-bg"></div>
+          <!-- Show Platinum First toggle at the top -->
+          <div class="platinum-first-toggle form-check form-switch" style="grid-column: 1 / -1; margin-bottom: 20px;">
+            <input class="form-check-input" type="checkbox" id="show-platinum-first" checked>
+            <label class="form-check-label" for="show-platinum-first">Show Platinum First</label>
           </div>
           
           <div class="column-name-item">
             <label for="iron-name">Iron:</label>
             <input type="text" id="iron-name" class="form-control" value="Iron">
             <div class="color-bar iron-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="iron-visible">
+              <label class="form-check-label" for="iron-visible">Visible</label>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <h3>Column Visibility</h3>
-        <p>Toggle which columns are visible in your F&I menu.</p>
-        
-        <div class="column-visibility">
-          <h3>Column Visibility</h3>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="platinum-visible">
-            <label class="form-check-label" for="platinum-visible">Platinum</label>
+          
+          <!-- Bronze -->
+          <div class="column-name-item">
+            <label for="bronze-name">Bronze:</label>
+            <input type="text" id="bronze-name" class="form-control" value="Bronze">
+            <div class="color-bar bronze-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="bronze-visible" checked>
+              <label class="form-check-label" for="bronze-visible">Visible</label>
+            </div>
           </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="gold-visible">
-            <label class="form-check-label" for="gold-visible">Gold</label>
+          
+          <!-- Silver -->
+          <div class="column-name-item">
+            <label for="silver-name">Silver:</label>
+            <input type="text" id="silver-name" class="form-control" value="Silver">
+            <div class="color-bar silver-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="silver-visible" checked>
+              <label class="form-check-label" for="silver-visible">Visible</label>
+            </div>
           </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="silver-visible">
-            <label class="form-check-label" for="silver-visible">Silver</label>
+          
+          <!-- Gold -->
+          <div class="column-name-item">
+            <label for="gold-name">Gold:</label>
+            <input type="text" id="gold-name" class="form-control" value="Gold">
+            <div class="color-bar gold-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="gold-visible" checked>
+              <label class="form-check-label" for="gold-visible">Visible</label>
+            </div>
           </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="bronze-visible">
-            <label class="form-check-label" for="bronze-visible">Bronze</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="iron-visible">
-            <label class="form-check-label" for="iron-visible">Iron</label>
+          
+          <!-- Platinum -->
+          <div class="column-name-item">
+            <label for="platinum-name">Platinum:</label>
+            <input type="text" id="platinum-name" class="form-control" value="Platinum">
+            <div class="color-bar platinum-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="platinum-visible" checked>
+              <label class="form-check-label" for="platinum-visible">Visible</label>
+            </div>
           </div>
         </div>
       </div>

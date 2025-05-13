@@ -112,9 +112,16 @@
                   </div>
                 </li>
                 <li class="add-product-wrapper">
-                  <button class="add-product-btn btn btn-sm btn-icon" data-plan="iron" title="Add Product" aria-label="Add Product">
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
+                  <div class="add-product-selector iron">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Add product to Iron plan">
+                        Add Product
+                      </button>
+                      <ul class="dropdown-menu">
+                        <!-- Dynamically populated by JavaScript -->
+                      </ul>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <button class="choose-button iron">Choose</button>
@@ -164,9 +171,16 @@
                   </div>
                 </li>
                 <li class="add-product-wrapper">
-                  <button class="add-product-btn btn btn-sm btn-icon" data-plan="bronze" title="Add Product" aria-label="Add Product">
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
+                  <div class="add-product-selector bronze">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Add product to Bronze plan">
+                        Add Product
+                      </button>
+                      <ul class="dropdown-menu">
+                        <!-- Dynamically populated by JavaScript -->
+                      </ul>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <button class="choose-button bronze">Choose</button>
@@ -228,9 +242,16 @@
                   </div>
                 </li>
                 <li class="add-product-wrapper">
-                  <button class="add-product-btn btn btn-sm btn-icon" data-plan="silver" title="Add Product" aria-label="Add Product">
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
+                  <div class="add-product-selector silver">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Add product to Silver plan">
+                        Add Product
+                      </button>
+                      <ul class="dropdown-menu">
+                        <!-- Dynamically populated by JavaScript -->
+                      </ul>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <button class="choose-button silver">Choose</button>
@@ -298,9 +319,16 @@
                   </div>
                 </li>
                 <li class="add-product-wrapper">
-                  <button class="add-product-btn btn btn-sm btn-icon" data-plan="gold" title="Add Product" aria-label="Add Product">
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
+                  <div class="add-product-selector gold">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Add product to Gold plan">
+                        Add Product
+                      </button>
+                      <ul class="dropdown-menu">
+                        <!-- Dynamically populated by JavaScript -->
+                      </ul>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <button class="choose-button gold">Choose</button>
@@ -374,9 +402,16 @@
                   </div>
                 </li>
                 <li class="add-product-wrapper">
-                  <button class="add-product-btn btn btn-sm btn-icon" data-plan="platinum" title="Add Product" aria-label="Add Product">
-                    <i class="bi bi-plus-circle"></i>
-                  </button>
+                  <div class="add-product-selector platinum">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Add product to Platinum plan">
+                        Add Product
+                      </button>
+                      <ul class="dropdown-menu">
+                        <!-- Dynamically populated by JavaScript -->
+                      </ul>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <button class="choose-button platinum">Choose</button>
@@ -429,7 +464,7 @@
 </div>
 
 <!-- Add Product Modal -->
-<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -451,7 +486,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 
 
@@ -526,6 +561,6 @@
 
 <!-- Bootstrap JS Bundle with Popper -->
 <script src="dealer-menu/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="script.js?v=1"></script>
+<script src="script.js"></script>
 </body>
 </html>
