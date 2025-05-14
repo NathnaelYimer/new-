@@ -2628,3 +2628,138 @@ td.price-bottom .cell-content .price-section {
     max-height: 180px;
   }
 }
+/* Animation for existing product when replaced */
+.feature-item.highlight-existing {
+  animation: highlightExisting 0.6s ease;
+}
+
+@keyframes highlightExisting {
+  0% {
+    transform: scale(1);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Trash zone for dragging off to remove */
+.trash-zone {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 80px;
+  height: 80px;
+  background-color: rgba(231, 76, 60, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  opacity: 0.7;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  z-index: var(--z-above);
+}
+
+.trash-zone.active {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.trash-zone::before {
+  content: "\f2ed"; /* Bootstrap Icons trash icon */
+  font-family: "bootstrap-icons";
+}
+
+
+
+
+.highlight-existing {
+  animation: pulse 1.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  25% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  }
+  50% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+  }
+  75% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* Ensure draggable items have proper cursor */
+.feature-item {
+  cursor: grab;
+}
+
+.feature-item.dragging {
+  cursor: grabbing;
+  opacity: 0.7;
+}
+
+/* Highlight dropzone when dragging over */
+.kanban-dropzone.highlight {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 2px dashed #007bff;
+}
+
+/* Product price input styling */
+#productPriceInput {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+/* Save price button styling */
+#saveProductPrice {
+  background-color: #28a745;
+  border-color: #28a745;
+  margin-right: 10px;
+}
+
+#saveProductPrice:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}

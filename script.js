@@ -132,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     let currentPlan = null;
+    let currentProduct = null;
 
     // Synchronize localStorage across tabs
     window.addEventListener("storage", (e) => {
@@ -140,49 +141,25 @@ document.addEventListener("DOMContentLoaded", () => {
         loadSettings();
         applyPriceSettings();
         adjustTableLayout();
-        reattachEventListeners();
+        initializeDragAndDrop();
         populateAllAddProductDropdowns();
       }
     });
 
-    // Calculate total price for a plan
+    // Calculate total price for a plan using settings.productAssignments
     const calculatePlanPrice = (plan) => {
-      if (!productData) {
-        console.error(`productData is undefined for plan ${plan}`);
+      if (!settings.productAssignments[plan]) {
+        console.warn(`No product assignments for plan ${plan}`);
         return 0;
       }
-
-      const dropzone = document.querySelector(`.kanban-dropzone[data-plan="${plan}"]`);
-      if (!dropzone) {
-        console.warn(`Dropzone not found for plan ${plan}`);
-        return 0;
-      }
-
-      const items = dropzone.querySelectorAll(".feature-item");
-      let totalPrice = 0;
-
-      items.forEach((item, index) => {
-        const productNameElement = item.querySelector(".product-name");
-        if (!productNameElement) {
-          console.warn(`Item ${index} in plan ${plan} missing .product-name`, item);
-          return;
-        }
-
-        const productName = productNameElement.textContent.trim();
-        if (!productName) {
-          console.warn(`Empty productName in item ${index} for plan ${plan}`);
-          return;
-        }
-
-        if (!productData[productName]) {
+      return settings.productAssignments[plan].reduce((total, productName) => {
+        const product = settings.productData[productName];
+        if (!product) {
           console.warn(`Product "${productName}" not found in productData for plan ${plan}`);
-          return;
+          return total;
         }
-
-        totalPrice += productData[productName].price;
-      });
-
-      return totalPrice;
+        return total + product.price;
+      }, 0);
     };
 
     // Apply price settings to each column
@@ -309,6 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Variable to store the currently dragged item
     let draggedItem = null;
     let originalPlan = null;
+    const trashZone = document.getElementById("trashZone");
 
     // Payment data by plan and term
     const paymentData = {
@@ -731,25 +709,44 @@ document.addEventListener("DOMContentLoaded", () => {
       doc.save(`${plan}-plan.pdf`);
     };
 
-    // Reattach event listeners with delegation
-    const reattachEventListeners = () => {
+    // Initialize drag-and-drop with event delegation
+    const initializeDragAndDrop = () => {
       const menuTable = document.querySelector(".menu-table");
-      if (!menuTable) return;
+      if (!menuTable) {
+        console.warn("Menu table not found for drag-and-drop initialization");
+        return;
+      }
 
-      // Use single delegated listener for all events
+      // Remove old listeners to prevent duplicates
       menuTable.removeEventListener("dragstart", handleDragStart);
       menuTable.removeEventListener("dragend", handleDragEnd);
       menuTable.removeEventListener("dragover", handleDragOver);
+      menuTable.removeEventListener("dragenter", handleDragEnter);
       menuTable.removeEventListener("dragleave", handleDragLeave);
       menuTable.removeEventListener("drop", handleDrop);
       menuTable.removeEventListener("click", handleClick);
 
+      // Add delegated listeners
       menuTable.addEventListener("dragstart", handleDragStart);
       menuTable.addEventListener("dragend", handleDragEnd);
       menuTable.addEventListener("dragover", handleDragOver);
+      menuTable.addEventListener("dragenter", handleDragEnter);
       menuTable.addEventListener("dragleave", handleDragLeave);
       menuTable.addEventListener("drop", handleDrop);
       menuTable.addEventListener("click", handleClick);
+
+      // Trash zone listeners
+      if (trashZone) {
+        trashZone.removeEventListener("dragover", handleDragOver);
+        trashZone.removeEventListener("dragenter", handleTrashEnter);
+        trashZone.removeEventListener("dragleave", handleTrashLeave);
+        trashZone.removeEventListener("drop", handleTrashDrop);
+
+        trashZone.addEventListener("dragover", handleDragOver);
+        trashZone.addEventListener("dragenter", handleTrashEnter);
+        trashZone.addEventListener("dragleave", handleTrashLeave);
+        trashZone.addEventListener("drop", handleTrashDrop);
+      }
     };
 
     const handleDragStart = (e) => {
@@ -758,19 +755,37 @@ document.addEventListener("DOMContentLoaded", () => {
       draggedItem = item;
       originalPlan = item.getAttribute("data-plan");
       item.classList.add("dragging");
-      e.dataTransfer.setData("text/plain", item.getAttribute("data-id"));
+      e.dataTransfer.setData("text/plain", item.getAttribute("data-product") || item.querySelector(".product-name").textContent);
+      setTimeout(() => {
+        item.style.display = "none";
+      }, 0);
+      if (trashZone) {
+        trashZone.style.display = "flex";
+      }
     };
 
     const handleDragEnd = (e) => {
-      const item = e.target.closest(".feature-item");
-      if (!item) return;
-      item.classList.remove("dragging");
-      item.style.transform = "none";
+      if (!draggedItem) return;
+      draggedItem.classList.remove("dragging");
+      draggedItem.style.display = "";
+      document.querySelectorAll(".kanban-dropzone").forEach(zone => {
+        zone.classList.remove("highlight");
+      });
+      if (trashZone) {
+        trashZone.style.display = "none";
+        trashZone.classList.remove("active");
+      }
       draggedItem = null;
       originalPlan = null;
     };
 
     const handleDragOver = (e) => {
+      if (e.target.closest(".kanban-dropzone") || e.target.closest("#trashZone")) {
+        e.preventDefault();
+      }
+    };
+
+    const handleDragEnter = (e) => {
       const zone = e.target.closest(".kanban-dropzone");
       if (zone) {
         e.preventDefault();
@@ -785,73 +800,89 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    const handleDrop = (e) => {
-      const zone = e.target.closest(".kanban-dropzone");
-      if (!zone) return;
+    const handleTrashEnter = (e) => {
       e.preventDefault();
-      zone.classList.remove("highlight");
+      trashZone.classList.add("active");
+    };
 
-      if (draggedItem) {
-        const targetPlan = zone.getAttribute("data-plan");
-        if (originalPlan !== targetPlan) {
-          const productName = draggedItem.querySelector(".product-name").textContent;
-          const targetItems = zone.querySelectorAll(".feature-item");
-          let isDuplicate = false;
+    const handleTrashLeave = () => {
+      trashZone.classList.remove("active");
+    };
 
-          targetItems.forEach((item) => {
-            if (item.querySelector(".product-name").textContent.toLowerCase() === productName.toLowerCase()) {
-              isDuplicate = true;
-            }
-          });
+    const handleDrop = (e) => {
+      e.preventDefault();
+      const dropzone = e.target.closest(".kanban-dropzone");
+      if (!dropzone || !draggedItem) return;
 
-          if (isDuplicate) {
-            alert(`The product "${productName}" already exists in the ${targetPlan} plan.`);
-            return;
-          }
+      const targetPlan = dropzone.getAttribute("data-plan");
+      const productName = draggedItem.querySelector(".product-name").textContent;
 
-          const clonedItem = draggedItem.cloneNode(true);
-          clonedItem.setAttribute("draggable", "true");
-          clonedItem.setAttribute("data-plan", targetPlan);
-          const checkmark = clonedItem.querySelector(".feature-check");
-          if (checkmark) {
-            checkmark.className = `feature-check ${targetPlan}-check`;
-          }
+      dropzone.classList.remove("highlight");
 
-          // Update innerHTML to exclude remove button
-          const productNameElement = clonedItem.querySelector(".product-name");
-          clonedItem.innerHTML = `
-            <div class="feature-content">
-              <span class="feature-check ${targetPlan}-check">✓</span>
-              <span class="product-name">${productNameElement.textContent}</span>
-            </div>
-          `;
+      if (targetPlan === originalPlan) {
+        return; // No action if dropped in the same column
+      }
 
-          const addProductWrapper = zone.querySelector(".add-product-wrapper");
-          if (addProductWrapper) {
-            zone.insertBefore(clonedItem, addProductWrapper);
-          } else {
-            zone.appendChild(clonedItem);
-          }
+      // Remove product from original plan
+      settings.productAssignments[originalPlan] = settings.productAssignments[originalPlan].filter(
+        p => p !== productName
+      );
 
-          // Update productAssignments
-          settings.productAssignments[originalPlan] = settings.productAssignments[originalPlan].filter(
-            p => p !== productName
-          );
-          settings.productAssignments[targetPlan].push(productName);
-          localStorage.setItem("menuSettings", JSON.stringify(settings));
+      // Check if product exists in target plan
+      const existingProduct = Array.from(dropzone.querySelectorAll(".feature-item")).find(
+        item => item.querySelector(".product-name").textContent === productName
+      );
 
-          draggedItem.remove();
-          setupDragListeners(clonedItem);
-          setupProductExplanationListener(clonedItem);
-          updatePlanPrice(originalPlan);
-          updatePlanPrice(targetPlan);
-          populateAllAddProductDropdowns(); // Refresh dropdowns after drag
+      if (existingProduct) {
+        // Product exists: animate it and remove dragged item
+        existingProduct.classList.add("highlight-existing");
+        setTimeout(() => existingProduct.classList.remove("highlight-existing"), 600);
+        draggedItem.remove();
+      } else {
+        // Product doesn't exist: move it to target plan
+        settings.productAssignments[targetPlan].push(productName);
+        const addProductWrapper = dropzone.querySelector(".add-product-wrapper");
+        if (addProductWrapper) {
+          dropzone.insertBefore(draggedItem, addProductWrapper);
+        } else {
+          dropzone.appendChild(draggedItem);
+        }
+        draggedItem.setAttribute("data-plan", targetPlan);
+        const checkmark = draggedItem.querySelector(".feature-check");
+        if (checkmark) {
+          checkmark.className = `feature-check ${targetPlan}-check`;
         }
       }
+
+      // Update localStorage and prices
+      localStorage.setItem("menuSettings", JSON.stringify(settings));
+      updatePlanPrice(originalPlan);
+      updatePlanPrice(targetPlan);
+      populateAllAddProductDropdowns(); // Refresh dropdowns
+    };
+
+    const handleTrashDrop = (e) => {
+      e.preventDefault();
+      if (!draggedItem) return;
+
+      const productName = draggedItem.querySelector(".product-name").textContent;
+      const plan = draggedItem.getAttribute("data-plan");
+
+      // Remove product from its plan
+      settings.productAssignments[plan] = settings.productAssignments[plan].filter(
+        p => p !== productName
+      );
+      draggedItem.remove();
+
+      // Update localStorage and prices
+      localStorage.setItem("menuSettings", JSON.stringify(settings));
+      updatePlanPrice(plan);
+      populateAllAddProductDropdowns(); // Refresh dropdowns
+      trashZone.classList.remove("active");
     };
 
     const handleClick = (e) => {
-      if (e.target.closest(".product-name")) {
+      if (e.target.closest(".product-name") && !e.target.closest(".remove-product-btn-modal")) {
         const productElement = e.target.closest(".product-name");
         e.stopPropagation();
         const productName = productElement.textContent;
@@ -886,11 +917,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const productItem = button.closest(".feature-item");
         if (productItem) {
           const plan = productItem.getAttribute("data-plan");
+          const productName = productItem.querySelector(".product-name").textContent;
           productItem.classList.add("fade-out");
           setTimeout(() => {
             productItem.remove();
+            settings.productAssignments[plan] = settings.productAssignments[plan].filter(
+              p => p !== productName
+            );
+            localStorage.setItem("menuSettings", JSON.stringify(settings));
             updatePlanPrice(plan);
-            populateAllAddProductDropdowns(); // Refresh dropdowns after removal
+            populateAllAddProductDropdowns();
           }, 300);
         }
       } else if (e.target.closest(".view-terms-link")) {
@@ -914,6 +950,45 @@ document.addEventListener("DOMContentLoaded", () => {
           handleAddProductClick(e);
         }
       });
+
+      // Add event listener for save price button
+      const savePriceBtn = document.getElementById("saveProductPrice");
+      if (savePriceBtn) {
+        savePriceBtn.addEventListener("click", handleSaveProductPrice);
+      }
+    };
+
+    // Handle saving product price
+    const handleSaveProductPrice = () => {
+      if (!currentProduct) return;
+      
+      const priceInput = document.getElementById("productPriceInput");
+      if (!priceInput) return;
+      
+      const newPrice = parseFloat(priceInput.value);
+      if (isNaN(newPrice) || newPrice <= 0) {
+        alert("Please enter a valid price");
+        return;
+      }
+      
+      // Update the product price in settings
+      if (settings.productData[currentProduct]) {
+        settings.productData[currentProduct].price = newPrice;
+        localStorage.setItem("menuSettings", JSON.stringify(settings));
+        
+        // Update all plan prices that contain this product
+        ["platinum", "gold", "silver", "bronze", "iron"].forEach(plan => {
+          if (settings.productAssignments[plan].includes(currentProduct)) {
+            updatePlanPrice(plan);
+          }
+        });
+        
+        // Close the modal
+        const productModal = bootstrap.Modal.getInstance(document.getElementById("productExplanationModal"));
+        if (productModal) {
+          productModal.hide();
+        }
+      }
     };
 
     const handleMonthSelectorClick = (e) => {
@@ -1065,6 +1140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       newItem.setAttribute("draggable", "true");
       newItem.setAttribute("data-id", `p${Date.now()}`);
       newItem.setAttribute("data-plan", targetPlan);
+      newItem.setAttribute("data-product", productName);
 
       newItem.innerHTML = `
         <div class="feature-content">
@@ -1085,7 +1161,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log(`Updated productAssignments for ${targetPlan}:`, settings.productAssignments[targetPlan]);
 
-      setupDragListeners(newItem);
       setupProductExplanationListener(newItem);
 
       updatePlanPrice(targetPlan);
@@ -1122,15 +1197,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Show product explanation in modal
     const showProductExplanation = (productName, plan, triggerElement) => {
-      const explanation = productExplanations[productName];
-      if (explanation) {
+      const productData = settings.productData[productName];
+      if (productData) {
         const modalContent = document.getElementById("productExplanationContent");
         const modalTitle = document.getElementById("productExplanationModalLabel");
         const removeProductBtn = document.querySelector(".remove-product-btn-modal");
 
         if (modalContent && modalTitle && removeProductBtn) {
+          // Store current product for price editing
+          currentProduct = productName;
+          
           modalTitle.textContent = productName;
-          modalContent.innerHTML = `<p>${explanation}</p>`;
+          
+          // Add price editing functionality
+          const currentPrice = productData.price;
+          modalContent.innerHTML = `
+            <div class="mb-3">
+              <p>${productData.description}</p>
+              <div class="mt-4">
+                <label for="productPriceInput" class="form-label">Product Price ($)</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="productPriceInput" value="${currentPrice.toFixed(2)}" step="0.01" min="0">
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Add save price button if it doesn't exist
+          let saveBtn = document.getElementById("saveProductPrice");
+          if (!saveBtn) {
+            saveBtn = document.createElement("button");
+            saveBtn.id = "saveProductPrice";
+            saveBtn.className = "btn btn-primary";
+            saveBtn.textContent = "Save Price";
+            saveBtn.addEventListener("click", handleSaveProductPrice);
+            
+            // Insert before the close button
+            const closeBtn = document.querySelector("#productExplanationModal .modal-footer .btn-secondary");
+            if (closeBtn) {
+              closeBtn.parentNode.insertBefore(saveBtn, closeBtn);
+            }
+          }
+          
           removeProductBtn.setAttribute("data-product", productName);
           removeProductBtn.setAttribute("data-plan", plan);
           removeProductBtn.textContent = `Remove ${productName}`;
@@ -1212,20 +1321,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Setup drag listeners for a new item
     const setupDragListeners = (item) => {
       if (item) {
-        item.addEventListener("dragstart", function (e) {
-          draggedItem = this;
-          originalPlan = this.getAttribute("data-plan");
-          setTimeout(() => {
-            this.classList.add("dragging");
-          }, 0);
-          e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
-        });
-
-        item.addEventListener("dragend", function () {
-          this.classList.remove("dragging");
-          draggedItem = null;
-          originalPlan = null;
-        });
+        const productName = item.querySelector(".product-name")?.textContent;
+        if (productName) {
+          item.setAttribute("data-product", productName);
+        }
       }
     };
 
@@ -1250,11 +1349,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const productItem = this.closest(".feature-item");
           if (productItem) {
             const plan = productItem.getAttribute("data-plan");
+            const productName = productItem.querySelector(".product-name").textContent;
             productItem.classList.add("fade-out");
             setTimeout(() => {
               productItem.remove();
+              settings.productAssignments[plan] = settings.productAssignments[plan].filter(
+                p => p !== productName
+              );
+              localStorage.setItem("menuSettings", JSON.stringify(settings));
               updatePlanPrice(plan);
-              populateAllAddProductDropdowns(); // Refresh dropdowns after removal
+              populateAllAddProductDropdowns();
             }, 300);
           }
         });
@@ -1335,7 +1439,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      reattachEventListeners();
+      initializeDragAndDrop();
       populateAllAddProductDropdowns(); // Ensure dropdowns are populated after layout adjustment
     };
 
@@ -1445,6 +1549,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newItem.setAttribute("draggable", "true");
           newItem.setAttribute("data-id", `p${Date.now() + Math.random()}`);
           newItem.setAttribute("data-plan", plan);
+          newItem.setAttribute("data-product", productName);
           newItem.innerHTML = `
             <div class="feature-content">
               <span class="feature-check ${plan}-check">✓</span>
@@ -1458,7 +1563,6 @@ document.addEventListener("DOMContentLoaded", () => {
             dropzone.appendChild(newItem);
           }
 
-          setupDragListeners(newItem);
           setupProductExplanationListener(newItem);
         });
 
@@ -1468,9 +1572,39 @@ document.addEventListener("DOMContentLoaded", () => {
       populateAllAddProductDropdowns(); // Populate dropdowns after loading settings
     };
 
+    // Add CSS for animations
+    const addAnimationStyles = () => {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = `
+        .highlight-existing {
+          animation: pulse 1.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+          25% { transform: scale(1.05); box-shadow: 0 0 10px rgba(0,123,255,0.5); }
+          50% { transform: scale(1); box-shadow: 0 0 15px rgba(0,123,255,0.7); }
+          75% { transform: scale(1.05); box-shadow: 0 0 10px rgba(0,123,255,0.5); }
+          100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+        }
+        
+        .fade-out {
+          animation: fadeOut 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+          0% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(0.9); }
+        }
+      `;
+      document.head.appendChild(styleElement);
+    };
+
     // Initialize
+    addAnimationStyles();
     initializeStaticListeners();
     loadSettings();
+    initializeDragAndDrop();
     adjustTableLayout();
   } catch (e) {
     console.error("Error in DOMContentLoaded handler:", e);
