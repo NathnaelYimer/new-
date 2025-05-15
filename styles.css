@@ -550,7 +550,7 @@ body::before {
   width: 95%;
   border-collapse: separate;
   border-spacing: 10px;
-  table-layout: fixed;
+  table-layout: auto;
   margin: 80px auto 0; /* Added top margin to prevent overlap */
   position: relative;
 }
@@ -627,33 +627,33 @@ body::before {
 }
 
 .platinum-bg {
-  background-color: #e5e4e2;
+  background: var(--platinum-bg);
   width: 20%;
   box-shadow: 0 -2px 15px var(--platinum-glow);
 }
 
 .gold-bg {
-  background-color: #ffd700;
+  background: var(--gold-bg);
   width: 20%;
   box-shadow: 0 -2px 15px var(--gold-glow);
 }
 
 .silver-bg {
-  background-color: #c0c0c0;
+ background: var(--silver-bg);
   width: 20%;
   box-shadow: 0 -2px 15px var(--silver-glow);
 }
 
 .bronze-bg {
-  background-color: #cd7f32;
-  width: 20%;
-  box-shadow: 0 -2px 15px var(--bronze-glow);
+background: var(--bronze-bg);
+width: 20%;
+box-shadow: 0 -2px 15px var(--bronze-glow);
 }
 
 .iron-bg {
-  background-color: #43464b;
-  width: 20%;
-  box-shadow: 0 -2px 15px var(--iron-glow);
+background: var(--iron-bg);
+width: 20%;
+box-shadow: 0 -2px 15px var(--iron-glow);
 }
 
 .platinum-check {
@@ -2762,4 +2762,18 @@ td.price-bottom .cell-content .price-section {
 #saveProductPrice:hover {
   background-color: #218838;
   border-color: #1e7e34;
+}
+
+
+
+th.hidden,
+td.hidden {
+  display: none;
+}
+
+.menu-table th,
+.menu-table td {
+  transition: opacity 0.3s ease;
+  vertical-align: top;
+  padding: 15px;
 }

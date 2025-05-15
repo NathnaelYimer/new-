@@ -34,36 +34,17 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   
     // Close settings and go back to menu
-      if (closeSettings) {
-    closeSettings.addEventListener("click", () => {
-      // Save settings before redirecting
-      const settings = {
-        columnNames: {
-          platinum: document.getElementById("platinum-name").value,
-          gold: document.getElementById("gold-name").value,
-          silver: document.getElementById("silver-name").value,
-          bronze: document.getElementById("bronze-name").value,
-          iron: document.getElementById("iron-name").value,
-        },
-        columnVisibility: {
-          platinum: document.getElementById("platinum-visible").checked,
-          gold: document.getElementById("gold-visible").checked,
-          silver: document.getElementById("silver-visible").checked,
-          bronze: document.getElementById("bronze-visible").checked,
-          iron: document.getElementById("iron-visible").checked,
-        },
-        productData: productData,
-      };
-
-      // Save settings to localStorage
-      localStorage.setItem("menuSettings", JSON.stringify(settings));
-
-      // Redirect to the menu (index.html) after a short delay
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
-    });
-  }
+    if (closeSettings) {
+      closeSettings.addEventListener("click", () => {
+        // Save settings before redirecting
+        saveSettings();
+  
+        // Redirect to the menu (index.html) after a short delay
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 500);
+      });
+    }
   
     // Tab switching functionality
     const tabButtons = document.querySelectorAll(".tab-button")
@@ -79,6 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
         button.classList.add("active")
         const tabId = button.getAttribute("data-tab")
         document.getElementById(tabId).classList.add("active")
+        
+        // Update column order in product assignment table when switching to that tab
+        if (tabId === "product-assignment") {
+          updateColumnOrder();
+        }
       })
     })
   
@@ -233,6 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
   
       // Close the modal
       columnNameModal.style.display = "none"
+      
+      // Save settings automatically
+      autoSaveSettings();
     })
   
     // Make product prices editable
@@ -269,6 +258,9 @@ document.addEventListener("DOMContentLoaded", () => {
   
             // Update all other instances of this product price
             updateProductPriceDisplays(productName, newPrice)
+            
+            // Auto-save settings
+            autoSaveSettings();
           } else {
             // Revert to original if invalid
             this.textContent = currentText
@@ -317,9 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const editPriceInput = document.getElementById("edit-product-price")
     const editDescInput = document.getElementById("edit-product-description")
     const saveEditBtn = document.querySelector(".save-edit-btn")
-  
-    // Initialize Bootstrap's Modal component
-    // const bootstrap = window.bootstrap;
   
     editButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -394,6 +383,9 @@ document.addEventListener("DOMContentLoaded", () => {
   
       // Close the modal
       editModal.hide()
+      
+      // Auto-save settings
+      autoSaveSettings();
     })
   
     // Delete product functionality
@@ -422,6 +414,9 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }
           })
+          
+          // Auto-save settings
+          autoSaveSettings();
         }
       })
     })
@@ -485,6 +480,9 @@ document.addEventListener("DOMContentLoaded", () => {
             delete productData[name]
           }
           newCard.remove()
+          
+          // Auto-save settings
+          autoSaveSettings();
         }
       })
   
@@ -494,38 +492,48 @@ document.addEventListener("DOMContentLoaded", () => {
         const newRow = document.createElement("tr")
         newRow.className = "product-row"
         newRow.setAttribute("draggable", "true")
-        newRow.innerHTML = `
-            <td class="product-cell">
-              <div><i class="bi bi-grip-vertical product-handle"></i> ${name}</div>
-              <div class="product-price editable-price" data-product="${name}">$${price}</div>
-            </td>
+        
+        // Get the current column order based on platinumFirst setting
+        const platinumFirst = document.getElementById("show-platinum-first").checked;
+        const columnVisibility = {
+          platinum: document.getElementById("platinum-visible").checked,
+          gold: document.getElementById("gold-visible").checked,
+          silver: document.getElementById("silver-visible").checked,
+          bronze: document.getElementById("bronze-visible").checked,
+          iron: document.getElementById("iron-visible").checked,
+        };
+        
+        let columnOrder;
+        if (platinumFirst) {
+          columnOrder = ["platinum", "gold", "silver", "bronze", "iron"];
+        } else {
+          columnOrder = ["iron", "bronze", "silver", "gold", "platinum"];
+        }
+        
+        // Filter out invisible columns
+        const visibleColumns = columnOrder.filter(col => columnVisibility[col]);
+        
+        // Create the product cell
+        let rowHTML = `
+          <td class="product-cell">
+            <div><i class="bi bi-grip-vertical product-handle"></i> ${name}</div>
+            <div class="product-price editable-price" data-product="${name}">$${price}</div>
+          </td>
+        `;
+        
+        // Add cells for each visible column
+        visibleColumns.forEach(colType => {
+          rowHTML += `
             <td>
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox">
               </div>
             </td>
-            <td>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox">
-              </div>
-            </td>
-            <td>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox">
-              </div>
-            </td>
-            <td>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox">
-              </div>
-            </td>
-            <td>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox">
-              </div>
-            </td>
-          `
-        productTable.appendChild(newRow)
+          `;
+        });
+        
+        newRow.innerHTML = rowHTML;
+        productTable.appendChild(newRow);
   
         // Add click event to the new editable price
         const newPriceElement = newRow.querySelector(".editable-price")
@@ -554,6 +562,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 productData[productName].price = newPrice
                 this.textContent = `$${newPrice.toFixed(2)}`
                 updateProductPriceDisplays(productName, newPrice)
+                
+                // Auto-save settings
+                autoSaveSettings();
               } else {
                 this.textContent = currentText
               }
@@ -579,14 +590,31 @@ document.addEventListener("DOMContentLoaded", () => {
       newProductName.value = ""
       newProductPrice.value = ""
       newProductDesc.value = ""
+      
+      // Auto-save settings
+      autoSaveSettings();
     })
   
     // Save settings functionality
     const saveSettingsBtn = document.querySelector(".save-settings-btn");
 
     saveSettingsBtn.addEventListener("click", () => {
+      saveSettings();
+    
+      // Redirect to index.html after a short delay (500ms)
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 500);
+    });
+    
+    // Function to save settings
+    function saveSettings() {
+      // Get the platinumFirst setting
+      const platinumFirst = document.getElementById("show-platinum-first").checked;
+      
       // Collect all settings data
       const settings = {
+        platinumFirst: platinumFirst,
         columnNames: {
           platinum: document.getElementById("platinum-name").value,
           gold: document.getElementById("gold-name").value,
@@ -601,19 +629,72 @@ document.addEventListener("DOMContentLoaded", () => {
           bronze: document.getElementById("bronze-visible").checked,
           iron: document.getElementById("iron-visible").checked,
         },
-        // Product assignments would be collected here in a real app
         productData: productData,
+        productAssignments: {}, // New property
       };
     
       // Save to localStorage
-      localStorage.setItem("menuSettings", JSON.stringify(settings));
+     const productRows = document.querySelectorAll(".product-assignment-table tbody tr");
+      productRows.forEach((row) => {
+        const productName = row.querySelector(".product-cell div:first-child").textContent.trim();
+        settings.productAssignments[productName] = {};
+        const checkboxes = row.querySelectorAll(".form-check-input");
+        const columnOrder = platinumFirst
+          ? ["platinum", "gold", "silver", "bronze", "iron"]
+          : ["iron", "bronze", "silver", "gold", "platinum"];
+        const visibleColumns = columnOrder.filter((col) => settings.columnVisibility[col]);
+        visibleColumns.forEach((colType, index) => {
+          settings.productAssignments[productName][colType] = checkboxes[index].checked;
+        });
+  });
+
+  // Save to localStorage
+  localStorage.setItem("menuSettings", JSON.stringify(settings));
+
+  return settings;
+      
+      return settings;
+    }
     
-      // Redirect to index.html after a short delay (500ms)
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
-    });
+    // Function to auto-save settings without redirecting
+    function autoSaveSettings() {
+      const settings = saveSettings();
+      
+      // Apply the settings immediately
+      applySettings(settings);
+    }
     
+    // Function to apply settings to the UI
+    function applySettings(settings) {
+      // Apply column names
+      if (settings.columnNames) {
+        document.getElementById("platinum-name").value = settings.columnNames.platinum;
+        document.getElementById("gold-name").value = settings.columnNames.gold;
+        document.getElementById("silver-name").value = settings.columnNames.silver;
+        document.getElementById("bronze-name").value = settings.columnNames.bronze;
+        document.getElementById("iron-name").value = settings.columnNames.iron;
+        
+        // Update column names in the product assignment table
+        document.querySelectorAll(".editable-column-name").forEach((column) => {
+          const columnType = column.getAttribute("data-column");
+          if (settings.columnNames[columnType]) {
+            column.querySelector(".column-display-name").textContent = settings.columnNames[columnType];
+          }
+        });
+      }
+      
+      // Apply column visibility
+      if (settings.columnVisibility) {
+        document.getElementById("platinum-visible").checked = settings.columnVisibility.platinum;
+        document.getElementById("gold-visible").checked = settings.columnVisibility.gold;
+        document.getElementById("silver-visible").checked = settings.columnVisibility.silver;
+        document.getElementById("bronze-visible").checked = settings.columnVisibility.bronze;
+        document.getElementById("iron-visible").checked = settings.columnVisibility.iron;
+      }
+      
+      // Update the column order in the product assignment table
+      updateColumnOrder();
+    }
   
     // Load saved settings if they exist
     const loadSavedSettings = () => {
@@ -623,6 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // If no saved settings exist, initialize with defaults (Iron hidden)
       if (!savedSettings) {
         settings = {
+          platinumFirst: true, // Default to platinum first
           columnNames: {
             platinum: "Platinum",
             gold: "Gold",
@@ -644,39 +726,16 @@ document.addEventListener("DOMContentLoaded", () => {
         settings = JSON.parse(savedSettings);
       }
     
-      // Apply column names
-      if (settings.columnNames) {
-        document.getElementById("platinum-name").value = settings.columnNames.platinum;
-        document.getElementById("gold-name").value = settings.columnNames.gold;
-        document.getElementById("silver-name").value = settings.columnNames.silver;
-        document.getElementById("bronze-name").value = settings.columnNames.bronze;
-        document.getElementById("iron-name").value = settings.columnNames.iron;
-    
-        // Update column names in the product assignment table
-        document.querySelectorAll(".editable-column-name").forEach((column) => {
-          const columnType = column.getAttribute("data-column");
-          if (settings.columnNames[columnType]) {
-            column.querySelector(".column-display-name").textContent = settings.columnNames[columnType];
-          }
-        });
-    
-        // Update column visibility labels
-        document.querySelectorAll(".column-visibility .form-check-label").forEach((label) => {
-          const columnType = label.getAttribute("for").replace("-visible", "");
-          if (settings.columnNames[columnType]) {
-            label.textContent = settings.columnNames[columnType];
-          }
-        });
+      // Apply platinum first setting
+      if (settings.platinumFirst !== undefined) {
+        document.getElementById("show-platinum-first").checked = settings.platinumFirst;
+      } else {
+        // If platinumFirst setting doesn't exist in saved settings, default to true
+        document.getElementById("show-platinum-first").checked = true;
       }
-    
-      // Apply column visibility
-      if (settings.columnVisibility) {
-        document.getElementById("platinum-visible").checked = settings.columnVisibility.platinum;
-        document.getElementById("gold-visible").checked = settings.columnVisibility.gold;
-        document.getElementById("silver-visible").checked = settings.columnVisibility.silver;
-        document.getElementById("bronze-visible").checked = settings.columnVisibility.bronze;
-        document.getElementById("iron-visible").checked = settings.columnVisibility.iron;
-      }
+      
+      // Apply settings to the UI
+      applySettings(settings);
     
       // Load product data
       if (settings.productData) {
@@ -687,8 +746,218 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
     
-    // Load settings when page loads
-    loadSavedSettings();
+    // Function to update column order based on platinumFirst setting and visibility
+    function updateColumnOrder() {
+      const platinumFirst = document.getElementById("show-platinum-first").checked;
+      const columnVisibility = {
+        platinum: document.getElementById("platinum-visible").checked,
+        gold: document.getElementById("gold-visible").checked,
+        silver: document.getElementById("silver-visible").checked,
+        bronze: document.getElementById("bronze-visible").checked,
+        iron: document.getElementById("iron-visible").checked,
+      };
+      
+      // Update the column names grid order
+      updateColumnNamesGrid(platinumFirst, columnVisibility);
+      
+      // Get the table header and all rows
+      const table = document.querySelector(".product-assignment-table table");
+      if (!table) return;
+      
+      const thead = table.querySelector("thead");
+      const tbody = table.querySelector("tbody");
+      
+      if (!thead || !tbody) return;
+      
+      const headerRow = thead.querySelector("tr");
+      const bodyRows = tbody.querySelectorAll("tr");
+      
+      if (!headerRow) return;
+      
+      // Define the column order based on platinumFirst setting
+      let columnOrder;
+      if (platinumFirst) {
+        columnOrder = ["platinum", "gold", "silver", "bronze", "iron"];
+      } else {
+        columnOrder = ["iron", "bronze", "silver", "gold", "platinum"];
+      }
+      
+      // Filter out invisible columns
+      const visibleColumns = columnOrder.filter(col => columnVisibility[col]);
+      
+      // Create a map to store the current header cells and their column types
+      const headerCells = Array.from(headerRow.querySelectorAll("th"));
+      const productNameHeader = headerCells[0]; // First column is always product name
+      
+      // Remove all header cells except the first one (product name)
+      while (headerRow.children.length > 1) {
+        headerRow.removeChild(headerRow.lastChild);
+      }
+      
+      // Create a map to store the current body cells for each row
+      const rowCellsMap = new Map();
+      
+      bodyRows.forEach((row, rowIndex) => {
+        const cells = Array.from(row.querySelectorAll("td"));
+        const productCell = cells[0]; // First cell is always product info
+        
+        // Store the cells for this row
+        rowCellsMap.set(rowIndex, {
+          productCell,
+          columnCells: {
+            platinum: cells[1],
+            gold: cells[2],
+            silver: cells[3],
+            bronze: cells[4],
+            iron: cells[5]
+          }
+        });
+        
+        // Remove all cells except the first one (product info)
+        while (row.children.length > 1) {
+          row.removeChild(row.lastChild);
+        }
+      });
+      
+      // Get the column names from inputs
+      const columnNames = {
+        platinum: document.getElementById("platinum-name").value,
+        gold: document.getElementById("gold-name").value,
+        silver: document.getElementById("silver-name").value,
+        bronze: document.getElementById("bronze-name").value,
+        iron: document.getElementById("iron-name").value,
+      };
+      
+      // Recreate header cells in the new order
+      visibleColumns.forEach(colType => {
+        const newHeaderCell = document.createElement("th");
+        newHeaderCell.innerHTML = `
+          <div class="editable-column-name" data-column="${colType}">
+            <span class="column-display-name">${columnNames[colType]}</span>
+            <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+          </div>
+        `;
+        headerRow.appendChild(newHeaderCell);
+        
+        // Add event listener to the new edit button
+        const editBtn = newHeaderCell.querySelector(".edit-column-name");
+        if (editBtn) {
+          editBtn.addEventListener("click", () => {
+            const columnNameContainer = editBtn.closest(".editable-column-name");
+            const columnType = columnNameContainer.getAttribute("data-column");
+            const currentName = columnNameContainer.querySelector(".column-display-name").textContent;
+            
+            // Populate the modal
+            document.getElementById("column-name-input").value = currentName;
+            document.getElementById("column-type").value = columnType;
+            
+            // Show the modal
+            columnNameModal.style.display = "flex";
+          });
+        }
+      });
+      
+      // Recreate body cells in the new order for each row
+      bodyRows.forEach((row, rowIndex) => {
+        const rowData = rowCellsMap.get(rowIndex);
+        if (!rowData) return;
+        
+        visibleColumns.forEach(colType => {
+          if (rowData.columnCells[colType]) {
+            const cell = rowData.columnCells[colType].cloneNode(true);
+            row.appendChild(cell);
+          } else {
+            // If the cell doesn't exist (e.g., for a new column), create a default one
+            const newCell = document.createElement("td");
+            newCell.innerHTML = `
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox">
+              </div>
+            `;
+            row.appendChild(newCell);
+          }
+        });
+      });
+      
+      // Add event listeners to the edit column name buttons
+      document.querySelectorAll(".edit-column-name").forEach((button) => {
+        button.addEventListener("click", () => {
+          const columnNameContainer = button.closest(".editable-column-name");
+          const columnType = columnNameContainer.getAttribute("data-column");
+          const currentName = columnNameContainer.querySelector(".column-display-name").textContent;
+          
+          // Populate the modal
+          document.getElementById("column-name-input").value = currentName;
+          document.getElementById("column-type").value = columnType;
+          
+          // Show the modal
+          columnNameModal.style.display = "flex";
+        });
+      });
+    }
+    
+    // Function to update the column names grid order
+    function updateColumnNamesGrid(platinumFirst, columnVisibility) {
+      const columnNamesGrid = document.querySelector(".column-names-grid");
+      if (!columnNamesGrid) return;
+      
+      // Get all column name items
+      const columnItems = Array.from(columnNamesGrid.querySelectorAll(".column-name-item"));
+      
+      // Remove all column items except the platinum first toggle
+      columnItems.forEach(item => item.remove());
+      
+      // Define the column order based on platinumFirst setting
+      let columnOrder;
+      if (platinumFirst) {
+        columnOrder = ["platinum", "gold", "silver", "bronze", "iron"];
+      } else {
+        columnOrder = ["iron", "bronze", "silver", "gold", "platinum"];
+      }
+      
+      // Get the column items by type
+      const columnItemsByType = {
+        platinum: columnItems.find(item => item.querySelector("#platinum-name")),
+        gold: columnItems.find(item => item.querySelector("#gold-name")),
+        silver: columnItems.find(item => item.querySelector("#silver-name")),
+        bronze: columnItems.find(item => item.querySelector("#bronze-name")),
+        iron: columnItems.find(item => item.querySelector("#iron-name"))
+      };
+      
+      // Append the column items in the new order
+      columnOrder.forEach(colType => {
+        if (columnItemsByType[colType]) {
+          columnNamesGrid.appendChild(columnItemsByType[colType]);
+        }
+      });
+    }
+    
+    // Add event listener to the "Show Platinum First" toggle
+    document.getElementById("show-platinum-first").addEventListener("change", () => {
+      updateColumnOrder();
+      autoSaveSettings();
+    });
+    
+    // Add event listeners to column visibility toggles
+    document.querySelectorAll(".column-visibility-toggle input").forEach(toggle => {
+      toggle.addEventListener("change", () => {
+        updateColumnOrder();
+        autoSaveSettings();
+      });
+    });
+    
+    // Add event listeners to column name inputs
+    document.querySelectorAll(".column-name-item input[type='text']").forEach(input => {
+      input.addEventListener("change", () => {
+        // Update column names in the product assignment table
+        const columnType = input.id.replace("-name", "");
+        document.querySelectorAll(`.editable-column-name[data-column="${columnType}"] .column-display-name`).forEach(el => {
+          el.textContent = input.value;
+        });
+        
+        autoSaveSettings();
+      });
+    });
   
     // Add drag and drop functionality for product reordering
     function setupDragAndDrop(row) {
@@ -765,6 +1034,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
   
       this.classList.remove("drag-over")
+      
+      // Auto-save after reordering
+      autoSaveSettings();
+      
       return false
     }
   
@@ -777,6 +1050,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Initialize product reordering
     initProductReordering()
+    
+    // Load settings when page loads
+    loadSavedSettings()
   })
-  
-  
