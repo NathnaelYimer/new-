@@ -325,6 +325,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let touchDragImage = null
     let lastTouchTarget = null
 
+    // Auto-scroll variables
+    const SCROLL_SPEED = 200// Pixels per frame (increased from 100)
+    const SCROLL_THRESHOLD = 50 // Distance from edge to start scrolling
+    let scrollInterval = null
+    let scrollIndicator = null
+
+    
+
     // Payment data by plan and term
     const paymentData = {
       platinum: {
@@ -819,6 +827,83 @@ document.addEventListener("DOMContentLoaded", () => {
       return element
     }
 
+    // Create scroll indicator
+    const createScrollIndicator = (direction) => {
+      // Remove existing indicator if any
+      removeScrollIndicator();
+      
+      const indicator = document.createElement('div');
+      indicator.className = 'scroll-indicator';
+      
+      // Style for the indicator
+      indicator.style.position = 'fixed';
+      indicator.style.width = '100%';
+      indicator.style.height = '40px';
+      indicator.style.left = '0';
+      indicator.style.zIndex = '9998';
+      indicator.style.pointerEvents = 'none';
+      indicator.style.display = 'flex';
+      indicator.style.justifyContent = 'center';
+      indicator.style.alignItems = 'center';
+      indicator.style.fontSize = '24px';
+      indicator.style.color = 'white';
+      indicator.style.textShadow = '0 0 3px rgba(0,0,0,0.7)';
+      
+      if (direction === 'up') {
+        indicator.style.top = '0';
+        indicator.style.background = 'linear-gradient(to bottom, rgba(0,123,255,0.5), transparent)';
+        indicator.innerHTML = '⬆️';
+      } else {
+        indicator.style.bottom = '0';
+        indicator.style.background = 'linear-gradient(to top, rgba(0,123,255,0.5), transparent)';
+        indicator.innerHTML = '⬇️';
+      }
+      
+      document.body.appendChild(indicator);
+      return indicator;
+    }
+
+    // Remove scroll indicator
+    const removeScrollIndicator = () => {
+      if (scrollIndicator) {
+        scrollIndicator.remove();
+        scrollIndicator = null;
+      }
+    }
+
+    // Handle auto-scroll functionality
+    const handleAutoScroll = (touchY) => {
+      // Clear any existing scroll interval
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+
+      const windowHeight = window.innerHeight;
+      const topThreshold = SCROLL_THRESHOLD;
+      const bottomThreshold = windowHeight - SCROLL_THRESHOLD;
+
+      // If touch is near the top edge, scroll up
+      if (touchY < topThreshold) {
+        const speed = Math.max(1, SCROLL_SPEED * (1 - touchY / topThreshold));
+        scrollIndicator = createScrollIndicator('up');
+        scrollInterval = setInterval(() => {
+          window.scrollBy(0, -speed);
+        }, 16); // ~60fps
+      }
+      // If touch is near the bottom edge, scroll down
+      else if (touchY > bottomThreshold) {
+        const speed = Math.max(1, SCROLL_SPEED * ((touchY - bottomThreshold) / SCROLL_THRESHOLD));
+        scrollIndicator = createScrollIndicator('down');
+        scrollInterval = setInterval(() => {
+          window.scrollBy(0, speed);
+        }, 16); // ~60fps
+      } else {
+        // Not near edges, remove indicator
+        removeScrollIndicator();
+      }
+    }
+
     // Handle month selector click
     const handleMonthSelectorClick = (e) => {
       e.preventDefault()
@@ -1026,10 +1111,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (elementUnderTouch?.closest("#trashZone")) {
         trashZone.classList.add("active")
       }
+
+      // Handle auto-scrolling
+      handleAutoScroll(touch.clientY)
     }
 
     // Handle touch end event
     const handleTouchEnd = (e) => {
+      // Clear any auto-scroll interval
+      if (scrollInterval) {
+        clearInterval(scrollInterval)
+        scrollInterval = null
+        removeScrollIndicator()
+      }
+
       // Check if the touch is on a month selector dropdown item
       const monthSelectorItem = e.target.closest(".month-selector .dropdown-item")
       if (monthSelectorItem) {
@@ -1069,6 +1164,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Handle touch cancel event
     const handleTouchCancel = () => {
+      // Clear any auto-scroll interval
+      if (scrollInterval) {
+        clearInterval(scrollInterval)
+        scrollInterval = null
+        removeScrollIndicator()
+      }
+
       // Clear any pending long press timeout
       if (touchTimeout) {
         clearTimeout(touchTimeout)
@@ -1082,6 +1184,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Finish touch drag operation
     const finishTouchDrag = () => {
+      // Clear any auto-scroll interval
+      if (scrollInterval) {
+        clearInterval(scrollInterval)
+        scrollInterval = null
+        removeScrollIndicator()
+      }
+
       if (draggedItem) {
         draggedItem.classList.remove("dragging")
         draggedItem.style.opacity = ""
@@ -1961,7 +2070,7 @@ document.addEventListener("DOMContentLoaded", () => {
       populateAllAddProductDropdowns() // Populate dropdowns after loading settings
     }
 
-    // Add CSS for animations
+    // Add CSS for animations and scroll indicators
     const addAnimationStyles = () => {
       const styleElement = document.createElement("style")
       styleElement.textContent = `
@@ -1985,6 +2094,16 @@ document.addEventListener("DOMContentLoaded", () => {
         0% { opacity: 1; transform: scale(1); }
         100% { opacity: 0; transform: scale(0.9); }
       }
+
+      .scroll-indicator {
+        animation: fadeInOut 1.5s infinite;
+      }
+      
+      @keyframes fadeInOut {
+        0% { opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { opacity: 0.5; }
+      }
     `
       document.head.appendChild(styleElement)
     }
@@ -2002,11 +2121,10 @@ document.addEventListener("DOMContentLoaded", () => {
 })
 
 // Log the changes made to fix iPad drag and drop
-console.log("Fixed iPad drag and drop functionality with the following changes:")
-console.log("1. Added touch event handling for iPad compatibility")
-console.log("2. Implemented visual drag feedback with ghost element")
-console.log("3. Added proper touch event detection for dropzones")
-console.log("4. Fixed touch event propagation issues")
-
-console.log("5. Added cleanup for touch events to prevent memory leaks")
-console.log("6. Fixed month selector functionality on iPad")
+console.log("Enhanced iPad drag and drop functionality with the following changes:")
+console.log("1. Added auto-scrolling when dragging near screen edges")
+console.log("2. Added visual indicators for scrolling direction")
+console.log("3. Improved touch event handling for iPad compatibility")
+console.log("4. Added smooth acceleration for scrolling")
+console.log("5. Fixed touch event propagation issues")
+console.log("6. Added cleanup for auto-scroll intervals to prevent memory leaks")
