@@ -1,75 +1,19 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // Sidebar toggle functionality
-    const sidebar = document.getElementById("sidebar")
-    const mainContent = document.getElementById("main-content")
-    const sidebarToggle = document.getElementById("sidebar-toggle")
-    const mobileToggle = document.getElementById("mobile-toggle")
-    const closeSettings = document.getElementById("close-settings")
-  
-    // Toggle sidebar on desktop
-    sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("collapsed")
-      mainContent.classList.toggle("expanded")
-    })
-  
-    // Toggle sidebar on mobile
-    mobileToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("mobile-open")
-    })
-  
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener("click", (e) => {
-      if (window.innerWidth <= 768) {
-        if (!sidebar.contains(e.target) && e.target !== mobileToggle && sidebar.classList.contains("mobile-open")) {
-          sidebar.classList.remove("mobile-open")
-        }
-      }
-    })
-  
-    // Resize handler
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 768) {
-        sidebar.classList.remove("mobile-open")
-      }
-    })
-  
-    // Close settings and go back to menu
-    if (closeSettings) {
-      closeSettings.addEventListener("click", () => {
-        // Save settings before redirecting
-        saveSettings();
-  
-        // Redirect to the menu (index.html) after a short delay
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 500);
-      });
-    }
-  
-    // Tab switching functionality
-    const tabButtons = document.querySelectorAll(".tab-button")
-    const tabContents = document.querySelectorAll(".tab-content")
-  
-    tabButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        // Remove active class from all buttons and contents
-        tabButtons.forEach((btn) => btn.classList.remove("active"))
-        tabContents.forEach((content) => content.classList.remove("active"))
-  
-        // Add active class to clicked button and corresponding content
-        button.classList.add("active")
-        const tabId = button.getAttribute("data-tab")
-        document.getElementById(tabId).classList.add("active")
-        
-        // Update column order in product assignment table when switching to that tab
-        if (tabId === "product-assignment") {
-          updateColumnOrder();
-        }
-      })
-    })
-  
-    // Product data with descriptions
-    const productData = {
+class FIMenuSettings {
+  constructor() {
+    this.productData = this.loadInitialProductData()
+    this.settings = this.loadSavedSettings()
+    this.columnOrder = ["platinum", "gold", "silver", "bronze", "iron"]
+    this.cacheDOM()
+    this.createToastContainer()
+    this.createColumnNameModal()
+    this.bindEvents()
+    this.applySettings()
+    this.setupCrossTabSync()
+  }
+
+  // Load initial product data
+  loadInitialProductData() {
+    return {
       "Extended Warranty": {
         price: 613.16,
         description:
@@ -120,948 +64,1008 @@ document.addEventListener("DOMContentLoaded", () => {
           "Repairs limited to dents smaller than 4 inches in diameter. Paint touch-up for scratches less than 6 inches. Unlimited number of repairs during contract period. $0 deductible per claim.",
       },
     }
-  
-    // Create column name edit modal
-    const createColumnNameModal = () => {
-      const modal = document.createElement("div")
-      modal.className = "column-name-modal"
-      modal.id = "columnNameModal"
-      modal.innerHTML = `
-          <div class="column-name-modal-content">
-            <div class="column-name-modal-header">
-              <h3 class="column-name-modal-title">Edit Column Name</h3>
-              <button class="column-name-modal-close">&times;</button>
-            </div>
-            <div class="column-name-modal-body">
-              <div class="mb-3">
-                <label for="column-name-input" class="form-label">Column Name</label>
-                <input type="text" class="form-control" id="column-name-input">
-                <input type="hidden" id="column-type">
-              </div>
-            </div>
-            <div class="column-name-modal-footer">
-              <button class="btn btn-secondary cancel-column-name">Cancel</button>
-              <button class="btn btn-primary save-column-name">Save</button>
-            </div>
+  }
+
+  // Cache DOM elements
+  cacheDOM() {
+    this.sidebar = document.getElementById("sidebar")
+    this.mainContent = document.getElementById("main-content")
+    this.sidebarToggle = document.getElementById("sidebar-toggle")
+    this.mobileToggle = document.getElementById("mobile-toggle")
+    this.closeSettings = document.getElementById("close-settings")
+    this.saveSettingsBtn = document.querySelector(".save-settings-btn")
+    this.tabButtons = document.querySelectorAll(".tab-button")
+    this.tabContents = document.querySelectorAll(".tab-content")
+    this.platinumFirstToggle = document.getElementById("show-platinum-first")
+    this.columnNamesGrid = document.querySelector(".column-names-grid")
+    this.productTable = document.querySelector(".product-assignment-table tbody")
+    this.productsGrid = document.querySelector(".products-grid")
+    this.editModal = document.getElementById("editProductModal")
+    this.editNameInput = document.getElementById("edit-product-name")
+    this.editPriceInput = document.getElementById("edit-product-price")
+    this.editDescInput = document.getElementById("edit-product-description")
+    this.saveEditBtn = document.querySelector(".save-edit-btn")
+    this.addProductBtn = document.querySelector(".add-product-btn")
+    this.newProductName = document.getElementById("new-product-name")
+    this.newProductPrice = document.getElementById("new-product-price")
+    this.newProductDesc = document.getElementById("new-product-description")
+
+    // Initialize Bootstrap modal
+    this.bootstrapModal = new window.bootstrap.Modal(this.editModal)
+  }
+
+  // Create toast container
+  createToastContainer() {
+    const toastContainer = document.querySelector(".toast-container")
+    if (!toastContainer) {
+      const newToastContainer = document.createElement("div")
+      newToastContainer.className = "toast-container"
+      document.body.appendChild(newToastContainer)
+      this.toastContainer = newToastContainer
+    } else {
+      this.toastContainer = toastContainer
+    }
+  }
+
+  // Create column name modal
+  createColumnNameModal() {
+    const existingModal = document.getElementById("columnNameModal")
+    if (existingModal) {
+      this.columnNameModal = existingModal
+      return
+    }
+
+    const modal = document.createElement("div")
+    modal.className = "column-name-modal"
+    modal.id = "columnNameModal"
+    modal.setAttribute("role", "dialog")
+    modal.setAttribute("aria-labelledby", "columnNameModalTitle")
+    modal.innerHTML = `
+      <div class="column-name-modal-content">
+        <div class="column-name-modal-header">
+          <h3 class="column-name-modal-title" id="columnNameModalTitle">Edit Column Name</h3>
+          <button class="column-name-modal-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="column-name-modal-body">
+          <div class="mb-3">
+            <label for="column-name-input" class="form-label">Column Name</label>
+            <input type="text" class="form-control" id="column-name-input">
+            <input type="hidden" id="column-type">
           </div>
-        `
-      document.body.appendChild(modal)
-  
-      // Close modal when clicking the close button
-      modal.querySelector(".column-name-modal-close").addEventListener("click", () => {
-        modal.style.display = "none"
-      })
-  
-      // Close modal when clicking cancel
-      modal.querySelector(".cancel-column-name").addEventListener("click", () => {
-        modal.style.display = "none"
-      })
-  
-      // Close modal when clicking outside the content
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-          modal.style.display = "none"
-        }
-      })
-  
-      return modal
+        </div>
+        <div class="column-name-modal-footer">
+          <button class="btn btn-secondary cancel-column-name">Cancel</button>
+          <button class="btn btn-primary save-column-name">Save</button>
+        </div>
+      </div>
+    `
+    document.body.appendChild(modal)
+    this.columnNameModal = modal
+
+    // Add event listeners for the modal
+    this.columnNameModal
+      .querySelector(".column-name-modal-close")
+      .addEventListener("click", () => this.closeColumnNameModal())
+    this.columnNameModal
+      .querySelector(".cancel-column-name")
+      .addEventListener("click", () => this.closeColumnNameModal())
+    this.columnNameModal.querySelector(".save-column-name").addEventListener("click", () => this.saveColumnName())
+    this.columnNameModal.addEventListener("click", (e) => {
+      if (e.target === this.columnNameModal) this.closeColumnNameModal()
+    })
+  }
+
+  // Load saved settings
+  loadSavedSettings() {
+    const saved = localStorage.getItem("menuSettings")
+    if (!saved) {
+      return {
+        version: "1.0",
+        platinumFirst: true,
+        columnNames: {
+          platinum: "Platinum",
+          gold: "Gold",
+          silver: "Silver",
+          bronze: "Bronze",
+          iron: "Iron",
+        },
+        columnVisibility: {
+          platinum: true,
+          gold: true,
+          silver: true,
+          bronze: true,
+          iron: false,
+        },
+        productData: this.productData,
+        productAssignments: {
+          platinum: [
+            "Extended Warranty",
+            "Rust Proofing",
+            "Paint Protection",
+            "Fabric/Leather Protection",
+            "Key Fob Replacement",
+            "GAP",
+            "Scratch/Dent Repair",
+          ],
+          gold: [
+            "Extended Warranty",
+            "Rust Proofing",
+            "Paint Protection",
+            "Fabric/Leather Protection",
+            "Key Fob Replacement",
+            "GAP",
+          ],
+          silver: ["Extended Warranty", "Rust Proofing", "Paint Protection", "Key Fob Replacement", "GAP"],
+          bronze: ["Extended Warranty", "Key Fob Replacement", "GAP"],
+          iron: ["Extended Warranty", "Key Fob Replacement"],
+        },
+        productOrder: Object.keys(this.productData),
+      }
     }
-  
-    // Create the column name modal
-    const columnNameModal = createColumnNameModal()
-  
-    // Add event listeners to column name edit buttons
-    document.querySelectorAll(".edit-column-name").forEach((button) => {
-      button.addEventListener("click", () => {
-        const columnNameContainer = button.closest(".editable-column-name")
-        const columnType = columnNameContainer.getAttribute("data-column")
-        const currentName = columnNameContainer.querySelector(".column-display-name").textContent
-  
-        // Populate the modal
-        document.getElementById("column-name-input").value = currentName
-        document.getElementById("column-type").value = columnType
-  
-        // Show the modal
-        columnNameModal.style.display = "flex"
-      })
-    })
-  
-    // Save column name changes
-    document.querySelector(".save-column-name").addEventListener("click", () => {
-      const newName = document.getElementById("column-name-input").value
-      const columnType = document.getElementById("column-type").value
-  
-      if (newName.trim() === "") {
-        alert("Column name cannot be empty")
-        return
+
+    const settings = JSON.parse(saved)
+
+    // Ensure all required properties exist
+    if (!settings.productAssignments) {
+      settings.productAssignments = {
+        platinum: [],
+        gold: [],
+        silver: [],
+        bronze: [],
+        iron: [],
       }
-  
-      // Update all instances of this column name
-  
-      // 1. Update in the product assignment table
-      document
-        .querySelectorAll(`.editable-column-name[data-column="${columnType}"] .column-display-name`)
-        .forEach((el) => {
-          el.textContent = newName
-        })
-  
-      // 2. Update in the column names tab
-      const columnNameInput = document.getElementById(`${columnType}-name`)
-      if (columnNameInput) {
-        columnNameInput.value = newName
-      }
-  
-      // 3. Update in the column visibility section
-      const columnVisibilityLabel = document.querySelector(`label[for="${columnType}-visible"]`)
-      if (columnVisibilityLabel) {
-        columnVisibilityLabel.textContent = newName
-      }
-  
-      // Close the modal
-      columnNameModal.style.display = "none"
-      
-      // Save settings automatically
-      autoSaveSettings();
-    })
-  
-    // Make product prices editable
-    document.querySelectorAll(".editable-price").forEach((priceElement) => {
-      priceElement.addEventListener("click", function () {
-        // Don't do anything if already editing
-        if (this.classList.contains("editing")) return
-  
-        const productName = this.getAttribute("data-product")
-        const currentPrice = productData[productName].price
-  
-        // Create input element
-        this.classList.add("editing")
-        const currentText = this.textContent
-        this.textContent = ""
-  
-        const input = document.createElement("input")
-        input.type = "number"
-        input.step = "0.01"
-        input.min = "0"
-        input.value = currentPrice
-        this.appendChild(input)
-        input.focus()
-  
-        // Handle input blur (save changes)
-        input.addEventListener("blur", () => {
-          const newPrice = Number.parseFloat(input.value)
-          if (!isNaN(newPrice) && newPrice >= 0) {
-            // Update product data
-            productData[productName].price = newPrice
-  
-            // Update display
-            this.textContent = `$${newPrice.toFixed(2)}`
-  
-            // Update all other instances of this product price
-            updateProductPriceDisplays(productName, newPrice)
-            
-            // Auto-save settings
-            autoSaveSettings();
-          } else {
-            // Revert to original if invalid
-            this.textContent = currentText
+    }
+
+    if (!settings.productOrder) {
+      settings.productOrder = Object.keys(this.productData)
+    }
+
+    // Update productData with any saved changes
+    if (settings.productData) {
+      this.productData = settings.productData
+    }
+
+    return settings
+  }
+
+  // Setup cross-tab synchronization
+  setupCrossTabSync() {
+    // Try to use BroadcastChannel API for modern browsers
+    try {
+      this.broadcastChannel = new BroadcastChannel("fiMenuSettings")
+      this.broadcastChannel.onmessage = (event) => {
+        if (event.data && event.data.type === "settings-updated") {
+          // Load the updated settings from localStorage
+          const updatedSettings = JSON.parse(localStorage.getItem("menuSettings"))
+          if (updatedSettings) {
+            this.settings = updatedSettings
+            this.productData = updatedSettings.productData || this.productData
+            this.applySettings()
+            this.showToast("Settings updated from another tab")
           }
-          this.classList.remove("editing")
-        })
-  
-        // Handle enter key
-        input.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            input.blur()
-          } else if (e.key === "Escape") {
-            this.textContent = currentText
-            this.classList.remove("editing")
-          }
-        })
-      })
-    })
-  
-    // Function to update all price displays for a product
-    function updateProductPriceDisplays(productName, newPrice) {
-      // Update in product cards
-      document.querySelectorAll(".product-card").forEach((card) => {
-        const cardName = card.querySelector("h4")
-        if (cardName && cardName.textContent === productName) {
-          card.querySelector(".product-price-display").textContent = `$${newPrice.toFixed(2)}`
         }
-      })
-  
-      // Update in product assignment table
-      document.querySelectorAll(".editable-price").forEach((price) => {
-        if (price.getAttribute("data-product") === productName) {
-          price.textContent = `$${newPrice.toFixed(2)}`
+      }
+    } catch (error) {
+      console.log("BroadcastChannel not supported, falling back to storage event")
+      // Fallback to storage event for older browsers
+      window.addEventListener("storage", (event) => {
+        if (event.key === "menuSettings") {
+          const updatedSettings = JSON.parse(event.newValue)
+          if (updatedSettings) {
+            this.settings = updatedSettings
+            this.productData = updatedSettings.productData || this.productData
+            this.applySettings()
+            this.showToast("Settings updated from another tab")
+          }
         }
       })
     }
-  
-    // Initialize Bootstrap's Modal component
-    const bootstrap = window.bootstrap
-  
-    // Edit product functionality
-    const editButtons = document.querySelectorAll(".edit-product")
-    const editProductModalElement = document.getElementById("editProductModal")
-    const editModal = new bootstrap.Modal(editProductModalElement)
-    const editNameInput = document.getElementById("edit-product-name")
-    const editPriceInput = document.getElementById("edit-product-price")
-    const editDescInput = document.getElementById("edit-product-description")
-    const saveEditBtn = document.querySelector(".save-edit-btn")
-  
-    editButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        // Get product data from the card
-        const productCard = button.closest(".product-card")
-        const productName = productCard.querySelector("h4").textContent
-        const productPrice = productCard.querySelector(".product-price-display").textContent.replace("$", "")
-        const product = productData[productName] || {}
-  
-        // Populate the modal
-        editNameInput.value = productName
-        editNameInput.setAttribute("data-original-name", productName)
-        editPriceInput.value = productPrice
-        editDescInput.value = product.description || ""
-  
-        // Show the modal
-        editModal.show()
-  
-        // Store reference to the edited card
-        saveEditBtn.setAttribute("data-edit-card", productCard.getAttribute("data-id") || "")
-      })
-    })
-  
+  }
+
+  // Broadcast settings changes to other tabs
+  broadcastSettingsChange() {
+    if (this.broadcastChannel) {
+      this.broadcastChannel.postMessage({ type: "settings-updated" })
+    }
+  }
+
+  // Bind event listeners
+  bindEvents() {
+    // Sidebar toggles
+    this.sidebarToggle.addEventListener("click", () => this.toggleSidebar("desktop"))
+    this.mobileToggle.addEventListener("click", () => this.toggleSidebar("mobile"))
+    document.addEventListener("click", (e) => this.handleOutsideClick(e))
+    window.addEventListener("resize", () => this.handleResize())
+
+    // Close settings
+    this.closeSettings.addEventListener("click", () => this.saveAndRedirect("index.html"))
+    this.saveSettingsBtn.addEventListener("click", () => this.saveAndRedirect("index.html"))
+
+    // Tab switching
+    this.tabButtons.forEach((btn) => btn.addEventListener("click", () => this.switchTab(btn.getAttribute("data-tab"))))
+
+    // Platinum first and visibility toggles
+    this.platinumFirstToggle.addEventListener("change", () => this.updateColumnOrder())
+    document
+      .querySelectorAll(".column-visibility-toggle input")
+      .forEach((toggle) => toggle.addEventListener("change", () => this.updateColumnOrder()))
+
+    // Column name inputs
+    document
+      .querySelectorAll(".column-name-item input[type='text']")
+      .forEach((input) => input.addEventListener("change", () => this.updateColumnName(input)))
+
+    // Product actions
+    this.bindProductActions()
+
+    // Editable prices
+    this.bindEditablePrices()
+
+    // Add product
+    this.addProductBtn.addEventListener("click", () => this.addProduct())
+
     // Save edited product
-    saveEditBtn.addEventListener("click", () => {
-      const cardId = saveEditBtn.getAttribute("data-edit-card")
-      const originalName = editNameInput.getAttribute("data-original-name")
-      const newName = editNameInput.value
-      const newPrice = Number.parseFloat(editPriceInput.value).toFixed(2)
-      const newDesc = editDescInput.value
-  
-      // Update product data
-      if (originalName && productData[originalName]) {
-        // Create new entry with updated info
-        productData[newName] = {
-          price: Number.parseFloat(newPrice),
-          description: newDesc,
-          terms: productData[originalName].terms,
-        }
-  
-        // Delete old entry if name changed
-        if (originalName !== newName) {
-          delete productData[originalName]
-        }
-      }
-  
-      // Find all instances of this product and update them
-      document.querySelectorAll(".product-card").forEach((card) => {
-        if (card.getAttribute("data-id") === cardId || cardId === "") {
-          const nameElement = card.querySelector("h4")
-          if (nameElement && nameElement.textContent === originalName) {
-            nameElement.textContent = newName
-            card.querySelector(".product-price-display").textContent = `$${newPrice}`
-          }
-        }
-      })
-  
-      // Also update product assignment table
-      document.querySelectorAll(".product-cell").forEach((cell) => {
-        const productName = cell.querySelector("div:first-child")
-        if (productName && productName.textContent === originalName) {
-          productName.textContent = newName
-          const priceElement = cell.querySelector(".product-price")
-          if (priceElement) {
-            priceElement.textContent = `$${newPrice}`
-            if (priceElement.classList.contains("editable-price")) {
-              priceElement.setAttribute("data-product", newName)
-            }
-          }
-        }
-      })
-  
-      // Close the modal
-      editModal.hide()
-      
-      // Auto-save settings
-      autoSaveSettings();
-    })
-  
-    // Delete product functionality
-    const deleteButtons = document.querySelectorAll(".delete-product")
-  
-    deleteButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        if (confirm("Are you sure you want to delete this product?")) {
-          const productCard = button.closest(".product-card")
-          const productName = productCard.querySelector("h4").textContent
-  
-          // Remove from product data
-          if (productData[productName]) {
-            delete productData[productName]
-          }
-  
-          productCard.remove()
-  
-          // Also remove from product assignment table
-          document.querySelectorAll(".product-cell").forEach((cell) => {
-            const cellProductName = cell.querySelector("div:first-child")
-            if (cellProductName && cellProductName.textContent === productName) {
-              const row = cell.closest("tr")
-              if (row) {
-                row.remove()
-              }
-            }
-          })
-          
-          // Auto-save settings
-          autoSaveSettings();
-        }
-      })
-    })
-  
-    // Add new product functionality
-    const addProductBtn = document.querySelector(".add-product-btn")
-    const newProductName = document.getElementById("new-product-name")
-    const newProductPrice = document.getElementById("new-product-price")
-    const newProductDesc = document.getElementById("new-product-description")
-  
-    addProductBtn.addEventListener("click", () => {
-      if (!newProductName.value || !newProductPrice.value) {
-        alert("Please enter both a product name and price")
-        return
-      }
-  
-      const name = newProductName.value
-      const price = Number.parseFloat(newProductPrice.value).toFixed(2)
-      const desc = newProductDesc.value
-  
-      // Add to product data
-      productData[name] = {
-        price: Number.parseFloat(price),
-        description: desc,
-        terms: "Standard terms apply. See dealer for complete details.",
-      }
-  
-      // Create new product card
-      const productsGrid = document.querySelector(".products-grid")
-      const newCard = document.createElement("div")
-      newCard.className = "product-card"
-      newCard.innerHTML = `
-          <div class="product-card-header">
-            <h4>${name}</h4>
-            <div class="product-actions">
-              <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
-            </div>
-          </div>
-          <div class="product-price-display">$${price}</div>
-        `
-  
-      productsGrid.appendChild(newCard)
-  
-      // Add event listeners to new buttons
-      const newEditBtn = newCard.querySelector(".edit-product")
-      const newDeleteBtn = newCard.querySelector(".delete-product")
-  
-      newEditBtn.addEventListener("click", () => {
-        editNameInput.value = name
-        editNameInput.setAttribute("data-original-name", name)
-        editPriceInput.value = price
-        editDescInput.value = desc
-        editModal.show()
-      })
-  
-      newDeleteBtn.addEventListener("click", () => {
-        if (confirm("Are you sure you want to delete this product?")) {
-          // Remove from product data
-          if (productData[name]) {
-            delete productData[name]
-          }
-          newCard.remove()
-          
-          // Auto-save settings
-          autoSaveSettings();
-        }
-      })
-  
-      // Add to product assignment table
-      const productTable = document.querySelector(".product-assignment-table tbody")
-      if (productTable) {
-        const newRow = document.createElement("tr")
-        newRow.className = "product-row"
-        newRow.setAttribute("draggable", "true")
-        
-        // Get the current column order based on platinumFirst setting
-        const platinumFirst = document.getElementById("show-platinum-first").checked;
-        const columnVisibility = {
-          platinum: document.getElementById("platinum-visible").checked,
-          gold: document.getElementById("gold-visible").checked,
-          silver: document.getElementById("silver-visible").checked,
-          bronze: document.getElementById("bronze-visible").checked,
-          iron: document.getElementById("iron-visible").checked,
-        };
-        
-        let columnOrder;
-        if (platinumFirst) {
-          columnOrder = ["platinum", "gold", "silver", "bronze", "iron"];
-        } else {
-          columnOrder = ["iron", "bronze", "silver", "gold", "platinum"];
-        }
-        
-        // Filter out invisible columns
-        const visibleColumns = columnOrder.filter(col => columnVisibility[col]);
-        
-        // Create the product cell
-        let rowHTML = `
-          <td class="product-cell">
-            <div><i class="bi bi-grip-vertical product-handle"></i> ${name}</div>
-            <div class="product-price editable-price" data-product="${name}">$${price}</div>
-          </td>
-        `;
-        
-        // Add cells for each visible column
-        visibleColumns.forEach(colType => {
-          rowHTML += `
-            <td>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox">
-              </div>
-            </td>
-          `;
-        });
-        
-        newRow.innerHTML = rowHTML;
-        productTable.appendChild(newRow);
-  
-        // Add click event to the new editable price
-        const newPriceElement = newRow.querySelector(".editable-price")
-        if (newPriceElement) {
-          newPriceElement.addEventListener("click", function () {
-            if (this.classList.contains("editing")) return
-  
-            const productName = this.getAttribute("data-product")
-            const currentPrice = productData[productName].price
-  
-            this.classList.add("editing")
-            const currentText = this.textContent
-            this.textContent = ""
-  
-            const input = document.createElement("input")
-            input.type = "number"
-            input.step = "0.01"
-            input.min = "0"
-            input.value = currentPrice
-            this.appendChild(input)
-            input.focus()
-  
-            input.addEventListener("blur", () => {
-              const newPrice = Number.parseFloat(input.value)
-              if (!isNaN(newPrice) && newPrice >= 0) {
-                productData[productName].price = newPrice
-                this.textContent = `$${newPrice.toFixed(2)}`
-                updateProductPriceDisplays(productName, newPrice)
-                
-                // Auto-save settings
-                autoSaveSettings();
-              } else {
-                this.textContent = currentText
-              }
-              this.classList.remove("editing")
-            })
-  
-            input.addEventListener("keydown", (e) => {
-              if (e.key === "Enter") {
-                input.blur()
-              } else if (e.key === "Escape") {
-                this.textContent = currentText
-                this.classList.remove("editing")
-              }
-            })
-          })
-        }
-  
-        // Add drag and drop functionality to the new row
-        setupDragAndDrop(newRow)
-      }
-  
-      // Clear form
-      newProductName.value = ""
-      newProductPrice.value = ""
-      newProductDesc.value = ""
-      
-      // Auto-save settings
-      autoSaveSettings();
-    })
-  
-    // Save settings functionality
-    const saveSettingsBtn = document.querySelector(".save-settings-btn");
+    this.saveEditBtn.addEventListener("click", () => this.saveEditedProduct())
 
-    saveSettingsBtn.addEventListener("click", () => {
-      saveSettings();
-    
-      // Redirect to index.html after a short delay (500ms)
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
-    });
-    
-// Function to save settings
-function saveSettings() {
-  // Get the platinumFirst setting
-  const platinumFirst = document.getElementById("show-platinum-first").checked;
+    // Initialize drag and drop
+    this.initProductReordering()
+  }
 
-  // Collect all settings data
-  const settings = {
-    version: "1.0", // Add version for compatibility with script.js
-    platinumFirst: platinumFirst,
-    columnNames: {
-      platinum: document.getElementById("platinum-name").value || "Platinum",
-      gold: document.getElementById("gold-name").value || "Gold",
-      silver: document.getElementById("silver-name").value || "Silver",
-      bronze: document.getElementById("bronze-name").value || "Bronze",
-      iron: document.getElementById("iron-name").value || "Iron",
-    },
-    columnVisibility: {
+  // Toggle sidebar
+  toggleSidebar(mode) {
+    if (mode === "desktop") {
+      this.sidebar.classList.toggle("collapsed")
+      this.mainContent.classList.toggle("expanded")
+    } else {
+      this.sidebar.classList.toggle("mobile-open")
+    }
+  }
+
+  // Handle outside click for mobile sidebar
+  handleOutsideClick(e) {
+    if (
+      window.innerWidth <= 768 &&
+      !this.sidebar.contains(e.target) &&
+      e.target !== this.mobileToggle &&
+      this.sidebar.classList.contains("mobile-open")
+    ) {
+      this.sidebar.classList.remove("mobile-open")
+    }
+  }
+
+  // Handle window resize
+  handleResize() {
+    if (window.innerWidth > 768) {
+      this.sidebar.classList.remove("mobile-open")
+    }
+  }
+
+  // Switch tabs
+  switchTab(tabId) {
+    this.tabButtons.forEach((btn) => {
+      btn.classList.remove("active")
+      btn.setAttribute("aria-selected", "false")
+    })
+    this.tabContents.forEach((content) => content.classList.remove("active"))
+
+    const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`)
+    activeButton.classList.add("active")
+    activeButton.setAttribute("aria-selected", "true")
+
+    const activeContent = document.getElementById(tabId)
+    activeContent.classList.add("active")
+
+    if (tabId === "product-assignment") {
+      this.updateColumnOrder()
+    }
+  }
+
+  // Update column name from input
+  updateColumnName(input) {
+    const columnType = input.id.replace("-name", "")
+    const newName = input.value.trim()
+
+    if (!newName) {
+      input.value = this.settings.columnNames[columnType]
+      this.showToast("Column name cannot be empty", "error")
+      return
+    }
+
+    this.settings.columnNames[columnType] = newName
+
+    // Update column name in product assignment table
+    document
+      .querySelectorAll(`.editable-column-name[data-column="${columnType}"] .column-display-name`)
+      .forEach((el) => (el.textContent = newName))
+
+    // Update column visibility label
+    const visibilityLabel = document.querySelector(`label[for="${columnType}-visible"]`)
+    if (visibilityLabel) {
+      visibilityLabel.textContent = newName
+    }
+
+    this.autoSaveSettings()
+  }
+
+  // Open column name modal
+  openColumnNameModal(columnType) {
+    document.getElementById("column-name-input").value = this.settings.columnNames[columnType]
+    document.getElementById("column-type").value = columnType
+    this.columnNameModal.style.display = "flex"
+  }
+
+  // Save column name from modal
+  saveColumnName() {
+    const newName = document.getElementById("column-name-input").value.trim()
+    const columnType = document.getElementById("column-type").value
+
+    if (!newName) {
+      this.showToast("Column name cannot be empty", "error")
+      return
+    }
+
+    this.settings.columnNames[columnType] = newName
+
+    // Update input in column names tab
+    const input = document.getElementById(`${columnType}-name`)
+    if (input) {
+      input.value = newName
+    }
+
+    // Update column visibility label
+    const visibilityLabel = document.querySelector(`label[for="${columnType}-visible"]`)
+    if (visibilityLabel) {
+      visibilityLabel.textContent = newName
+    }
+
+    // Update column name in product assignment table
+    document
+      .querySelectorAll(`.editable-column-name[data-column="${columnType}"] .column-display-name`)
+      .forEach((el) => (el.textContent = newName))
+
+    this.closeColumnNameModal()
+    this.autoSaveSettings()
+  }
+
+  // Close column name modal
+  closeColumnNameModal() {
+    this.columnNameModal.style.display = "none"
+  }
+
+  // Update column order
+  updateColumnOrder() {
+    const platinumFirst = this.platinumFirstToggle.checked
+    const columnVisibility = {
       platinum: document.getElementById("platinum-visible").checked,
       gold: document.getElementById("gold-visible").checked,
       silver: document.getElementById("silver-visible").checked,
       bronze: document.getElementById("bronze-visible").checked,
       iron: document.getElementById("iron-visible").checked,
-    },
-    productData: productData,
-    productAssignments: {
+    }
+
+    // Update settings
+    this.settings.platinumFirst = platinumFirst
+    this.settings.columnVisibility = columnVisibility
+
+    // Determine column order
+    let order = [...this.columnOrder]
+    if (!platinumFirst) {
+      order = order.slice().reverse()
+    }
+
+    // Filter visible columns
+    const visibleColumns = order.filter((col) => columnVisibility[col])
+
+    // Update column names grid
+    this.updateColumnNamesGrid(order, columnVisibility)
+
+    // Update product assignment table
+    this.updateProductAssignmentTable(visibleColumns)
+
+    this.autoSaveSettings()
+  }
+
+  // Update column names grid
+  updateColumnNamesGrid(order, columnVisibility) {
+    // Get all column name items
+    const columnItems = Array.from(this.columnNamesGrid.querySelectorAll(".column-name-item"))
+
+    // Skip the platinum first toggle which is the first child
+    const toggleItem = columnItems.shift()
+
+    // Remove all column items except the toggle
+    columnItems.forEach((item) => item.remove())
+
+    // Add back in the correct order
+    order.forEach((col) => {
+      const item = columnItems.find((item) => item.querySelector(`#${col}-name`))
+      if (item) {
+        this.columnNamesGrid.appendChild(item)
+      }
+    })
+  }
+
+  // Update product assignment table
+  updateProductAssignmentTable(visibleColumns) {
+    const table = document.querySelector(".product-assignment-table table")
+    if (!table) return
+
+    const thead = table.querySelector("thead tr")
+    const tbody = table.querySelector("tbody")
+
+    // Rebuild header
+    thead.innerHTML = '<th role="columnheader">Product</th>'
+    visibleColumns.forEach((col) => {
+      const th = document.createElement("th")
+      th.setAttribute("role", "columnheader")
+      th.innerHTML = `
+      <div class="editable-column-name" data-column="${col}">
+        <span class="column-display-name">${this.settings.columnNames[col]}</span>
+        <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit ${this.settings.columnNames[col]} column name">
+          <i class="bi bi-pencil"></i>
+        </button>
+      </div>
+    `
+      thead.appendChild(th)
+    })
+
+    // Rebuild rows
+    tbody.innerHTML = ""
+    this.settings.productOrder.forEach((productName) => {
+      if (!this.productData[productName]) return
+
+      const row = document.createElement("tr")
+      row.className = "product-row"
+      row.setAttribute("draggable", "true")
+
+      // Create product cell
+      const productCell = document.createElement("td")
+      productCell.className = "product-cell"
+      productCell.innerHTML = `
+      <div title="${this.sanitize(this.productData[productName].description || "")}">
+        <i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(productName)}
+      </div>
+      <div class="product-price editable-price" data-product="${this.sanitize(productName)}">$${this.productData[productName].price.toFixed(2)}</div>
+    `
+      row.appendChild(productCell)
+
+      // Create column cells with checkboxes
+      visibleColumns.forEach((col) => {
+        const td = document.createElement("td")
+        // Check if this product is assigned to this column using the saved settings
+        const isChecked =
+          this.settings.productAssignments[col] && this.settings.productAssignments[col].includes(productName)
+
+        td.innerHTML = `
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" ${isChecked ? "checked" : ""}>
+        </div>
+      `
+        row.appendChild(td)
+      })
+
+      tbody.appendChild(row)
+      this.setupDragAndDrop(row)
+    })
+
+    // Bind event listeners to new elements
+    this.bindColumnNameEditButtons()
+    this.bindEditablePrices()
+  }
+
+  // Bind column name edit buttons
+  bindColumnNameEditButtons() {
+    document.querySelectorAll(".edit-column-name").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const columnNameContainer = e.target.closest(".editable-column-name")
+        const columnType = columnNameContainer.getAttribute("data-column")
+        this.openColumnNameModal(columnType)
+      })
+    })
+  }
+
+  // Bind editable prices
+  bindEditablePrices() {
+    document.querySelectorAll(".editable-price").forEach((priceElement) => {
+      priceElement.addEventListener("click", (e) => {
+        if (e.target.classList.contains("editing")) return
+
+        const productName = e.target.getAttribute("data-product")
+        const currentPrice = this.productData[productName].price
+
+        e.target.classList.add("editing")
+        const currentText = e.target.textContent
+        e.target.textContent = ""
+
+        const input = document.createElement("input")
+        input.type = "number"
+        input.step = "0.01"
+        input.min = "0"
+        input.value = currentPrice
+        e.target.appendChild(input)
+        input.focus()
+
+        const handleBlur = () => {
+          const newPrice = Number.parseFloat(input.value)
+          if (!isNaN(newPrice) && newPrice >= 0) {
+            this.productData[productName].price = newPrice
+            e.target.textContent = `$${newPrice.toFixed(2)}`
+            this.updateProductPriceDisplays(productName, newPrice)
+            this.autoSaveSettings()
+          } else {
+            e.target.textContent = currentText
+          }
+          e.target.classList.remove("editing")
+        }
+
+        input.addEventListener("blur", handleBlur)
+
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            input.blur()
+          } else if (event.key === "Escape") {
+            e.target.textContent = currentText
+            e.target.classList.remove("editing")
+          }
+        })
+      })
+    })
+  }
+
+  // Update product price displays
+  updateProductPriceDisplays(productName, newPrice) {
+    // Update in product cards
+    document.querySelectorAll(".product-card").forEach((card) => {
+      const cardName = card.querySelector("h4")
+      if (cardName && cardName.textContent === productName) {
+        card.querySelector(".product-price-display").textContent = `$${newPrice.toFixed(2)}`
+      }
+    })
+
+    // Update in product assignment table
+    document.querySelectorAll(`.editable-price[data-product="${productName}"]`).forEach((price) => {
+      price.textContent = `$${newPrice.toFixed(2)}`
+    })
+  }
+
+  // Bind product actions
+  bindProductActions() {
+    // Edit product buttons
+    document.querySelectorAll(".edit-product").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const productCard = e.target.closest(".product-card")
+        const productName = productCard.querySelector("h4").textContent
+        const product = this.productData[productName]
+
+        this.editNameInput.value = productName
+        this.editNameInput.setAttribute("data-original-name", productName)
+        this.editPriceInput.value = product.price
+        this.editDescInput.value = product.description || ""
+
+        this.bootstrapModal.show()
+      })
+    })
+
+    // Delete product buttons
+    document.querySelectorAll(".delete-product").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const productCard = e.target.closest(".product-card")
+        const productName = productCard.querySelector("h4").textContent
+
+        if (confirm(`Are you sure you want to delete ${productName}?`)) {
+          // Remove from product data
+          delete this.productData[productName]
+
+          // Remove from DOM
+          productCard.remove()
+
+          // Remove from product assignment table
+          document.querySelectorAll(".product-cell").forEach((cell) => {
+            const cellProductName = cell.querySelector("div:first-child")
+            if (cellProductName && cellProductName.textContent.trim() === productName) {
+              const row = cell.closest("tr")
+              if (row) row.remove()
+            }
+          })
+
+          // Remove from product order
+          this.settings.productOrder = this.settings.productOrder.filter((name) => name !== productName)
+
+          // Remove from product assignments
+          Object.keys(this.settings.productAssignments).forEach((col) => {
+            this.settings.productAssignments[col] = this.settings.productAssignments[col].filter(
+              (name) => name !== productName,
+            )
+          })
+
+          this.autoSaveSettings()
+          this.showToast(`${productName} has been deleted`)
+        }
+      })
+    })
+  }
+
+  // Save edited product
+  saveEditedProduct() {
+    const originalName = this.editNameInput.getAttribute("data-original-name")
+    const newName = this.editNameInput.value.trim()
+    const newPrice = Number.parseFloat(this.editPriceInput.value)
+    const newDesc = this.editDescInput.value
+
+    if (!newName) {
+      this.showToast("Product name cannot be empty", "error")
+      return
+    }
+
+    if (isNaN(newPrice) || newPrice < 0) {
+      this.showToast("Please enter a valid price", "error")
+      return
+    }
+
+    // If name changed and new name already exists
+    if (originalName !== newName && this.productData[newName]) {
+      this.showToast("A product with this name already exists", "error")
+      return
+    }
+
+    // Update product data
+    this.productData[newName] = {
+      price: newPrice,
+      description: newDesc,
+      terms: this.productData[originalName]?.terms || "Standard terms apply.",
+    }
+
+    // If name changed, update references and delete old entry
+    if (originalName !== newName) {
+      // Update product order
+      this.settings.productOrder = this.settings.productOrder.map((name) => (name === originalName ? newName : name))
+
+      // Update product assignments
+      Object.keys(this.settings.productAssignments).forEach((col) => {
+        this.settings.productAssignments[col] = this.settings.productAssignments[col].map((name) =>
+          name === originalName ? newName : name,
+        )
+      })
+
+      // Delete old entry
+      delete this.productData[originalName]
+    }
+
+    // Update product cards
+    document.querySelectorAll(".product-card").forEach((card) => {
+      const nameElement = card.querySelector("h4")
+      if (nameElement && nameElement.textContent === originalName) {
+        nameElement.textContent = newName
+        nameElement.title = newDesc
+        card.querySelector(".product-price-display").textContent = `$${newPrice.toFixed(2)}`
+      }
+    })
+
+    // Update product assignment table
+    document.querySelectorAll(".product-cell").forEach((cell) => {
+      const productNameEl = cell.querySelector("div:first-child")
+      if (productNameEl && productNameEl.textContent.trim() === originalName) {
+        productNameEl.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(newName)}`
+        productNameEl.title = newDesc
+        const priceElement = cell.querySelector(".product-price")
+        if (priceElement) {
+          priceElement.textContent = `$${newPrice.toFixed(2)}`
+          priceElement.setAttribute("data-product", newName)
+        }
+      }
+    })
+
+    this.bootstrapModal.hide()
+    this.autoSaveSettings()
+    this.showToast("Product updated successfully")
+  }
+
+  // Add new product
+  addProduct() {
+    const name = this.newProductName.value.trim()
+    const price = Number.parseFloat(this.newProductPrice.value)
+    const desc = this.newProductDesc.value
+
+    if (!name) {
+      this.showToast("Product name cannot be empty", "error")
+      return
+    }
+
+    if (isNaN(price) || price < 0) {
+      this.showToast("Please enter a valid price", "error")
+      return
+    }
+
+    if (this.productData[name]) {
+      this.showToast("A product with this name already exists", "error")
+      return
+    }
+
+    // Add to product data
+    this.productData[name] = {
+      price: price,
+      description: desc,
+      terms: "Standard terms apply. See dealer for complete details.",
+    }
+
+    // Add to product order
+    this.settings.productOrder.push(name)
+
+    // Create product card
+    const newCard = document.createElement("div")
+    newCard.className = "product-card"
+    newCard.setAttribute("data-id", `product-${Date.now()}`)
+    newCard.innerHTML = `
+      <div class="product-card-header">
+        <h4 title="${this.sanitize(desc)}">${this.sanitize(name)}</h4>
+        <div class="product-actions">
+          <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit ${this.sanitize(name)}">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete ${this.sanitize(name)}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="product-price-display">$${price.toFixed(2)}</div>
+    `
+    this.productsGrid.appendChild(newCard)
+
+    // Add to product assignment table
+    const visibleColumns = this.columnOrder.filter((col) => this.settings.columnVisibility[col])
+
+    const newRow = document.createElement("tr")
+    newRow.className = "product-row"
+    newRow.setAttribute("draggable", "true")
+
+    // Create product cell
+    const productCell = document.createElement("td")
+    productCell.className = "product-cell"
+    productCell.innerHTML = `
+      <div title="${this.sanitize(desc)}"><i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(name)}</div>
+      <div class="product-price editable-price" data-product="${this.sanitize(name)}">$${price.toFixed(2)}</div>
+    `
+    newRow.appendChild(productCell)
+
+    // Create column cells with checkboxes
+    visibleColumns.forEach((col) => {
+      const td = document.createElement("td")
+      td.innerHTML = `
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox">
+        </div>
+      `
+      newRow.appendChild(td)
+    })
+
+    this.productTable.appendChild(newRow)
+
+    // Bind event listeners to new elements
+    this.bindProductActions()
+    this.bindEditablePrices()
+    this.setupDragAndDrop(newRow)
+
+    // Clear form
+    this.newProductName.value = ""
+    this.newProductPrice.value = ""
+    this.newProductDesc.value = ""
+
+    this.autoSaveSettings()
+    this.showToast(`${name} added successfully`)
+  }
+
+  // Get product assignments from the table
+  getProductAssignments() {
+    const assignments = {
       platinum: [],
       gold: [],
       silver: [],
       bronze: [],
       iron: [],
-    },
-    productOrder: [], // New property for product order
-  };
+    }
 
-  // Collect product order from the table rows
-  const productRows = document.querySelectorAll(".product-assignment-table tbody tr");
-  productRows.forEach((row) => {
-    const productName = row.querySelector(".product-cell div:first-child").textContent.trim();
-    settings.productOrder.push(productName); // Add product to productOrder in DOM order
+    // Get visible columns in the current order they appear in the table
+    const headerCells = document.querySelectorAll(".product-assignment-table th .editable-column-name")
+    const visibleColumns = Array.from(headerCells).map((cell) => cell.getAttribute("data-column"))
 
-    // Collect product assignments from checkboxes
-    const checkboxes = row.querySelectorAll(".form-check-input");
-    const columnOrder = platinumFirst
-      ? ["platinum", "gold", "silver", "bronze", "iron"]
-      : ["iron", "bronze", "silver", "gold", "platinum"];
-    const visibleColumns = columnOrder.filter((col) => settings.columnVisibility[col]);
-    
-    visibleColumns.forEach((colType, index) => {
-      if (checkboxes[index].checked) {
-        settings.productAssignments[colType].push(productName);
+    // For each row, check which columns are checked
+    const rows = this.productTable.querySelectorAll("tr")
+    rows.forEach((row) => {
+      const productNameEl = row.querySelector(".product-cell div:first-child")
+      if (!productNameEl) return
+
+      // Extract product name, removing the handle icon text
+      const fullText = productNameEl.textContent.trim()
+      const productName = fullText.replace(
+        /^\s*[\u200B\u200C\u200D\u2060\uFEFF\u00A0]?[\s\u200B\u200C\u200D\u2060\uFEFF\u00A0]*/,
+        "",
+      )
+
+      if (!productName) return
+
+      const checkboxes = row.querySelectorAll(".form-check-input")
+      visibleColumns.forEach((col, index) => {
+        if (index < checkboxes.length && checkboxes[index]?.checked) {
+          assignments[col].push(productName)
+        }
+      })
+    })
+
+    return assignments
+  }
+
+  // Save settings
+  saveSettings() {
+    // Get the current product assignments from the table
+    const currentAssignments = this.getProductAssignments()
+
+    // Update the settings with the current assignments
+    this.settings.productAssignments = currentAssignments
+
+    // Update product order from the table
+    this.settings.productOrder = Array.from(this.productTable.querySelectorAll("tr"))
+      .map((row) => {
+        const productNameEl = row.querySelector(".product-cell div:first-child")
+        if (!productNameEl) return null
+
+        // Extract product name, removing the handle icon text
+        const fullText = productNameEl.textContent.trim()
+        return fullText.replace(
+          /^\s*[\u200B\u200C\u200D\u2060\uFEFF\u00A0]?[\s\u200B\u200C\u200D\u2060\uFEFF\u00A0]*/,
+          "",
+        )
+      })
+      .filter(Boolean)
+
+    // Update product data
+    this.settings.productData = this.productData
+
+    // Save to localStorage
+    localStorage.setItem("menuSettings", JSON.stringify(this.settings))
+    this.broadcastSettingsChange()
+    return this.settings
+  }
+
+  // Auto-save settings
+  autoSaveSettings() {
+    this.saveSettings()
+    this.showToast("Settings saved automatically")
+  }
+
+  // Apply settings
+  applySettings() {
+    // Apply column names
+    document.getElementById("platinum-name").value = this.settings.columnNames.platinum
+    document.getElementById("gold-name").value = this.settings.columnNames.gold
+    document.getElementById("silver-name").value = this.settings.columnNames.silver
+    document.getElementById("bronze-name").value = this.settings.columnNames.bronze
+    document.getElementById("iron-name").value = this.settings.columnNames.iron
+
+    // Apply column visibility
+    document.getElementById("platinum-visible").checked = this.settings.columnVisibility.platinum
+    document.getElementById("gold-visible").checked = this.settings.columnVisibility.gold
+    document.getElementById("silver-visible").checked = this.settings.columnVisibility.silver
+    document.getElementById("bronze-visible").checked = this.settings.columnVisibility.bronze
+    document.getElementById("iron-visible").checked = this.settings.columnVisibility.iron
+
+    // Apply platinum first setting
+    this.platinumFirstToggle.checked = this.settings.platinumFirst
+
+    // Update column names in product assignment table
+    document.querySelectorAll(".editable-column-name").forEach((column) => {
+      const columnType = column.getAttribute("data-column")
+      if (columnType && this.settings.columnNames[columnType]) {
+        column.querySelector(".column-display-name").textContent = this.settings.columnNames[columnType]
       }
-    });
-  });
+    })
 
-  // Save to localStorage
-  localStorage.setItem("menuSettings", JSON.stringify(settings));
+    // Update column order
+    this.updateColumnOrder()
+  }
 
-  return settings;
+  // Show toast notification
+  showToast(message, type = "success") {
+    const toast = document.createElement("div")
+    toast.className = `toast toast-${type}`
+    toast.textContent = message
+    toast.setAttribute("role", "alert")
+    toast.setAttribute("aria-live", "assertive")
+
+    this.toastContainer.appendChild(toast)
+
+    // Animate in
+    setTimeout(() => {
+      toast.classList.add("show")
+    }, 10)
+
+    // Remove after delay
+    setTimeout(() => {
+      toast.classList.remove("show")
+      setTimeout(() => toast.remove(), 300)
+    }, 3000)
+  }
+
+  // Save settings and redirect
+  saveAndRedirect(url) {
+    this.saveSettings()
+    this.showToast("Settings saved successfully! Redirecting...")
+    setTimeout(() => {
+      window.location.href = url
+    }, 1000)
+  }
+
+  // Sanitize input to prevent XSS
+  sanitize(input) {
+    const div = document.createElement("div")
+    div.textContent = input
+    return div.innerHTML
+  }
+
+  // Setup drag and drop for a row
+  setupDragAndDrop(row) {
+    row.addEventListener("dragstart", () => {
+      row.classList.add("dragging")
+    })
+
+    row.addEventListener("dragover", (e) => {
+      e.preventDefault()
+    })
+
+    row.addEventListener("dragenter", () => {
+      row.classList.add("drag-over")
+    })
+
+    row.addEventListener("dragleave", () => {
+      row.classList.remove("drag-over")
+    })
+
+    row.addEventListener("drop", (e) => {
+      e.preventDefault()
+      const draggingRow = document.querySelector(".dragging")
+      if (!draggingRow) return
+
+      const tbody = row.parentNode
+      const rows = Array.from(tbody.querySelectorAll("tr"))
+      const draggedIndex = rows.indexOf(draggingRow)
+      const targetIndex = rows.indexOf(row)
+
+      if (draggedIndex < targetIndex) {
+        tbody.insertBefore(draggingRow, row.nextSibling)
+      } else {
+        tbody.insertBefore(draggingRow, row)
+      }
+
+      row.classList.remove("drag-over")
+      this.autoSaveSettings()
+    })
+
+    row.addEventListener("dragend", () => {
+      row.classList.remove("dragging")
+      document.querySelectorAll(".drag-over").forEach((el) => {
+        el.classList.remove("drag-over")
+      })
+    })
+  }
+
+  // Initialize product reordering
+  initProductReordering() {
+    document.querySelectorAll(".product-cell").forEach((cell) => {
+      const firstDiv = cell.querySelector("div:first-child")
+      if (firstDiv) {
+        const text = firstDiv.textContent.trim()
+        firstDiv.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${text}`
+      }
+    })
+
+    this.productTable.querySelectorAll("tr").forEach((row) => {
+      row.classList.add("product-row")
+      row.setAttribute("draggable", "true")
+      this.setupDragAndDrop(row)
+    })
+  }
 }
-    
-    // Function to auto-save settings without redirecting
-    function autoSaveSettings() {
-      const settings = saveSettings();
-      
-      // Apply the settings immediately
-      applySettings(settings);
-    }
-    
-    // Function to apply settings to the UI
-    function applySettings(settings) {
-      // Apply column names
-      if (settings.columnNames) {
-        document.getElementById("platinum-name").value = settings.columnNames.platinum;
-        document.getElementById("gold-name").value = settings.columnNames.gold;
-        document.getElementById("silver-name").value = settings.columnNames.silver;
-        document.getElementById("bronze-name").value = settings.columnNames.bronze;
-        document.getElementById("iron-name").value = settings.columnNames.iron;
-        
-        // Update column names in the product assignment table
-        document.querySelectorAll(".editable-column-name").forEach((column) => {
-          const columnType = column.getAttribute("data-column");
-          if (settings.columnNames[columnType]) {
-            column.querySelector(".column-display-name").textContent = settings.columnNames[columnType];
-          }
-        });
-      }
-      
-      // Apply column visibility
-      if (settings.columnVisibility) {
-        document.getElementById("platinum-visible").checked = settings.columnVisibility.platinum;
-        document.getElementById("gold-visible").checked = settings.columnVisibility.gold;
-        document.getElementById("silver-visible").checked = settings.columnVisibility.silver;
-        document.getElementById("bronze-visible").checked = settings.columnVisibility.bronze;
-        document.getElementById("iron-visible").checked = settings.columnVisibility.iron;
-      }
-      
-      // Update the column order in the product assignment table
-      updateColumnOrder();
-    }
-  
-    // Load saved settings if they exist
-    const loadSavedSettings = () => {
-      let savedSettings = localStorage.getItem("menuSettings");
-      let settings;
-    
-      // If no saved settings exist, initialize with defaults (Iron hidden)
-      if (!savedSettings) {
-        settings = {
-          platinumFirst: true, // Default to platinum first
-          columnNames: {
-            platinum: "Platinum",
-            gold: "Gold",
-            silver: "Silver",
-            bronze: "Bronze",
-            iron: "Iron",
-          },
-          columnVisibility: {
-            platinum: true,
-            gold: true,
-            silver: true,
-            bronze: true,
-            iron: false // Default to hidden
-          },
-          productData: productData,
-        };
-        localStorage.setItem("menuSettings", JSON.stringify(settings));
-      } else {
-        settings = JSON.parse(savedSettings);
-      }
-    
-      // Apply platinum first setting
-      if (settings.platinumFirst !== undefined) {
-        document.getElementById("show-platinum-first").checked = settings.platinumFirst;
-      } else {
-        // If platinumFirst setting doesn't exist in saved settings, default to true
-        document.getElementById("show-platinum-first").checked = true;
-      }
-      
-      // Apply settings to the UI
-      applySettings(settings);
-    
-      // Load product data
-      if (settings.productData) {
-        Object.assign(productData, settings.productData);
-        for (const [productName, data] of Object.entries(settings.productData)) {
-          updateProductPriceDisplays(productName, data.price);
-        }
-      }
-    };
-    
-    // Function to update column order based on platinumFirst setting and visibility
-    function updateColumnOrder() {
-      const platinumFirst = document.getElementById("show-platinum-first").checked;
-      const columnVisibility = {
-        platinum: document.getElementById("platinum-visible").checked,
-        gold: document.getElementById("gold-visible").checked,
-        silver: document.getElementById("silver-visible").checked,
-        bronze: document.getElementById("bronze-visible").checked,
-        iron: document.getElementById("iron-visible").checked,
-      };
-      
-      // Update the column names grid order
-      updateColumnNamesGrid(platinumFirst, columnVisibility);
-      
-      // Get the table header and all rows
-      const table = document.querySelector(".product-assignment-table table");
-      if (!table) return;
-      
-      const thead = table.querySelector("thead");
-      const tbody = table.querySelector("tbody");
-      
-      if (!thead || !tbody) return;
-      
-      const headerRow = thead.querySelector("tr");
-      const bodyRows = tbody.querySelectorAll("tr");
-      
-      if (!headerRow) return;
-      
-      // Define the column order based on platinumFirst setting
-      let columnOrder;
-      if (platinumFirst) {
-        columnOrder = ["platinum", "gold", "silver", "bronze", "iron"];
-      } else {
-        columnOrder = ["iron", "bronze", "silver", "gold", "platinum"];
-      }
-      
-      // Filter out invisible columns
-      const visibleColumns = columnOrder.filter(col => columnVisibility[col]);
-      
-      // Create a map to store the current header cells and their column types
-      const headerCells = Array.from(headerRow.querySelectorAll("th"));
-      const productNameHeader = headerCells[0]; // First column is always product name
-      
-      // Remove all header cells except the first one (product name)
-      while (headerRow.children.length > 1) {
-        headerRow.removeChild(headerRow.lastChild);
-      }
-      
-      // Create a map to store the current body cells for each row
-      const rowCellsMap = new Map();
-      
-      bodyRows.forEach((row, rowIndex) => {
-        const cells = Array.from(row.querySelectorAll("td"));
-        const productCell = cells[0]; // First cell is always product info
-        
-        // Store the cells for this row
-        rowCellsMap.set(rowIndex, {
-          productCell,
-          columnCells: {
-            platinum: cells[1],
-            gold: cells[2],
-            silver: cells[3],
-            bronze: cells[4],
-            iron: cells[5]
-          }
-        });
-        
-        // Remove all cells except the first one (product info)
-        while (row.children.length > 1) {
-          row.removeChild(row.lastChild);
-        }
-      });
-      
-      // Get the column names from inputs
-      const columnNames = {
-        platinum: document.getElementById("platinum-name").value,
-        gold: document.getElementById("gold-name").value,
-        silver: document.getElementById("silver-name").value,
-        bronze: document.getElementById("bronze-name").value,
-        iron: document.getElementById("iron-name").value,
-      };
-      
-      // Recreate header cells in the new order
-      visibleColumns.forEach(colType => {
-        const newHeaderCell = document.createElement("th");
-        newHeaderCell.innerHTML = `
-          <div class="editable-column-name" data-column="${colType}">
-            <span class="column-display-name">${columnNames[colType]}</span>
-            <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
-          </div>
-        `;
-        headerRow.appendChild(newHeaderCell);
-        
-        // Add event listener to the new edit button
-        const editBtn = newHeaderCell.querySelector(".edit-column-name");
-        if (editBtn) {
-          editBtn.addEventListener("click", () => {
-            const columnNameContainer = editBtn.closest(".editable-column-name");
-            const columnType = columnNameContainer.getAttribute("data-column");
-            const currentName = columnNameContainer.querySelector(".column-display-name").textContent;
-            
-            // Populate the modal
-            document.getElementById("column-name-input").value = currentName;
-            document.getElementById("column-type").value = columnType;
-            
-            // Show the modal
-            columnNameModal.style.display = "flex";
-          });
-        }
-      });
-      
-      // Recreate body cells in the new order for each row
-      bodyRows.forEach((row, rowIndex) => {
-        const rowData = rowCellsMap.get(rowIndex);
-        if (!rowData) return;
-        
-        visibleColumns.forEach(colType => {
-          if (rowData.columnCells[colType]) {
-            const cell = rowData.columnCells[colType].cloneNode(true);
-            row.appendChild(cell);
-          } else {
-            // If the cell doesn't exist (e.g., for a new column), create a default one
-            const newCell = document.createElement("td");
-            newCell.innerHTML = `
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox">
-              </div>
-            `;
-            row.appendChild(newCell);
-          }
-        });
-      });
-      
-      // Add event listeners to the edit column name buttons
-      document.querySelectorAll(".edit-column-name").forEach((button) => {
-        button.addEventListener("click", () => {
-          const columnNameContainer = button.closest(".editable-column-name");
-          const columnType = columnNameContainer.getAttribute("data-column");
-          const currentName = columnNameContainer.querySelector(".column-display-name").textContent;
-          
-          // Populate the modal
-          document.getElementById("column-name-input").value = currentName;
-          document.getElementById("column-type").value = columnType;
-          
-          // Show the modal
-          columnNameModal.style.display = "flex";
-        });
-      });
-    }
-    
-    // Function to update the column names grid order
-    function updateColumnNamesGrid(platinumFirst, columnVisibility) {
-      const columnNamesGrid = document.querySelector(".column-names-grid");
-      if (!columnNamesGrid) return;
-      
-      // Get all column name items
-      const columnItems = Array.from(columnNamesGrid.querySelectorAll(".column-name-item"));
-      
-      // Remove all column items except the platinum first toggle
-      columnItems.forEach(item => item.remove());
-      
-      // Define the column order based on platinumFirst setting
-      let columnOrder;
-      if (platinumFirst) {
-        columnOrder = ["platinum", "gold", "silver", "bronze", "iron"];
-      } else {
-        columnOrder = ["iron", "bronze", "silver", "gold", "platinum"];
-      }
-      
-      // Get the column items by type
-      const columnItemsByType = {
-        platinum: columnItems.find(item => item.querySelector("#platinum-name")),
-        gold: columnItems.find(item => item.querySelector("#gold-name")),
-        silver: columnItems.find(item => item.querySelector("#silver-name")),
-        bronze: columnItems.find(item => item.querySelector("#bronze-name")),
-        iron: columnItems.find(item => item.querySelector("#iron-name"))
-      };
-      
-      // Append the column items in the new order
-      columnOrder.forEach(colType => {
-        if (columnItemsByType[colType]) {
-          columnNamesGrid.appendChild(columnItemsByType[colType]);
-        }
-      });
-    }
-    
-    // Add event listener to the "Show Platinum First" toggle
-    document.getElementById("show-platinum-first").addEventListener("change", () => {
-      updateColumnOrder();
-      autoSaveSettings();
-    });
-    
-    // Add event listeners to column visibility toggles
-    document.querySelectorAll(".column-visibility-toggle input").forEach(toggle => {
-      toggle.addEventListener("change", () => {
-        updateColumnOrder();
-        autoSaveSettings();
-      });
-    });
-    
-    // Add event listeners to column name inputs
-    document.querySelectorAll(".column-name-item input[type='text']").forEach(input => {
-      input.addEventListener("change", () => {
-        // Update column names in the product assignment table
-        const columnType = input.id.replace("-name", "");
-        document.querySelectorAll(`.editable-column-name[data-column="${columnType}"] .column-display-name`).forEach(el => {
-          el.textContent = input.value;
-        });
-        
-        autoSaveSettings();
-      });
-    });
-  
-    // Add drag and drop functionality for product reordering
-    function setupDragAndDrop(row) {
-      row.addEventListener("dragstart", handleDragStart)
-      row.addEventListener("dragover", handleDragOver)
-      row.addEventListener("dragenter", handleDragEnter)
-      row.addEventListener("dragleave", handleDragLeave)
-      row.addEventListener("drop", handleDrop)
-      row.addEventListener("dragend", handleDragEnd)
-    }
-  
-    // Initialize drag and drop for existing product rows
-    function initProductReordering() {
-      // Add drag handles to product rows
-      document.querySelectorAll(".product-cell").forEach((cell) => {
-        const firstDiv = cell.querySelector("div:first-child")
-        if (firstDiv) {
-            const text = firstDiv.textContent.trim();
-          firstDiv.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${text}`;        
-        }
-      })
-  
-      // Make rows draggable
-      const productRows = document.querySelectorAll(".product-assignment-table tbody tr")
-      productRows.forEach((row) => {
-        row.classList.add("product-row")
-        row.setAttribute("draggable", "true")
-        setupDragAndDrop(row)
-      })
-    }
-  
-    // Drag and drop event handlers
-    let draggedItem = null
-  
-    function handleDragStart(e) {
-      this.classList.add("dragging")
-      draggedItem = this
-      e.dataTransfer.effectAllowed = "move"
-      e.dataTransfer.setData("text/html", this.innerHTML)
-    }
-  
-    function handleDragOver(e) {
-      if (e.preventDefault) {
-        e.preventDefault()
-      }
-      e.dataTransfer.dropEffect = "move"
-      return false
-    }
-  
-    function handleDragEnter(e) {
-      this.classList.add("drag-over")
-    }
-  
-    function handleDragLeave(e) {
-      this.classList.remove("drag-over")
-    }
-  
-    function handleDrop(e) {
-      if (e.stopPropagation) {
-        e.stopPropagation()
-      }
-  
-      if (draggedItem !== this) {
-        const tbody = this.parentNode
-        const rows = Array.from(tbody.querySelectorAll("tr"))
-        const draggedIndex = rows.indexOf(draggedItem)
-        const targetIndex = rows.indexOf(this)
-  
-        if (draggedIndex < targetIndex) {
-          tbody.insertBefore(draggedItem, this.nextSibling)
-        } else {
-          tbody.insertBefore(draggedItem, this)
-        }
-      }
-  
-      this.classList.remove("drag-over")
-      
-      // Auto-save after reordering
-      autoSaveSettings();
-      
-      return false
-    }
-  
-    function handleDragEnd(e) {
-      this.classList.remove("dragging")
-      document.querySelectorAll(".drag-over").forEach((item) => {
-        item.classList.remove("drag-over")
-      })
-    }
-  
-    // Initialize product reordering
-    initProductReordering()
-    
-    // Load settings when page loads
-    loadSavedSettings()
-  })
+
+// Initialize the application when the DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+  new FIMenuSettings()
+})

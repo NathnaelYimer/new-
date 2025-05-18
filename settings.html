@@ -6,11 +6,10 @@
   <title>Dealer Gears - F&I Menu Settings</title>
   
   <!-- Bootstrap CSS -->
-  <link href="dealer-menu/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-<link rel="stylesheet" href="dealer-menu/assets/bootstrap-icons/bootstrap-icons.css">  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="settings-styles.css">
 </head>
 <body>
@@ -18,7 +17,7 @@
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <button id="sidebar-toggle" class="sidebar-toggle">
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
       <i class="bi bi-list"></i>
     </button>
   </div>
@@ -32,11 +31,8 @@
       <div class="menu-options sidebar-menu">
         <a href="index.html"><i class="bi bi-grid"></i> <span class="menu-text">Menu</span></a>
         <a href="settings.html" class="active"><i class="bi bi-gear"></i> <span class="menu-text">Settings</span></a>
-        <!-- <a href="#"><i class="bi bi-printer"></i> <span class="menu-text">Print</span></a> -->
       </div>
     </div>
-    
-    
   </div>
 </div>
 
@@ -44,7 +40,7 @@
 <div class="main-content" id="main-content">
   <!-- Mobile Toggle Button -->
   <div class="mobile-toggle-container">
-    <button id="mobile-toggle" class="mobile-toggle">
+    <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle mobile menu">
       <i class="bi bi-list"></i>
     </button>
     <div class="mobile-title">F&I Menu Settings</div>
@@ -53,20 +49,20 @@
   <div class="settings-container">
     <div class="settings-header">
       <h2>Menu Settings</h2>
-      <button id="close-settings" class="close-button">
+      <button id="close-settings" class="close-button" aria-label="Close settings">
         <i class="bi bi-x"></i>
       </button>
     </div>
 
     <!-- Settings Tabs -->
-    <div class="settings-tabs">
-      <button class="tab-button active" data-tab="column-names">Column Names</button>
-      <button class="tab-button" data-tab="product-assignment">Product Assignment</button>
-      <button class="tab-button" data-tab="manage-products">Manage Products</button>
+    <div class="settings-tabs" role="tablist">
+      <button class="tab-button active" data-tab="column-names" role="tab" aria-selected="true" aria-controls="column-names">Column Names</button>
+      <button class="tab-button" data-tab="product-assignment" role="tab" aria-selected="false" aria-controls="product-assignment">Product Assignment</button>
+      <button class="tab-button" data-tab="manage-products" role="tab" aria-selected="false" aria-controls="manage-products">Manage Products</button>
     </div>
 
     <!-- Column Names Tab -->
-    <div class="tab-content active" id="column-names">
+    <div class="tab-content active" id="column-names" role="tabpanel">
       <div class="settings-section">
         <h3>Column Names</h3>
         <p>Customize the names of each column in your F&I menu.</p>
@@ -78,35 +74,14 @@
             <label class="form-check-label" for="show-platinum-first">Show Platinum First</label>
           </div>
           
+          <!-- Platinum -->
           <div class="column-name-item">
-            <label for="iron-name">Iron:</label>
-            <input type="text" id="iron-name" class="form-control" value="Iron">
-            <div class="color-bar iron-bg"></div>
+            <label for="platinum-name">Platinum:</label>
+            <input type="text" id="platinum-name" class="form-control" value="Platinum">
+            <div class="color-bar platinum-bg"></div>
             <div class="form-check form-switch column-visibility-toggle">
-              <input class="form-check-input" type="checkbox" id="iron-visible">
-              <label class="form-check-label" for="iron-visible">Visible</label>
-            </div>
-          </div>
-          
-          <!-- Bronze -->
-          <div class="column-name-item">
-            <label for="bronze-name">Bronze:</label>
-            <input type="text" id="bronze-name" class="form-control" value="Bronze">
-            <div class="color-bar bronze-bg"></div>
-            <div class="form-check form-switch column-visibility-toggle">
-              <input class="form-check-input" type="checkbox" id="bronze-visible" checked>
-              <label class="form-check-label" for="bronze-visible">Visible</label>
-            </div>
-          </div>
-          
-          <!-- Silver -->
-          <div class="column-name-item">
-            <label for="silver-name">Silver:</label>
-            <input type="text" id="silver-name" class="form-control" value="Silver">
-            <div class="color-bar silver-bg"></div>
-            <div class="form-check form-switch column-visibility-toggle">
-              <input class="form-check-input" type="checkbox" id="silver-visible" checked>
-              <label class="form-check-label" for="silver-visible">Visible</label>
+              <input class="form-check-input" type="checkbox" id="platinum-visible" checked>
+              <label class="form-check-label" for="platinum-visible">Platinum</label>
             </div>
           </div>
           
@@ -117,18 +92,40 @@
             <div class="color-bar gold-bg"></div>
             <div class="form-check form-switch column-visibility-toggle">
               <input class="form-check-input" type="checkbox" id="gold-visible" checked>
-              <label class="form-check-label" for="gold-visible">Visible</label>
+              <label class="form-check-label" for="gold-visible">Gold</label>
             </div>
           </div>
           
-          <!-- Platinum -->
+          <!-- Silver -->
           <div class="column-name-item">
-            <label for="platinum-name">Platinum:</label>
-            <input type="text" id="platinum-name" class="form-control" value="Platinum">
-            <div class="color-bar platinum-bg"></div>
+            <label for="silver-name">Silver:</label>
+            <input type="text" id="silver-name" class="form-control" value="Silver">
+            <div class="color-bar silver-bg"></div>
             <div class="form-check form-switch column-visibility-toggle">
-              <input class="form-check-input" type="checkbox" id="platinum-visible" checked>
-              <label class="form-check-label" for="platinum-visible">Visible</label>
+              <input class="form-check-input" type="checkbox" id="silver-visible" checked>
+              <label class="form-check-label" for="silver-visible">Silver</label>
+            </div>
+          </div>
+          
+          <!-- Bronze -->
+          <div class="column-name-item">
+            <label for="bronze-name">Bronze:</label>
+            <input type="text" id="bronze-name" class="form-control" value="Bronze">
+            <div class="color-bar bronze-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="bronze-visible" checked>
+              <label class="form-check-label" for="bronze-visible">Bronze</label>
+            </div>
+          </div>
+          
+          <!-- Iron -->
+          <div class="column-name-item">
+            <label for="iron-name">Iron:</label>
+            <input type="text" id="iron-name" class="form-control" value="Iron">
+            <div class="color-bar iron-bg"></div>
+            <div class="form-check form-switch column-visibility-toggle">
+              <input class="form-check-input" type="checkbox" id="iron-visible">
+              <label class="form-check-label" for="iron-visible">Iron</label>
             </div>
           </div>
         </div>
@@ -136,44 +133,44 @@
     </div>
 
     <!-- Product Assignment Tab -->
-    <div class="tab-content" id="product-assignment">
+    <div class="tab-content" id="product-assignment" role="tabpanel">
       <div class="settings-section">
         <h3>Assign Products to Columns</h3>
         <p>Toggle which products appear in each column of your F&I menu. Drag and drop products to reorder them.</p>
         
         <div class="product-assignment-table">
-          <table class="table">
+          <table class="table" role="grid" aria-label="Product Assignment Table">
             <thead>
               <tr>
-                <th>Product</th>
-                <th>
+                <th role="columnheader">Product</th>
+                <th role="columnheader">
                   <div class="editable-column-name" data-column="platinum">
                     <span class="column-display-name">Platinum</span>
-                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit Platinum column name"><i class="bi bi-pencil"></i></button>
                   </div>
                 </th>
-                <th>
+                <th role="columnheader">
                   <div class="editable-column-name" data-column="gold">
                     <span class="column-display-name">Gold</span>
-                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit Gold column name"><i class="bi bi-pencil"></i></button>
                   </div>
                 </th>
-                <th>
+                <th role="columnheader">
                   <div class="editable-column-name" data-column="silver">
                     <span class="column-display-name">Silver</span>
-                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit Silver column name"><i class="bi bi-pencil"></i></button>
                   </div>
                 </th>
-                <th>
+                <th role="columnheader">
                   <div class="editable-column-name" data-column="bronze">
                     <span class="column-display-name">Bronze</span>
-                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit Bronze column name"><i class="bi bi-pencil"></i></button>
                   </div>
                 </th>
-                <th>
+                <th role="columnheader">
                   <div class="editable-column-name" data-column="iron">
                     <span class="column-display-name">Iron</span>
-                    <button class="btn btn-sm btn-outline-light edit-column-name"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit Iron column name"><i class="bi bi-pencil"></i></button>
                   </div>
                 </th>
               </tr>
@@ -181,7 +178,7 @@
             <tbody>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.">
+                  <div title="Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.">
                     <i class="bi bi-grip-vertical product-handle"></i> Extended Warranty
                   </div>
                   <div class="product-price editable-price" data-product="Extended Warranty">$613.16</div>
@@ -214,7 +211,7 @@
               </tr>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.">
+                  <div title="Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.">
                     <i class="bi bi-grip-vertical product-handle"></i> Rust Proofing
                   </div>
                   <div class="product-price editable-price" data-product="Rust Proofing">$617.94</div>
@@ -247,7 +244,7 @@
               </tr>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.">
+                  <div title="Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.">
                     <i class="bi bi-grip-vertical product-handle"></i> Paint Protection
                   </div>
                   <div class="product-price editable-price" data-product="Paint Protection">$608.39</div>
@@ -280,7 +277,7 @@
               </tr>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.">
+                  <div title="Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.">
                     <i class="bi bi-grip-vertical product-handle"></i> Fabric/Leather Protection
                   </div>
                   <div class="product-price editable-price" data-product="Fabric/Leather Protection">$261.84</div>
@@ -313,7 +310,7 @@
               </tr>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.">
+                  <div title="Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.">
                     <i class="bi bi-grip-vertical product-handle"></i> Key Fob Replacement
                   </div>
                   <div class="product-price editable-price" data-product="Key Fob Replacement">$871.21</div>
@@ -346,7 +343,7 @@
               </tr>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.">
+                  <div title="Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.">
                     <i class="bi bi-grip-vertical product-handle"></i> GAP
                   </div>
                   <div class="product-price editable-price" data-product="GAP">$990.27</div>
@@ -379,7 +376,7 @@
               </tr>
               <tr class="product-row" draggable="true">
                 <td class="product-cell">
-                  <div data-bs-toggle="tooltip" title="Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.">
+                  <div title="Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.">
                     <i class="bi bi-grip-vertical product-handle"></i> Scratch/Dent Repair
                   </div>
                   <div class="product-price editable-price" data-product="Scratch/Dent Repair">$1095.96</div>
@@ -417,84 +414,84 @@
     </div>
 
     <!-- Manage Products Tab -->
-    <div class="tab-content" id="manage-products">
+    <div class="tab-content" id="manage-products" role="tabpanel">
       <div class="settings-section">
         <h3>Available Products</h3>
         <p>Manage the products that can be assigned to columns in your F&I menu.</p>
         
         <div class="products-grid">
-          <div class="product-card">
+          <div class="product-card" data-id="product-1">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.">Extended Warranty</h4>
+              <h4 title="Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.">Extended Warranty</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit Extended Warranty"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete Extended Warranty"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$613.16</div>
           </div>
           
-          <div class="product-card">
+          <div class="product-card" data-id="product-2">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.">Rust Proofing</h4>
+              <h4 title="Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.">Rust Proofing</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit Rust Proofing"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete Rust Proofing"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$617.94</div>
           </div>
           
-          <div class="product-card">
+          <div class="product-card" data-id="product-3">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.">Paint Protection</h4>
+              <h4 title="Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.">Paint Protection</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit Paint Protection"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete Paint Protection"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$608.39</div>
           </div>
           
-          <div class="product-card">
+          <div class="product-card" data-id="product-4">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.">Fabric/Leather Protection</h4>
+              <h4 title="Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.">Fabric/Leather Protection</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit Fabric/Leather Protection"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete Fabric/Leather Protection"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$261.84</div>
           </div>
           
-          <div class="product-card">
+          <div class="product-card" data-id="product-5">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.">Key Fob Replacement</h4>
+              <h4 title="Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.">Key Fob Replacement</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit Key Fob Replacement"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete Key Fob Replacement"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$871.21</div>
           </div>
           
-          <div class="product-card">
+          <div class="product-card" data-id="product-6">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.">GAP</h4>
+              <h4 title="Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.">GAP</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit GAP"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete GAP"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$990.27</div>
           </div>
           
-          <div class="product-card">
+          <div class="product-card" data-id="product-7">
             <div class="product-card-header">
-              <h4 data-bs-toggle="tooltip" title="Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.">Scratch/Dent Repair</h4>
+              <h4 title="Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.">Scratch/Dent Repair</h4>
               <div class="product-actions">
-                <button class="btn btn-sm btn-outline-light edit-product"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-product"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit Scratch/Dent Repair"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete Scratch/Dent Repair"><i class="bi bi-trash"></i></button>
               </div>
             </div>
             <div class="product-price-display">$1095.96</div>
@@ -571,8 +568,11 @@
   </div>
 </div>
 
+<!-- Toast Container -->
+<div class="toast-container"></div>
+
 <!-- Bootstrap JS Bundle with Popper -->
-<script src="dealer-menu/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="settings.js"></script>
 </body>
 </html>

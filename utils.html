@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Management with Synchronization</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #1a1a2e;
+      color: #eaeaea;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #16213e;
+      padding: 1rem;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      color: #f0f0f5;
+      user-select: none;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 1rem auto;
+      padding: 1rem;
+      background: #0f3460;
+      border-radius: 8px;
+      box-shadow: 0 0 15px #16213e;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .product-card {
+      background: #16213e;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #0f3460;
+      padding: 1rem;
+      position: relative;
+      color: #f0f0f5;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .product-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product-card h4 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.2rem;
+      user-select: none;
+    }
+    .product-actions button {
+      margin-left: 0.3rem;
+      color: #f0f0f5;
+      border-color: #4ecca3;
+      transition: background 0.3s ease;
+    }
+    .product-actions button:hover {
+      background: #4ecca3;
+      color: #16213e;
+    }
+    .product-price-display {
+      font-size: 1.3rem;
+      margin-top: 1rem;
+      text-align: right;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      color: #4ecca3;
+    }
+    .editable-price.editing {
+      background: #16213e;
+      padding: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #f0f0f5;
+    }
+    th, td {
+      border: 1px solid #4ecca3;
+      padding: 0.5rem 0.8rem;
+      text-align: center;
+      user-select: none;
+    }
+    thead th {
+      background-color: #0f3460;
+      font-weight: 600;
+      cursor: default;
+    }
+    .product-cell > div:first-child {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      user-select: none;
+    }
+    .product-handle {
+      cursor: grab;
+      color: #4ecca3;
+      user-select: none;
+    }
+    .product-row.dragging {
+      opacity: 0.6;
+    }
+    .product-row.drag-over {
+      outline: 2px dashed #4ecca3;
+    }
+    .tab-buttons {
+      display: flex;
+      margin-bottom: 1rem;
+      gap: 1rem;
+      user-select: none;
+    }
+    .tab-button {
+      background: #0f3460;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 600;
+      color: #f0f0f5;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .tab-button.active, .tab-button:hover {
+      background: #4ecca3;
+      color: #16213e;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .column-name-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .column-name-modal-content {
+      background: #16213e;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #0f3460;
+      width: 360px;
+      max-width: 90vw;
+      padding: 1rem 1.5rem;
+      color: #f0f0f5;
+      display: flex;
+      flex-direction: column;
+    }
+    .column-name-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .column-name-modal-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .column-name-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #4ecca3;
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn {
+      user-select: none;
+    }
+    .form-switch .form-check-input:checked {
+      background-color: #4ecca3;
+      border-color: #4ecca3;
+    }
+    .editable-column-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+      user-select: none;
+    }
+    .editable-column-name button {
+      border: none;
+      background: none;
+      color: #4ecca3;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+      line-height: 1;
+      user-select: none;
+    }
+    .settings-section {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>Product Management with Tab Synchronization</header>
+  
+  <div class="container">
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tab="products-tab">Products</button>
+      <button class="tab-button" data-tab="product-assignment">Product Assignment</button>
+      <button class="tab-button" data-tab="settings-tab">Settings</button>
+    </div>
+
+    <!-- Products tab -->
+    <div class="tab-content active" id="products-tab">
+      <div class="products-grid"></div>
+      <h5>Add New Product</h5>
+      <div class="mb-3">
+        <input type="text" class="form-control" id="new-product-name" placeholder="Product Name" />
+      </div>
+      <div class="mb-3">
+        <input type="number" min="0" step="0.01" class="form-control" id="new-product-price" placeholder="Price" />
+      </div>
+      <div class="mb-3">
+        <textarea class="form-control" id="new-product-description" rows="2" placeholder="Description (optional)"></textarea>
+      </div>
+      <button class="btn btn-success add-product-btn mb-3">Add Product</button>
+    </div>
+
+    <!-- Product assignment tab -->
+    <div class="tab-content" id="product-assignment">
+      <table class="product-assignment-table table table-dark table-striped table-bordered align-middle">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <!-- columns will be inserted here dynamically -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- rows inserted dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Settings tab -->
+    <div class="tab-content" id="settings-tab">
+      <h5>Column Settings</h5>
+      <div class="settings-section column-names-grid d-flex gap-3 flex-wrap">
+        <div class="column-name-item" data-column="platinum">
+          <label for="platinum-name" class="form-label">Platinum Name</label>
+          <input type="text" class="form-control" id="platinum-name" />
+          <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" id="platinum-visible" />
+            <label class="form-check-label" for="platinum-visible">Visible</label>
+          </div>
+        </div>
+        <div class="column-name-item" data-column="gold">
+          <label for="gold-name" class="form-label">Gold Name</label>
+          <input type="text" class="form-control" id="gold-name" />
+          <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" id="gold-visible" />
+            <label class="form-check-label" for="gold-visible">Visible</label>
+          </div>
+        </div>
+        <div class="column-name-item" data-column="silver">
+          <label for="silver-name" class="form-label">Silver Name</label>
+          <input type="text" class="form-control" id="silver-name" />
+          <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" id="silver-visible" />
+            <label class="form-check-label" for="silver-visible">Visible</label>
+          </div>
+        </div>
+        <div class="column-name-item" data-column="bronze">
+          <label for="bronze-name" class="form-label">Bronze Name</label>
+          <input type="text" class="form-control" id="bronze-name" />
+          <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" id="bronze-visible" />
+            <label class="form-check-label" for="bronze-visible">Visible</label>
+          </div>
+        </div>
+        <div class="column-name-item" data-column="iron">
+          <label for="iron-name" class="form-label">Iron Name</label>
+          <input type="text" class="form-control" id="iron-name" />
+          <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" id="iron-visible" />
+            <label class="form-check-label" for="iron-visible">Visible</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-check form-switch mt-3">
+        <input class="form-check-input" type="checkbox" id="show-platinum-first" />
+        <label class="form-check-label" for="show-platinum-first">Show Platinum First</label>
+      </div>
+      <button class="btn btn-primary mt-3 save-settings-btn">Save Settings</button>
+    </div>
+  </div>
+
+  <!-- Edit product modal -->
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProductLabel">Edit Product</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="edit-product-name" class="form-label">Product Name</label>
+            <input type="text" class="form-control" id="edit-product-name" />
+          </div>
+          <div class="mb-3">
+            <label for="edit-product-price" class="form-label">Price</label>
+            <input type="number" min="0" step="0.01" class="form-control" id="edit-product-price" />
+          </div>
+          <div class="mb-3">
+            <label for="edit-product-description" class="form-label">Description</label>
+            <textarea class="form-control" id="edit-product-description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary save-edit-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column name edit modal -->
+  <div class="column-name-modal" id="columnNameModal">
+    <div class="column-name-modal-content">
+      <div class="column-name-modal-header">
+        <h3 class="column-name-modal-title">Edit Column Name</h3>
+        <button class="column-name-modal-close">&times;</button>
+      </div>
+      <div class="column-name-modal-body">
+        <div class="mb-3">
+          <label for="column-name-input" class="form-label">Column Name</label>
+          <input type="text" class="form-control" id="column-name-input" />
+          <input type="hidden" id="column-type" />
+        </div>
+      </div>
+      <div class="column-name-modal-footer d-flex justify-content-end gap-2">
+        <button class="btn btn-secondary cancel-column-name">Cancel</button>
+        <button class="btn btn-primary save-column-name">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const productData = {
+        "Extended Warranty": {
+          price: 613.16,
+          description:
+            "Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.",
+          terms:
+            "Coverage varies by plan level. Deductibles may apply. Valid at any authorized service center. Transferable if vehicle is sold. Exclusions apply for wear and tear items and routine maintenance.",
+        },
+        "Rust Proofing": {
+          price: 617.94,
+          description:
+            "Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.",
+          terms:
+            "Annual inspections required to maintain coverage. Covers perforation due to rust from the inside out. Does not cover surface rust from external damage. 5-year warranty included.",
+        },
+        "Paint Protection": {
+          price: 608.39,
+          description:
+            "Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.",
+          terms:
+            "Requires proper maintenance and care. Not a substitute for regular washing. Does not cover damage from accidents or improper care. Reapplication recommended every 2 years.",
+        },
+        "Fabric/Leather Protection": {
+          price: 261.84,
+          description:
+            "Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.",
+          terms:
+            "Spills must be cleaned promptly. Does not prevent damage from sharp objects or burns. Reapplication may be necessary after deep cleaning. 3-year protection plan included.",
+        },
+        "Key Fob Replacement": {
+          price: 871.21,
+          description:
+            "Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.",
+          terms:
+            "Limited to 2 replacements per contract period. $50 deductible per claim. Programming fees included. Must provide proof of loss or damage. 24-hour assistance available.",
+        },
+        GAP: {
+          price: 990.27,
+          description:
+            "Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.",
+          terms:
+            "Must be purchased within 30 days of vehicle financing. Maximum benefit of $50,000. Primary insurance deductible coverage up to $1,000. Not available for leased vehicles in some states.",
+        },
+        "Scratch/Dent Repair": {
+          price: 1095.96,
+          description:
+            "Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.",
+          terms:
+            "Repairs limited to dents smaller than 4 inches in diameter. Paint touch-up for scratches less than 6 inches. Unlimited number of repairs during contract period. $0 deductible per claim.",
+        },
+      };
+
+      // Variables for tab elements
+      const tabButtons = document.querySelectorAll(".tab-button");
+      const tabContents = document.querySelectorAll(".tab-content");
+
+      // Modal elements and Bootstrap modal instance for product edit
+      const editProductModalElement = document.getElementById("editProductModal");
+      const editModal = new bootstrap.Modal(editProductModalElement);
+      const editNameInput = document.getElementById("edit-product-name");
+      const editPriceInput = document.getElementById("edit-product-price");
+      const editDescInput = document.getElementById("edit-product-description");
+      const saveEditBtn = document.querySelector(".save-edit-btn");
+
+      // Column name modal elements
+      const columnNameModal = document.getElementById("columnNameModal");
+      const columnNameInput = document.getElementById("column-name-input");
+      const columnTypeInput = document.getElementById("column-type");
+
+      // For drag-and-drop
+      let draggedItem = null;
+
+      // Broadcast channel for cross-tab communication
+      const channel = new BroadcastChannel("product_management_channel");
+
+      // PRODUCTS GRID CONTAINER
+      const productsGrid = document.querySelector(".products-grid");
+      const productAssignmentTableBody = document.querySelector(".product-assignment-table tbody");
+      const productAssignmentTableHeadRow = document.querySelector(".product-assignment-table thead tr");
+
+      // New product inputs and button
+      const newProductNameInput = document.getElementById("new-product-name");
+      const newProductPriceInput = document.getElementById("new-product-price");
+      const newProductDescInput = document.getElementById("new-product-description");
+      const addProductBtn = document.querySelector(".add-product-btn");
+
+      // Settings inputs and toggles
+      const settingInputs = {
+        platinumName: document.getElementById("platinum-name"),
+        goldName: document.getElementById("gold-name"),
+        silverName: document.getElementById("silver-name"),
+        bronzeName: document.getElementById("bronze-name"),
+        ironName: document.getElementById("iron-name"),
+        platinumVisible: document.getElementById("platinum-visible"),
+        goldVisible: document.getElementById("gold-visible"),
+        silverVisible: document.getElementById("silver-visible"),
+        bronzeVisible: document.getElementById("bronze-visible"),
+        ironVisible: document.getElementById("iron-visible"),
+        showPlatinumFirst: document.getElementById("show-platinum-first"),
+      };
+
+      // Current productData in-memory (starts with initial)
+      let currentProductData = JSON.parse(JSON.stringify(productData));
+      // Settings structure
+      let currentSettings = {
+        platinumFirst: true,
+        columnNames: {
+          platinum: "Platinum",
+          gold: "Gold",
+          silver: "Silver",
+          bronze: "Bronze",
+          iron: "Iron",
+        },
+        columnVisibility: {
+          platinum: true,
+          gold: true,
+          silver: true,
+          bronze: true,
+          iron: false,
+        },
+        productOrder: [],
+        productAssignments: {
+          platinum: [],
+          gold: [],
+          silver: [],
+          bronze: [],
+          iron: [],
+        }
+      };
+
+      // --- UTILITIES ---
+
+      // Create product card HTML element
+      function createProductCard(name, price, description) {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.setAttribute("data-id", name);
+
+        card.innerHTML = `
+          <div class="product-card-header">
+            <h4>${name}</h4>
+            <div class="product-actions">
+              <button class="btn btn-sm btn-outline-light edit-product" title="Edit"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-outline-danger delete-product" title="Delete"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+          <div class="product-price-display editable-price" data-product="${name}">$${price.toFixed(2)}</div>
+        `;
+        return card;
+      }
+
+      // Add product card to grid
+      function addProductCard(name, price, description) {
+        const card = createProductCard(name, price, description);
+        productsGrid.appendChild(card);
+
+        // Add event listeners
+        const editBtn = card.querySelector(".edit-product");
+        const deleteBtn = card.querySelector(".delete-product");
+        const priceEl = card.querySelector(".editable-price");
+
+        editBtn.addEventListener("click", () => {
+          editNameInput.value = name;
+          editNameInput.setAttribute("data-original-name", name);
+          editPriceInput.value = price.toFixed(2);
+          editDescInput.value = description || "";
+          saveEditBtn.setAttribute("data-edit-name", name);
+          editModal.show();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          if (confirm(`Are you sure you want to delete product "${name}"?`)) {
+            deleteProduct(name);
+            autoSaveSettings();
+            broadcastChange();
+          }
+        });
+
+        priceEl.addEventListener("click", () => {
+          if (priceEl.classList.contains("editing")) return;
+          startPriceEditing(priceEl, name);
+        });
+      }
+
+      // Start editing price inline
+      function startPriceEditing(priceEl, productName) {
+        priceEl.classList.add("editing");
+        const currentPrice = currentProductData[productName]?.price || 0;
+        const originalText = priceEl.textContent;
+        priceEl.textContent = "";
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.step = "0.01";
+        input.value = currentPrice.toFixed(2);
+        priceEl.appendChild(input);
+        input.focus();
+
+        function cancel() {
+          priceEl.textContent = originalText;
+          priceEl.classList.remove("editing");
+        }
+
+        input.addEventListener("blur", () => {
+          const val = parseFloat(input.value);
+          if (!isNaN(val) && val >= 0) {
+            currentProductData[productName].price = val;
+            priceEl.textContent = `$${val.toFixed(2)}`;
+            updateProductPriceDisplays(productName, val);
+            autoSaveSettings();
+            broadcastChange();
+          } else {
+            cancel();
+          }
+          priceEl.classList.remove("editing");
+        });
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") input.blur();
+          if (e.key === "Escape") cancel();
+        });
+      }
+
+      // Update all price displays for a product
+      function updateProductPriceDisplays(productName, newPrice) {
+        // Update in product cards
+        document.querySelectorAll(".product-card").forEach((card) => {
+          const cardName = card.querySelector("h4");
+          if (cardName && cardName.textContent === productName) {
+            const priceDisplay = card.querySelector(".product-price-display");
+            if (priceDisplay) {
+              priceDisplay.textContent = `$${newPrice.toFixed(2)}`;
+            }
+          }
+        });
+
+        // Update in product assignment table
+        document.querySelectorAll(".editable-price").forEach((price) => {
+          if (price.getAttribute("data-product") === productName) {
+            price.textContent = `$${newPrice.toFixed(2)}`;
+          }
+        });
+      }
+
+      // Delete product completely
+      function deleteProduct(productName) {
+        // Remove from productData
+        delete currentProductData[productName];
+
+        // Remove product card
+        document.querySelectorAll(".product-card").forEach(card => {
+          if (card.querySelector("h4")?.textContent === productName) {
+            card.remove();
+          }
+        });
+
+        // Remove rows in assignment table
+        document.querySelectorAll(".product-assignment-table tbody tr").forEach(row => {
+          const cell = row.querySelector(".product-cell > div:first-child");
+          if (cell && cell.textContent.trim() === productName) {
+            row.remove();
+          }
+        });
+
+        // Remove from assignments
+        Object.keys(currentSettings.productAssignments).forEach(col => {
+          currentSettings.productAssignments[col] = currentSettings.productAssignments[col].filter(p => p !== productName);
+        });
+
+        // Remove from order
+        currentSettings.productOrder = currentSettings.productOrder.filter(p => p !== productName);
+      }
+
+      // Add new row in product assignment table for a product
+      function addProductAssignmentRow(name) {
+        const row = document.createElement("tr");
+        row.classList.add("product-row");
+        row.setAttribute("draggable", "true");
+        row.setAttribute("data-product", name);
+
+        // Cell: product name with drag handle and price
+        const tdProduct = document.createElement("td");
+        tdProduct.className = "product-cell";
+        const div = document.createElement("div");
+        div.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${name}`;
+        tdProduct.appendChild(div);
+
+        const priceDiv = document.createElement("div");
+        priceDiv.className = "product-price editable-price";
+        priceDiv.setAttribute("data-product", name);
+        priceDiv.textContent = `$${(currentProductData[name]?.price || 0).toFixed(2)}`;
+        tdProduct.appendChild(priceDiv);
+
+        row.appendChild(tdProduct);
+
+        // Get column order and visibility
+        const colOrder = getColumnOrder();
+        colOrder.forEach(colType => {
+          const td = document.createElement("td");
+          td.innerHTML = `
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" data-col="${colType}" />
+            </div>
+          `;
+          row.appendChild(td);
+        });
+
+        productAssignmentTableBody.appendChild(row);
+
+        // Event listeners for checkboxes to keep assignments
+        row.querySelectorAll("input[type='checkbox']").forEach(chk => {
+          chk.checked = currentSettings.productAssignments[chk.dataset.col]?.includes(name) || false;
+          chk.addEventListener("change", () => {
+            syncAssignment(name, chk.dataset.col, chk.checked);
+          });
+        });
+
+        // Editable price event listener
+        priceDiv.addEventListener("click", () => {
+          if (priceDiv.classList.contains("editing")) return;
+          startPriceEditing(priceDiv, name);
+        });
+
+        // Drag and drop for row
+        setupDragAndDrop(row);
+      }
+
+      // Setup drag and drop on table row
+      function setupDragAndDrop(row) {
+        row.addEventListener("dragstart", handleDragStart);
+        row.addEventListener("dragover", handleDragOver);
+        row.addEventListener("dragenter", handleDragEnter);
+        row.addEventListener("dragleave", handleDragLeave);
+        row.addEventListener("drop", handleDrop);
+        row.addEventListener("dragend", handleDragEnd);
+      }
+
+      function handleDragStart(e) {
+        draggedItem = this;
+        this.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+        try {
+          e.dataTransfer.setData("text/plain", "");
+        } catch {}
+      }
+      function handleDragOver(e) {
+        if (e.preventDefault) e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        return false;
+      }
+      function handleDragEnter(e) {
+        this.classList.add("drag-over");
+      }
+      function handleDragLeave(e) {
+        this.classList.remove("drag-over");
+      }
+      function handleDrop(e) {
+        if (e.stopPropagation) e.stopPropagation();
+
+        if (draggedItem !== this) {
+          const tbody = this.parentNode;
+          const rows = Array.from(tbody.querySelectorAll("tr"));
+          const draggedIndex = rows.indexOf(draggedItem);
+          const targetIndex = rows.indexOf(this);
+
+          if (draggedIndex < targetIndex) {
+            tbody.insertBefore(draggedItem, this.nextSibling);
+          } else {
+            tbody.insertBefore(draggedItem, this);
+          }
+
+          updateProductOrderFromDOM();
+          autoSaveSettings();
+          broadcastChange();
+        }
+        this.classList.remove("drag-over");
+        return false;
+      }
+      function handleDragEnd() {
+        this.classList.remove("dragging");
+        document.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
+      }
+
+      // Sync single assignment checkbox change
+      function syncAssignment(productName, column, checked) {
+        if (!currentSettings.productAssignments[column]) {
+          currentSettings.productAssignments[column] = [];
+        }
+        if (checked) {
+          if (!currentSettings.productAssignments[column].includes(productName)) {
+            currentSettings.productAssignments[column].push(productName);
+          }
+        } else {
+          currentSettings.productAssignments[column] = currentSettings.productAssignments[column].filter(p => p !== productName);
+        }
+        autoSaveSettings();
+        broadcastChange();
+      }
+
+      // Get column order array filtered by visibility and platinumFirst
+      function getColumnOrder() {
+        if (!currentSettings) return [];
+        const visibility = currentSettings.columnVisibility || {};
+        let order = currentSettings.platinumFirst ?
+          ["platinum", "gold", "silver", "bronze", "iron"] :
+          ["iron", "bronze", "silver", "gold", "platinum"];
+        return order.filter(col => visibility[col]);
+      }
+
+      // Update product order from DOM after drag-drop
+      function updateProductOrderFromDOM() {
+        const newOrder = [];
+        productAssignmentTableBody.querySelectorAll("tr").forEach(row => {
+          const productName = row.querySelector(".product-cell > div:first-child").textContent.trim();
+          newOrder.push(productName);
+        });
+        currentSettings.productOrder = newOrder;
+      }
+
+      // Render the product assignment table header and body
+      function renderProductAssignmentTable() {
+        // Clear header cells except first (product)
+        while (productAssignmentTableHeadRow.children.length > 1) {
+          productAssignmentTableHeadRow.removeChild(productAssignmentTableHeadRow.lastChild);
+        }
+
+        // Create new headers for columns based on order and visibility
+        const columnNames = currentSettings.columnNames || {};
+        const colOrder = getColumnOrder();
+
+        colOrder.forEach(col => {
+          const th = document.createElement("th");
+          th.innerHTML = `
+            <div class="editable-column-name" data-column="${col}">
+              <span class="column-display-name">${columnNames[col] || col}</span>
+              <button class="btn btn-sm btn-outline-light edit-column-name" title="Edit column name"><i class="bi bi-pencil"></i></button>
+            </div>
+          `;
+          productAssignmentTableHeadRow.appendChild(th);
+
+          const btn = th.querySelector(".edit-column-name");
+          btn.addEventListener("click", () => {
+            const container = btn.closest(".editable-column-name");
+            const colType = container.getAttribute("data-column");
+            const currentName = container.querySelector(".column-display-name").textContent;
+            columnNameInput.value = currentName;
+            columnTypeInput.value = colType;
+            columnNameModal.style.display = "flex";
+          });
+        });
+
+        // Clear body rows
+        productAssignmentTableBody.innerHTML = "";
+
+        // Build rows sorted by current order or default order
+        let productOrder = currentSettings.productOrder.length
+          ? currentSettings.productOrder.filter(p => currentProductData[p])
+          : Object.keys(currentProductData);
+
+        currentSettings.productOrder = productOrder;
+
+        productOrder.forEach(productName => {
+          addProductAssignmentRow(productName);
+        });
+      }
+
+      // Apply UI settings on inputs from currentSettings
+      function applySettingsUI() {
+        // Column Names
+        Object.entries(currentSettings.columnNames).forEach(([col, name]) => {
+          const input = document.getElementById(col + "-name");
+          if (input) input.value = name;
+        });
+        // Column Visibility
+        Object.entries(currentSettings.columnVisibility).forEach(([col, visible]) => {
+          const input = document.getElementById(col + "-visible");
+          if (input) input.checked = visible;
+        });
+        // Platinum First switch
+        if ("platinumFirst" in currentSettings) {
+          settingInputs.showPlatinumFirst.checked = currentSettings.platinumFirst;
+        }
+
+        renderProductAssignmentTable();
+      }
+
+      // Save settings and product data to localStorage
+      function saveSettings() {
+        const storeData = {
+          version: "1.0",
+          platinumFirst: settingInputs.showPlatinumFirst.checked,
+          columnNames: {
+            platinum: settingInputs.platinumName.value || "Platinum",
+            gold: settingInputs.goldName.value || "Gold",
+            silver: settingInputs.silverName.value || "Silver",
+            bronze: settingInputs.bronzeName.value || "Bronze",
+            iron: settingInputs.ironName.value || "Iron",
+          },
+          columnVisibility: {
+            platinum: settingInputs.platinumVisible.checked,
+            gold: settingInputs.goldVisible.checked,
+            silver: settingInputs.silverVisible.checked,
+            bronze: settingInputs.bronzeVisible.checked,
+            iron: settingInputs.ironVisible.checked,
+          },
+          productData: currentProductData,
+          productAssignments: currentSettings.productAssignments,
+          productOrder: currentSettings.productOrder,
+        };
+        localStorage.setItem("menuSettings", JSON.stringify(storeData));
+        currentSettings = JSON.parse(JSON.stringify(storeData));
+        applySettingsUI();
+        return storeData;
+      }
+
+      // Auto save without redirect
+      function autoSaveSettings() {
+        saveSettings();
+      }
+
+      // Load saved settings from localStorage or create default if none
+      function loadSavedSettings() {
+        const saved = localStorage.getItem("menuSettings");
+        if (!saved) {
+          // Initialize default if none found
+          currentSettings = {
+            platinumFirst: true,
+            columnNames: {
+              platinum: "Platinum",
+              gold: "Gold",
+              silver: "Silver",
+              bronze: "Bronze",
+              iron: "Iron",
+            },
+            columnVisibility: {
+              platinum: true,
+              gold: true,
+              silver: true,
+              bronze: true,
+              iron: false,
+            },
+            productOrder: [],
+            productAssignments: {
+              platinum: [],
+              gold: [],
+              silver: [],
+              bronze: [],
+              iron: [],
+            },
+          };
+          currentProductData = JSON.parse(JSON.stringify(productData));
+          saveSettings();
+        } else {
+          const parsed = JSON.parse(saved);
+          currentSettings = parsed;
+          currentProductData = parsed.productData || JSON.parse(JSON.stringify(productData));
+        }
+        applySettingsUI();
+      }
+
+      // Broadcast changes to other tabs
+      function broadcastChange() {
+        channel.postMessage({
+          type: "update",
+          settings: currentSettings,
+          productData: currentProductData,
+        });
+      }
+
+      // Handle incoming messages from other tabs
+      channel.onmessage = (event) => {
+        if (event.data && event.data.type === "update") {
+          // Update local state from message if not identical (shallow check)
+          if (JSON.stringify(currentSettings) !== JSON.stringify(event.data.settings) || JSON.stringify(currentProductData) !== JSON.stringify(event.data.productData)) {
+            currentSettings = event.data.settings;
+            currentProductData = event.data.productData;
+            applySettingsUI();
+            renderProductsGrid();
+          }
+        }
+      };
+
+      // Render products grid from current product data
+      function renderProductsGrid() {
+        productsGrid.innerHTML = "";
+        Object.entries(currentProductData).forEach(([name, info]) => {
+          addProductCard(name, info.price, info.description);
+        });
+      }
+
+      // --- TAB SWITCHING ---
+      tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          tabContents.forEach(tc => tc.classList.remove("active"));
+          const tabId = btn.getAttribute("data-tab");
+          document.getElementById(tabId).classList.add("active");
+          if (tabId === "product-assignment") {
+            renderProductAssignmentTable();
+          }
+        });
+      });
+
+      // --- ADD NEW PRODUCT ---
+      addProductBtn.addEventListener("click", () => {
+        const name = newProductNameInput.value.trim();
+        const price = parseFloat(newProductPriceInput.value);
+        const desc = newProductDescInput.value.trim();
+        if (!name) {
+          alert("Enter a product name");
+          return;
+        }
+        if (isNaN(price) || price < 0) {
+          alert("Enter a valid price");
+          return;
+        }
+        if (currentProductData[name]) {
+          alert("Product already exists");
+          return;
+        }
+        currentProductData[name] = { price, description: desc, terms: "Standard terms apply." };
+        currentSettings.productOrder.push(name);
+        renderProductsGrid();
+        renderProductAssignmentTable();
+        autoSaveSettings();
+        broadcastChange();
+        newProductNameInput.value = "";
+        newProductPriceInput.value = "";
+        newProductDescInput.value = "";
+      });
+
+      // --- EDIT PRODUCT SAVE ---
+      saveEditBtn.addEventListener("click", () => {
+        const originalName = editNameInput.getAttribute("data-original-name");
+        const newName = editNameInput.value.trim();
+        const newPrice = parseFloat(editPriceInput.value);
+        const newDesc = editDescInput.value.trim();
+
+        if (!newName) {
+          alert("Product name cannot be empty");
+          return;
+        }
+        if (isNaN(newPrice) || newPrice < 0) {
+          alert("Invalid price");
+          return;
+        }
+
+        if (originalName && originalName !== newName && currentProductData[newName]) {
+          alert("Another product with this name exists.");
+          return;
+        }
+
+        // Update or rename product
+        if (originalName && originalName !== newName) {
+          currentProductData[newName] = {
+            price: newPrice,
+            description: newDesc,
+            terms: currentProductData[originalName]?.terms || "",
+          };
+          delete currentProductData[originalName];
+
+          // Update productOrder
+          const idx = currentSettings.productOrder.indexOf(originalName);
+          if (idx !== -1) currentSettings.productOrder[idx] = newName;
+        } else {
+          currentProductData[newName] = { price: newPrice, description: newDesc, terms: currentProductData[newName]?.terms || "" };
+        }
+
+        // Update assignments for renamed product
+        Object.keys(currentSettings.productAssignments).forEach(col => {
+          const arr = currentSettings.productAssignments[col];
+          if (originalName && arr.includes(originalName)) {
+            const idx = arr.indexOf(originalName);
+            arr[idx] = newName;
+          }
+        });
+
+        renderProductsGrid();
+        renderProductAssignmentTable();
+        editModal.hide();
+        autoSaveSettings();
+        broadcastChange();
+      });
+
+      // --- COLUMN NAME EDIT MODAL CONTROLS ---
+      document.querySelector(".column-name-modal-close").addEventListener("click", () => {
+        columnNameModal.style.display = "none";
+      });
+      document.querySelector(".cancel-column-name").addEventListener("click", () => {
+        columnNameModal.style.display = "none";
+      });
+      columnNameModal.addEventListener("click", e => {
+        if (e.target === columnNameModal) {
+          columnNameModal.style.display = "none";
+        }
+      });
+      document.querySelector(".save-column-name").addEventListener("click", () => {
+        const newName = columnNameInput.value.trim();
+        const colType = columnTypeInput.value;
+        if (!newName) {
+          alert("Column name cannot be empty");
+          return;
+        }
+        // Update settings
+        currentSettings.columnNames[colType] = newName;
+
+        // Update UI
+        document.querySelectorAll(`.editable-column-name[data-column="${colType}"] .column-display-name`).forEach(el => el.textContent = newName);
+        const input = document.getElementById(colType + "-name");
+        if (input) input.value = newName;
+
+        // Update label in settings tab
+        const label = document.querySelector(`label[for="${colType}-visible"]`);
+        if (label) label.textContent = newName;
+
+        columnNameModal.style.display = "none";
+        autoSaveSettings();
+        broadcastChange();
+      });
+
+      // --- SETTINGS INPUTS LISTENERS ---
+      Object.values(settingInputs).forEach(input => {
+        input.addEventListener("change", () => {
+          // Update current settings from inputs
+          currentSettings.platinumFirst = settingInputs.showPlatinumFirst.checked;
+          currentSettings.columnNames = {
+            platinum: settingInputs.platinumName.value || "Platinum",
+            gold: settingInputs.goldName.value || "Gold",
+            silver: settingInputs.silverName.value || "Silver",
+            bronze: settingInputs.bronzeName.value || "Bronze",
+            iron: settingInputs.ironName.value || "Iron",
+          };
+          currentSettings.columnVisibility = {
+            platinum: settingInputs.platinumVisible.checked,
+            gold: settingInputs.goldVisible.checked,
+            silver: settingInputs.silverVisible.checked,
+            bronze: settingInputs.bronzeVisible.checked,
+            iron: settingInputs.ironVisible.checked,
+          };
+          renderProductAssignmentTable();
+          autoSaveSettings();
+          broadcastChange();
+        });
+      });
+
+      // Initialize application UI and sync from storage
+      loadSavedSettings();
+      renderProductsGrid();
+
+      // LocalStorage 'storage' event for cross-tab sync fallback
+      window.addEventListener("storage", (e) => {
+        if (e.key === "menuSettings") {
+          const newSettings = JSON.parse(e.newValue);
+          if (JSON.stringify(newSettings) !== JSON.stringify(currentSettings)) {
+            currentSettings = newSettings;
+            currentProductData = newSettings.productData;
+            applySettingsUI();
+            renderProductsGrid();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
