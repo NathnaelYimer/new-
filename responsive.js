@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const overlay = document.createElement("div")
     overlay.className = "sidebar-overlay"
     body.appendChild(overlay)
+
+    
   
     // Toggle sidebar on desktop
     if (sidebarToggle) {
