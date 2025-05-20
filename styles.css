@@ -2125,62 +2125,69 @@ td.price-bottom .cell-content .price-section {
 
 /* iPad and Tablet Optimizations (max-width: 1024px) */
 @media (max-width: 1024px) {
-  /* Adjust the menu-table to use Flexbox for reordering */
+  /* Override to display plans horizontally side by side */
+  .menu-table {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    border-spacing: 0 !important;
+    margin-bottom: var(--space-8);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
   .menu-table thead,
-  .menu-table tbody {
-    display: block;
-  }
-
+  .menu-table tbody,
   .menu-table tr {
-    display: flex;
-    flex-direction: column;
+    display: contents !important;
   }
 
-  /* Reorder the th elements (headers) */
-  .menu-table thead tr {
-    display: flex;
-    flex-direction: column;
+  /* Hide Iron column */
+  .menu-table th.iron-bg,
+  .menu-table td[data-plan="iron"] {
+    display: none !important;
   }
 
-  .menu-table th.platinum-bg {
-    order: 1; /* Platinum first */
-  }
-  .menu-table th.iron-bg {
-    order: 2; /* Iron second */
-  }
+  /* Reorder columns: Bronze, Silver, Gold, Platinum */
   .menu-table th.bronze-bg {
-    order: 3; /* Bronze third */
+    order: 1 !important;
+    width: 25% !important;
   }
   .menu-table th.silver-bg {
-    order: 4; /* Silver fourth */
+    order: 2 !important;
+    width: 25% !important;
   }
   .menu-table th.gold-bg {
-    order: 5; /* Gold fifth */
+    order: 3 !important;
+    width: 25% !important;
+  }
+  .menu-table th.platinum-bg {
+    order: 4 !important;
+    width: 25% !important;
   }
 
-  /* Reorder the td elements (content) */
-  .menu-table tbody tr {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .menu-table td[data-plan="platinum"] {
-    order: 1; /* Platinum first */
-  }
-  .menu-table td[data-plan="iron"] {
-    order: 2; /* Iron second */
-  }
   .menu-table td[data-plan="bronze"] {
-    order: 3; /* Bronze third */
+    order: 1 !important;
+    width: 25% !important;
+    display: table-cell !important;
   }
   .menu-table td[data-plan="silver"] {
-    order: 4; /* Silver fourth */
+    order: 2 !important;
+    width: 25% !important;
+    display: table-cell !important;
   }
   .menu-table td[data-plan="gold"] {
-    order: 5; /* Gold fifth */
+    order: 3 !important;
+    width: 25% !important;
+    display: table-cell !important;
+  }
+  .menu-table td[data-plan="platinum"] {
+    order: 4 !important;
+    width: 25% !important;
+    display: table-cell !important;
   }
 
-  /* Ensure the features are displayed below each plan */
+  /* Ensure cell content layout */
   .menu-table td .cell-content {
     display: flex;
     flex-direction: column;
