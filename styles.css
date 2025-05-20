@@ -2049,81 +2049,83 @@ td.price-bottom .cell-content .price-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 45px;
-  padding: var(--space-3) var(--space-4);
-  background-color: #444444 !important;; /* Dark grey background */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 80%; /* Reduced width */
+  height: 24px; /* Much smaller height */
+  padding: 2px 4px; /* Minimal padding */
+  background-color: rgba(50, 50, 50, 0.2) !important; /* Very transparent, almost invisible */
+  border: 1px solid rgba(255, 255, 255, 0.02); /* Nearly invisible border */
   border-radius: var(--radius-sm);
-  font-size: 13px;
-  color: #ffffff !important; /* White icon */
-  transition: all var(--transition-normal);
-  cursor: pointer;
+  font-size: 9px; /* Tiny font size */
+  color: rgba(255, 255, 255, 0.3) !important; /* Very faint text */
+  transition: none; /* Remove transitions to avoid drawing attention */
+  cursor: default; /* Don't show pointer cursor by default */
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: none; /* Remove shadow completely */
+  margin: 0 auto; /* Center it */
+  opacity: 0.3; /* Very low opacity */
 }
 
-/* Hover state - slightly lighter */
+/* Minimal hover state - barely visible change */
 .add-product-btn:hover {
-  background-color: #555555; /* Slightly lighter grey on hover */
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+  background-color: rgba(60, 60, 60, 0.25); /* Barely noticeable change */
+  border-color: rgba(255, 255, 255, 0.03);
+  transform: none; /* No movement on hover */
+  cursor: pointer; /* Only show pointer on hover */
 }
+
 .add-product-wrapper .add-product-btn {
-  background-color: #444444;
-  color: #ffffff;
+  background-color: rgba(50, 50, 50, 0.2);
+  color: rgba(255, 255, 255, 0.3);
 }
-/* Active state - pressed effect */
+
+/* Minimal active state */
 .add-product-btn:active {
-  background-color: #333333; /* Darker grey on active */
-  transform: translateY(1px);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  background-color: rgba(55, 55, 55, 0.25);
+  transform: none; /* No movement on click */
+  box-shadow: none;
 }
 
-
-
-/* Ripple effect (dark version) */
+/* Remove ripple effect completely */
 .add-product-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.4s ease, height 0.4s ease;
-  pointer-events: none;
+  display: none;
 }
 
-.add-product-btn:active::after {
-  width: 200px;
-  height: 200px;
-  opacity: 0;
-}
-
-/* Icon styling */
+/* Tiny, faint icon */
 .add-product-btn i {
-  font-size: 1.2rem;
+  font-size: 0.7rem;
   margin-right: 0;
+  opacity: 0.4;
 }
 
+/* Disable icon rotation on hover */
 .add-product-btn:hover i {
-  transform: rotate(90deg);
+  transform: none;
 }
-
-
 
 .add-product-wrapper {
-  margin-top: auto; /* NEW: Pushes it to the bottom of .feature-list */
-  display: flex; /* NEW: Centers the button horizontally */
-  justify-content: center; /* NEW: Centers the button horizontally */
-  padding: var(--space-2) 0; /* NEW: Adds vertical spacing */
+  margin-top: 2px;
+  margin-bottom: 1px;
+  display: flex;
+  justify-content: center;
+  padding: 1px 0;
+  position: relative;
+  transition: none;
+  opacity: 0.4;
+  transform: scale(0.8); /* Make the whole wrapper smaller */
 }
 
-
+/* Make dropdown toggle very subtle */
+.add-product-wrapper .dropdown-toggle {
+  font-size: 8px;
+  padding: 2px 4px;
+  min-width: 60px;
+  background-color: rgba(255, 255, 255, 0.02);
+  color: rgba(153, 153, 153, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: none;
+  opacity: 0.4;
+}
 
 
 /* iPad and Tablet Optimizations (max-width: 1024px) */
