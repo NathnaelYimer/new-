@@ -1441,13 +1441,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return
       }
 
-      if (e.target.closest(".product-name") && !e.target.closest(".remove-product-btn-modal")) {
-        const productElement = e.target.closest(".product-name")
+      // Make entire feature-item clickable for product explanation
+      const featureItem = e.target.closest(".feature-item")
+      if (featureItem && !e.target.closest(".remove-product-btn-modal") && !e.target.closest(".remove-product-btn")) {
         e.stopPropagation()
-        const productName = productElement.textContent
-        const plan = productElement.closest(".feature-item").getAttribute("data-plan")
-        showProductExplanation(productName, plan, productElement)
-      } else if (e.target.closest(".choose-button")) {
+        const productName = featureItem.querySelector(".product-name")?.textContent
+        const plan = featureItem.getAttribute("data-plan")
+        if (productName && plan) {
+          showProductExplanation(productName, plan, featureItem)
+          return
+        }
+      }
+
+      if (e.target.closest(".choose-button")) {
         const button = e.target.closest(".choose-button")
         let planType = ""
         if (button.classList.contains("platinum")) planType = "Platinum"

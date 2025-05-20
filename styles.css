@@ -1447,9 +1447,10 @@ td.price-bottom .cell-content .price-section {
   transition: all 0.2s ease;
 }
 
+/* Removed hover effect on product-name text */
 .product-name:hover {
-  color: white;
-  text-decoration: underline;
+  /* color: white; */
+  /* text-decoration: underline; */
 }
 
 /* Terms and conditions modal styling */
