@@ -1035,30 +1035,33 @@ document.addEventListener("DOMContentLoaded", () => {
       touchStartX = touch.clientX
       touchStartY = touch.clientY
 
-      // Set a timeout to determine if this is a tap or a drag
-      touchTimeout = setTimeout(() => {
-        // This is a long press, start dragging
-        draggedItem = item
-        originalPlan = item.getAttribute("data-plan")
-        item.classList.add("dragging")
+      // Start dragging immediately on touchstart
+      draggedItem = item
+      originalPlan = item.getAttribute("data-plan")
+      item.classList.add("dragging")
 
-        // Create and position the drag image
-        touchDragImage = createDragImage(item)
-        updateDragImagePosition(touch.clientX, touch.clientY)
+      // Create and position the drag image
+      touchDragImage = createDragImage(item)
+      updateDragImagePosition(touch.clientX, touch.clientY)
 
-        // Hide the original item
-        item.style.opacity = "0.3"
+      // Hide the original item
+      item.style.opacity = "0.3"
 
-        // Show trash zone
-        if (trashZone) {
-          trashZone.style.display = "flex"
-        }
+      // Show trash zone
+      if (trashZone) {
+        trashZone.style.display = "flex"
+      }
 
-        isTouchDragging = true
+      isTouchDragging = true
 
-        // Provide visual feedback
-        navigator.vibrate && navigator.vibrate(50) // Vibrate if supported
-      }, 300) // 300ms is a good threshold for long press
+      // Provide visual feedback
+      navigator.vibrate && navigator.vibrate(50) // Vibrate if supported
+
+      // Clear any existing timeout
+      if (touchTimeout) {
+        clearTimeout(touchTimeout)
+        touchTimeout = null
+      }
     }
 
     // Handle touch move event
