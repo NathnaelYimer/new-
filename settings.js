@@ -629,22 +629,33 @@ class FIMenuSettings {
   }
 
   // Bind product actions
-  bindProductActions() {
-    // Edit product buttons
-    document.querySelectorAll(".edit-product").forEach((button) => {
-      button.addEventListener("click", (e) => {
-        const productCard = e.target.closest(".product-card")
-        const productName = productCard.querySelector("h4").textContent
-        const product = this.productData[productName]
+bindProductActions() {
+  // Edit product buttons
+  document.querySelectorAll(".edit-product").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const productCard = e.target.closest(".product-card");
+      const productName = productCard.querySelector("h4").textContent;
+      const product = this.productData[productName];
 
-        this.editNameInput.value = productName
-        this.editNameInput.setAttribute("data-original-name", productName)
-        this.editPriceInput.value = product.price
-        this.editDescInput.value = product.description || ""
+      this.editNameInput.value = productName;
+      this.editNameInput.setAttribute("data-original-name", productName);
+      this.editPriceInput.value = product.price;
+      this.editDescInput.value = product.description || "";
 
-        this.bootstrapModal.show()
-      })
-    })
+      // Set text color to white
+      this.editNameInput.style.color = "white";
+      this.editPriceInput.style.color = "white";
+      this.editDescInput.style.color = "white";
+
+      // Optional: also make background dark for contrast
+this.editNameInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
+this.editPriceInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
+this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
+
+
+      this.bootstrapModal.show();
+    });
+  });
 
     // Delete product buttons
     document.querySelectorAll(".delete-product").forEach((button) => {
