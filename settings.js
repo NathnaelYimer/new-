@@ -20,6 +20,7 @@ class FIMenuSettings {
           "Comprehensive coverage that extends the manufacturer's warranty, protecting your vehicle against mechanical and electrical failures beyond the original warranty period.",
         terms:
           "Coverage varies by plan level. Deductibles may apply. Valid at any authorized service center. Transferable if vehicle is sold. Exclusions apply for wear and tear items and routine maintenance.",
+        image: null,
       },
       "Rust Proofing": {
         price: 617.94,
@@ -27,6 +28,7 @@ class FIMenuSettings {
           "Advanced protection that helps prevent rust and corrosion on your vehicle's body and undercarriage, extending its lifespan and maintaining its value.",
         terms:
           "Annual inspections required to maintain coverage. Covers perforation due to rust from the inside out. Does not cover surface rust from external damage. 5-year warranty included.",
+        image: null,
       },
       "Paint Protection": {
         price: 608.39,
@@ -34,6 +36,7 @@ class FIMenuSettings {
           "Premium sealant that creates a protective barrier over your vehicle's paint, guarding against environmental damage, UV rays, and minor scratches.",
         terms:
           "Requires proper maintenance and care. Not a substitute for regular washing. Does not cover damage from accidents or improper care. Reapplication recommended every 2 years.",
+        image: null,
       },
       "Fabric/Leather Protection": {
         price: 261.84,
@@ -41,6 +44,7 @@ class FIMenuSettings {
           "Specialized treatment that repels stains and spills on your vehicle's interior surfaces, making cleanup easier and preserving the appearance of seats and carpets.",
         terms:
           "Spills must be cleaned promptly. Does not prevent damage from sharp objects or burns. Reapplication may be necessary after deep cleaning. 3-year protection plan included.",
+        image: null,
       },
       "Key Fob Replacement": {
         price: 871.21,
@@ -48,6 +52,7 @@ class FIMenuSettings {
           "Coverage for the repair or replacement of your vehicle's key fob in case of loss, theft, or damage, saving you from expensive dealer replacement costs.",
         terms:
           "Limited to 2 replacements per contract period. $50 deductible per claim. Programming fees included. Must provide proof of loss or damage. 24-hour assistance available.",
+        image: null,
       },
       GAP: {
         price: 990.27,
@@ -55,6 +60,7 @@ class FIMenuSettings {
           "Guaranteed Asset Protection covers the difference between what you owe on your vehicle and its actual cash value if it's totaled or stolen.",
         terms:
           "Must be purchased within 30 days of vehicle financing. Maximum benefit of $50,000. Primary insurance deductible coverage up to $1,000. Not available for leased vehicles in some states.",
+        image: null,
       },
       "Scratch/Dent Repair": {
         price: 1095.96,
@@ -62,12 +68,14 @@ class FIMenuSettings {
           "Convenient repair service for minor scratches, dents, and dings on your vehicle's exterior, maintaining its appearance and value without affecting your insurance.",
         terms:
           "Repairs limited to dents smaller than 4 inches in diameter. Paint touch-up for scratches less than 6 inches. Unlimited number of repairs during contract period. $0 deductible per claim.",
+        image: null,
       },
     }
   }
 
   // Cache DOM elements
   cacheDOM() {
+    // Basic elements
     this.sidebar = document.getElementById("sidebar")
     this.mainContent = document.getElementById("main-content")
     this.sidebarToggle = document.getElementById("sidebar-toggle")
@@ -80,18 +88,36 @@ class FIMenuSettings {
     this.columnNamesGrid = document.querySelector(".column-names-grid")
     this.productTable = document.querySelector(".product-assignment-table tbody")
     this.productsGrid = document.querySelector(".products-grid")
+
+    // Modal elements
     this.editModal = document.getElementById("editProductModal")
-    this.editNameInput = document.getElementById("edit-product-name")
-    this.editPriceInput = document.getElementById("edit-product-price")
-    this.editDescInput = document.getElementById("edit-product-description")
-    this.saveEditBtn = document.querySelector(".save-edit-btn")
+
+    if (this.editModal) {
+      this.editNameInput = document.getElementById("edit-product-name")
+      this.editPriceInput = document.getElementById("edit-product-price")
+      this.editDescInput = document.getElementById("edit-product-description")
+      this.editImageInput = document.getElementById("edit-product-image")
+      this.editImagePreview = document.getElementById("edit-image-preview")
+      this.removeImageBtn = document.getElementById("remove-product-image")
+      this.saveEditBtn = document.getElementById("save-edit-btn")
+
+      // Initialize Bootstrap modal
+      if (window.bootstrap && window.bootstrap.Modal) {
+        this.bootstrapModal = new window.bootstrap.Modal(this.editModal)
+      } else {
+        console.warn("Bootstrap Modal not available, using fallback")
+      }
+    } else {
+      console.error("Edit product modal not found in the DOM")
+    }
+
+    // Add product elements
     this.addProductBtn = document.querySelector(".add-product-btn")
     this.newProductName = document.getElementById("new-product-name")
     this.newProductPrice = document.getElementById("new-product-price")
     this.newProductDesc = document.getElementById("new-product-description")
-
-    // Initialize Bootstrap modal
-    this.bootstrapModal = new window.bootstrap.Modal(this.editModal)
+    this.newProductImage = document.getElementById("new-product-image")
+    this.imagePreview = document.getElementById("image-preview")
   }
 
   // Create toast container
@@ -203,29 +229,61 @@ class FIMenuSettings {
       }
     }
 
-    const settings = JSON.parse(saved)
+    try {
+      const settings = JSON.parse(saved)
 
-    // Ensure all required properties exist
-    if (!settings.productAssignments) {
-      settings.productAssignments = {
-        platinum: [],
-        gold: [],
-        silver: [],
-        bronze: [],
-        iron: [],
+      // Ensure all required properties exist
+      if (!settings.productAssignments) {
+        settings.productAssignments = {
+          platinum: [],
+          gold: [],
+          silver: [],
+          bronze: [],
+          iron: [],
+        }
+      }
+
+      if (!settings.productOrder) {
+        settings.productOrder = Object.keys(this.productData)
+      }
+
+      // Update productData with any saved changes
+      if (settings.productData) {
+        this.productData = settings.productData
+      }
+
+      return settings
+    } catch (error) {
+      console.error("Error parsing saved settings:", error)
+      // Return default settings if there's an error
+      return {
+        version: "1.0",
+        platinumFirst: true,
+        columnNames: {
+          platinum: "Platinum",
+          gold: "Gold",
+          silver: "Silver",
+          bronze: "Bronze",
+          iron: "Iron",
+        },
+        columnVisibility: {
+          platinum: true,
+          gold: true,
+          silver: true,
+          bronze: true,
+          iron: false,
+        },
+        productData: this.productData,
+        productAssignments: {
+          platinum: Object.keys(this.productData),
+          gold: Object.keys(this.productData),
+          silver: Object.keys(this.productData),
+          bronze: Object.keys(this.productData),
+          iron: [],
+        },
+        productOrder: Object.keys(this.productData),
       }
     }
-
-    if (!settings.productOrder) {
-      settings.productOrder = Object.keys(this.productData)
-    }
-
-    // Update productData with any saved changes
-    if (settings.productData) {
-      this.productData = settings.productData
-    }
-
-    return settings
   }
 
   // Setup cross-tab synchronization
@@ -269,23 +327,151 @@ class FIMenuSettings {
     }
   }
 
-  // Bind event listeners
+  handleImageUpload(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      this.showToast("Please upload a valid image file", "error")
+      event.target.value = ""
+      return
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      this.showToast("Image size must be less than 5MB", "error")
+      event.target.value = ""
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (this.newProductImage) {
+        this.newProductImage.dataset.image = reader.result
+      }
+      if (this.imagePreview) {
+        this.imagePreview.src = reader.result
+        this.imagePreview.style.display = "block"
+      }
+      this.showToast("Image uploaded successfully")
+    }
+    reader.onerror = () => {
+      this.showToast("Error reading image file", "error")
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Fix the removeEditImage function to properly handle the image removal
+  removeEditImage() {
+    // Store the original name to update the product data
+    const originalName = this.editNameInput ? this.editNameInput.getAttribute("data-original-name") : null
+
+    if (originalName && this.productData[originalName]) {
+      // Set the image to null in the product data
+      this.productData[originalName].image = null
+    }
+
+    if (this.editImageInput) {
+      this.editImageInput.dataset.image = ""
+      this.editImageInput.value = ""
+    }
+
+    if (this.editImagePreview) {
+      this.editImagePreview.src = ""
+      this.editImagePreview.style.display = "none"
+    }
+
+    if (this.removeImageBtn) {
+      this.removeImageBtn.style.display = "none"
+    }
+
+    // Save the changes immediately
+    this.autoSaveSettings()
+    this.showToast("Image removed")
+  }
+
+  handleEditImageUpload(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      this.showToast("Please upload a valid image file", "error")
+      event.target.value = ""
+      return
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      this.showToast("Image size must be less than 5MB", "error")
+      event.target.value = ""
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (this.editImageInput) {
+        this.editImageInput.dataset.image = reader.result
+      }
+      if (this.editImagePreview) {
+        this.editImagePreview.src = reader.result
+        this.editImagePreview.style.display = "block"
+      }
+      if (this.removeImageBtn) {
+        this.removeImageBtn.style.display = "inline-block"
+      }
+      this.showToast("Image updated successfully")
+    }
+    reader.onerror = () => {
+      this.showToast("Error reading image file", "error")
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Fix the binding for the remove image button
   bindEvents() {
+    // Image upload for new product
+    if (this.newProductImage) {
+      this.newProductImage.addEventListener("change", (e) => this.handleImageUpload(e))
+    }
+
+    // Image upload for editing product
+    if (this.editImageInput) {
+      this.editImageInput.addEventListener("change", (e) => this.handleEditImageUpload(e))
+    }
+
+    // Remove image button - Fix this binding
+    if (this.removeImageBtn) {
+      this.removeImageBtn.addEventListener("click", (e) => {
+        e.preventDefault()
+        this.removeEditImage()
+      })
+    }
+
     // Sidebar toggles
-    this.sidebarToggle.addEventListener("click", () => this.toggleSidebar("desktop"))
-    this.mobileToggle.addEventListener("click", () => this.toggleSidebar("mobile"))
+    if (this.sidebarToggle) {
+      this.sidebarToggle.addEventListener("click", () => this.toggleSidebar("desktop"))
+    }
+    if (this.mobileToggle) {
+      this.mobileToggle.addEventListener("click", () => this.toggleSidebar("mobile"))
+    }
     document.addEventListener("click", (e) => this.handleOutsideClick(e))
     window.addEventListener("resize", () => this.handleResize())
 
     // Close settings
-    this.closeSettings.addEventListener("click", () => this.saveAndRedirect("index.html"))
-    this.saveSettingsBtn.addEventListener("click", () => this.saveAndRedirect("index.html"))
+    if (this.closeSettings) {
+      this.closeSettings.addEventListener("click", () => this.saveAndRedirect("index.html"))
+    }
+    if (this.saveSettingsBtn) {
+      this.saveSettingsBtn.addEventListener("click", () => this.saveAndRedirect("index.html"))
+    }
 
     // Tab switching
     this.tabButtons.forEach((btn) => btn.addEventListener("click", () => this.switchTab(btn.getAttribute("data-tab"))))
 
     // Platinum first and visibility toggles
-    this.platinumFirstToggle.addEventListener("change", () => this.updateColumnOrder())
+    if (this.platinumFirstToggle) {
+      this.platinumFirstToggle.addEventListener("change", () => this.updateColumnOrder())
+    }
     document
       .querySelectorAll(".column-visibility-toggle input")
       .forEach((toggle) => toggle.addEventListener("change", () => this.updateColumnOrder()))
@@ -302,10 +488,17 @@ class FIMenuSettings {
     this.bindEditablePrices()
 
     // Add product
-    this.addProductBtn.addEventListener("click", () => this.addProduct())
+    if (this.addProductBtn) {
+      this.addProductBtn.addEventListener("click", () => this.addProduct())
+    }
 
-    // Save edited product
-    this.saveEditBtn.addEventListener("click", () => this.saveEditedProduct())
+    // Add preventDefault to the save edit button
+    if (this.saveEditBtn) {
+      this.saveEditBtn.addEventListener("click", (e) => {
+        e.preventDefault()
+        this.saveEditedProduct()
+      })
+    }
 
     // Initialize drag and drop
     this.initProductReordering()
@@ -349,11 +542,15 @@ class FIMenuSettings {
     this.tabContents.forEach((content) => content.classList.remove("active"))
 
     const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`)
-    activeButton.classList.add("active")
-    activeButton.setAttribute("aria-selected", "true")
+    if (activeButton) {
+      activeButton.classList.add("active")
+      activeButton.setAttribute("aria-selected", "true")
+    }
 
     const activeContent = document.getElementById(tabId)
-    activeContent.classList.add("active")
+    if (activeContent) {
+      activeContent.classList.add("active")
+    }
 
     if (tabId === "product-assignment") {
       this.updateColumnOrder()
@@ -434,6 +631,8 @@ class FIMenuSettings {
 
   // Update column order
   updateColumnOrder() {
+    if (!this.platinumFirstToggle) return
+
     const platinumFirst = this.platinumFirstToggle.checked
     const columnVisibility = {
       platinum: document.getElementById("platinum-visible").checked,
@@ -467,6 +666,8 @@ class FIMenuSettings {
 
   // Update column names grid
   updateColumnNamesGrid(order, columnVisibility) {
+    if (!this.columnNamesGrid) return
+
     // Get all column name items
     const columnItems = Array.from(this.columnNamesGrid.querySelectorAll(".column-name-item"))
 
@@ -488,28 +689,29 @@ class FIMenuSettings {
   // Update product assignment table
   updateProductAssignmentTable(visibleColumns) {
     const table = document.querySelector(".product-assignment-table table")
-    if (!table) return
+    if (!table) {
+      console.error("Product assignment table not found")
+      return
+    }
 
     const thead = table.querySelector("thead tr")
     const tbody = table.querySelector("tbody")
 
-    // Rebuild header
     thead.innerHTML = '<th role="columnheader">Product</th>'
     visibleColumns.forEach((col) => {
       const th = document.createElement("th")
       th.setAttribute("role", "columnheader")
       th.innerHTML = `
-      <div class="editable-column-name" data-column="${col}">
-        <span class="column-display-name">${this.settings.columnNames[col]}</span>
-        <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit ${this.settings.columnNames[col]} column name">
-          <i class="bi bi-pencil"></i>
-        </button>
-      </div>
-    `
+        <div class="editable-column-name" data-column="${col}">
+          <span class="column-display-name">${this.settings.columnNames[col]}</span>
+          <button class="btn btn-sm btn-outline-light edit-column-name" aria-label="Edit ${this.settings.columnNames[col]} column name">
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
+      `
       thead.appendChild(th)
     })
 
-    // Rebuild rows
     tbody.innerHTML = ""
     this.settings.productOrder.forEach((productName) => {
       if (!this.productData[productName]) return
@@ -518,29 +720,26 @@ class FIMenuSettings {
       row.className = "product-row"
       row.setAttribute("draggable", "true")
 
-      // Create product cell
       const productCell = document.createElement("td")
       productCell.className = "product-cell"
       productCell.innerHTML = `
-      <div title="${this.sanitize(this.productData[productName].description || "")}">
-        <i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(productName)}
-      </div>
-      <div class="product-price editable-price" data-product="${this.sanitize(productName)}">$${this.productData[productName].price.toFixed(2)}</div>
-    `
+        <div title="${this.sanitize(this.productData[productName].description || "")}">
+          <i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(productName)}
+        </div>
+        <div class="product-price editable-price" data-product="${this.sanitize(productName)}">$${this.productData[productName].price.toFixed(2)}</div>
+        ${this.productData[productName].image ? `<img src="${this.productData[productName].image}" alt="${this.sanitize(productName)}" class="table-product-image">` : ""}
+      `
       row.appendChild(productCell)
 
-      // Create column cells with checkboxes
       visibleColumns.forEach((col) => {
         const td = document.createElement("td")
-        // Check if this product is assigned to this column using the saved settings
         const isChecked =
           this.settings.productAssignments[col] && this.settings.productAssignments[col].includes(productName)
-
         td.innerHTML = `
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" ${isChecked ? "checked" : ""}>
-        </div>
-      `
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" ${isChecked ? "checked" : ""}>
+          </div>
+        `
         row.appendChild(td)
       })
 
@@ -548,7 +747,6 @@ class FIMenuSettings {
       this.setupDragAndDrop(row)
     })
 
-    // Bind event listeners to new elements
     this.bindColumnNameEditButtons()
     this.bindEditablePrices()
   }
@@ -558,8 +756,10 @@ class FIMenuSettings {
     document.querySelectorAll(".edit-column-name").forEach((button) => {
       button.addEventListener("click", (e) => {
         const columnNameContainer = e.target.closest(".editable-column-name")
-        const columnType = columnNameContainer.getAttribute("data-column")
-        this.openColumnNameModal(columnType)
+        if (columnNameContainer) {
+          const columnType = columnNameContainer.getAttribute("data-column")
+          this.openColumnNameModal(columnType)
+        }
       })
     })
   }
@@ -571,6 +771,8 @@ class FIMenuSettings {
         if (e.target.classList.contains("editing")) return
 
         const productName = e.target.getAttribute("data-product")
+        if (!productName || !this.productData[productName]) return
+
         const currentPrice = this.productData[productName].price
 
         e.target.classList.add("editing")
@@ -618,7 +820,10 @@ class FIMenuSettings {
     document.querySelectorAll(".product-card").forEach((card) => {
       const cardName = card.querySelector("h4")
       if (cardName && cardName.textContent === productName) {
-        card.querySelector(".product-price-display").textContent = `$${newPrice.toFixed(2)}`
+        const priceElement = card.querySelector(".product-price-display")
+        if (priceElement) {
+          priceElement.textContent = `$${newPrice.toFixed(2)}`
+        }
       }
     })
 
@@ -629,60 +834,83 @@ class FIMenuSettings {
   }
 
   // Bind product actions
-bindProductActions() {
-  // Edit product buttons
-  document.querySelectorAll(".edit-product").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const productCard = e.target.closest(".product-card");
-      const productName = productCard.querySelector("h4").textContent;
-      const product = this.productData[productName];
+  bindProductActions() {
+    // Edit product buttons
+    document.querySelectorAll(".edit-product").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
 
-      this.editNameInput.value = productName;
-      this.editNameInput.setAttribute("data-original-name", productName);
-      this.editPriceInput.value = product.price;
-      this.editDescInput.value = product.description || "";
+        const productCard = e.target.closest(".product-card")
+        if (!productCard) {
+          this.showToast("Error: Product card not found", "error")
+          return
+        }
 
-      // Set text color to white
-      this.editNameInput.style.color = "white";
-      this.editPriceInput.style.color = "white";
-      this.editDescInput.style.color = "white";
+        const productName = productCard.querySelector("h4")?.textContent
+        if (!productName || !this.productData[productName]) {
+          this.showToast("Error: Product not found", "error")
+          return
+        }
 
-      // Optional: also make background dark for contrast
-this.editNameInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
-this.editPriceInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
-this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
+        const product = this.productData[productName]
 
+        // Check if modal elements exist
+        if (!this.editModal) {
+          this.showToast("Error: Edit modal not found", "error")
+          return
+        }
 
-      this.bootstrapModal.show();
-    });
-  });
+        // Set form values
+        if (this.editNameInput) {
+          this.editNameInput.value = productName
+          this.editNameInput.setAttribute("data-original-name", productName)
+        }
+
+        if (this.editPriceInput) {
+          this.editPriceInput.value = product.price
+        }
+
+        if (this.editDescInput) {
+          this.editDescInput.value = product.description || ""
+        }
+
+        // Handle image preview
+        if (this.editImageInput && this.editImagePreview && this.removeImageBtn) {
+          this.editImageInput.dataset.image = product.image || ""
+          this.editImagePreview.src = product.image || ""
+          this.editImagePreview.style.display = product.image ? "block" : "none"
+          this.removeImageBtn.style.display = product.image ? "inline-block" : "none"
+        }
+
+        // Show modal
+        this.showModal()
+      })
+    })
 
     // Delete product buttons
     document.querySelectorAll(".delete-product").forEach((button) => {
       button.addEventListener("click", (e) => {
         const productCard = e.target.closest(".product-card")
-        const productName = productCard.querySelector("h4").textContent
+        const productName = productCard.querySelector("h4")?.textContent
+
+        if (!productName) return
 
         if (confirm(`Are you sure you want to delete ${productName}?`)) {
-          // Remove from product data
           delete this.productData[productName]
-
-          // Remove from DOM
           productCard.remove()
 
-          // Remove from product assignment table
+          // Remove from product table
           document.querySelectorAll(".product-cell").forEach((cell) => {
             const cellProductName = cell.querySelector("div:first-child")
-            if (cellProductName && cellProductName.textContent.trim() === productName) {
+            if (cellProductName && cellProductName.textContent.includes(productName)) {
               const row = cell.closest("tr")
               if (row) row.remove()
             }
           })
 
-          // Remove from product order
+          // Update settings
           this.settings.productOrder = this.settings.productOrder.filter((name) => name !== productName)
-
-          // Remove from product assignments
           Object.keys(this.settings.productAssignments).forEach((col) => {
             this.settings.productAssignments[col] = this.settings.productAssignments[col].filter(
               (name) => name !== productName,
@@ -696,12 +924,70 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
     })
   }
 
+  // Show modal with fallback
+  showModal() {
+    try {
+      if (this.bootstrapModal) {
+        this.bootstrapModal.show()
+      } else {
+        // Manual fallback
+        this.editModal.classList.add("show")
+        this.editModal.style.display = "block"
+        document.body.classList.add("modal-open")
+
+        // Create backdrop
+        const backdrop = document.createElement("div")
+        backdrop.className = "modal-backdrop fade show"
+        document.body.appendChild(backdrop)
+      }
+    } catch (error) {
+      console.error("Error showing modal:", error)
+      this.showToast("Error opening edit modal", "error")
+    }
+  }
+
+  // Hide modal with fallback
+  hideModal() {
+    try {
+      if (this.bootstrapModal) {
+        this.bootstrapModal.hide()
+      } else {
+        // Manual fallback
+        this.editModal.classList.remove("show")
+        this.editModal.style.display = "none"
+        document.body.classList.remove("modal-open")
+
+        // Remove backdrop
+        const backdrop = document.querySelector(".modal-backdrop")
+        if (backdrop) {
+          backdrop.remove()
+        }
+      }
+    } catch (error) {
+      console.error("Error hiding modal:", error)
+      this.showToast("Error closing modal", "error")
+    }
+  }
+
   // Save edited product
   saveEditedProduct() {
+    if (!this.editNameInput || !this.editPriceInput) {
+      this.showToast("Error: Form inputs not found", "error")
+      return
+    }
+
     const originalName = this.editNameInput.getAttribute("data-original-name")
     const newName = this.editNameInput.value.trim()
     const newPrice = Number.parseFloat(this.editPriceInput.value)
-    const newDesc = this.editDescInput.value
+    const newDesc = this.editDescInput ? this.editDescInput.value : ""
+
+    // Get the image from the dataset or keep the existing one
+    let newImage = null
+    if (this.editImageInput && this.editImageInput.dataset.image) {
+      newImage = this.editImageInput.dataset.image
+    } else if (originalName && this.productData[originalName]) {
+      newImage = this.productData[originalName].image
+    }
 
     if (!newName) {
       this.showToast("Product name cannot be empty", "error")
@@ -713,69 +999,104 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
       return
     }
 
-    // If name changed and new name already exists
     if (originalName !== newName && this.productData[newName]) {
       this.showToast("A product with this name already exists", "error")
       return
     }
 
-    // Update product data
-    this.productData[newName] = {
-      price: newPrice,
-      description: newDesc,
-      terms: this.productData[originalName]?.terms || "Standard terms apply.",
-    }
+    try {
+      // Update product data
+      this.productData[newName] = {
+        price: newPrice,
+        description: newDesc,
+        terms: this.productData[originalName]?.terms || "Standard terms apply.",
+        image: newImage,
+      }
 
-    // If name changed, update references and delete old entry
-    if (originalName !== newName) {
-      // Update product order
-      this.settings.productOrder = this.settings.productOrder.map((name) => (name === originalName ? newName : name))
+      // Handle name change
+      if (originalName !== newName) {
+        this.settings.productOrder = this.settings.productOrder.map((name) => (name === originalName ? newName : name))
 
-      // Update product assignments
-      Object.keys(this.settings.productAssignments).forEach((col) => {
-        this.settings.productAssignments[col] = this.settings.productAssignments[col].map((name) =>
-          name === originalName ? newName : name,
-        )
+        Object.keys(this.settings.productAssignments).forEach((col) => {
+          this.settings.productAssignments[col] = this.settings.productAssignments[col].map((name) =>
+            name === originalName ? newName : name,
+          )
+        })
+
+        delete this.productData[originalName]
+      }
+
+      // Update product cards
+      document.querySelectorAll(".product-card").forEach((card) => {
+        const nameElement = card.querySelector("h4")
+        if (nameElement && nameElement.textContent === originalName) {
+          nameElement.textContent = newName
+          nameElement.title = this.sanitize(newDesc)
+
+          const priceElement = card.querySelector(".product-price-display")
+          if (priceElement) {
+            priceElement.textContent = `$${newPrice.toFixed(2)}`
+          }
+
+          // Update image if present
+          const imageElement = card.querySelector(".product-image")
+          if (newImage && imageElement) {
+            imageElement.src = newImage
+          } else if (newImage && !imageElement) {
+            const img = document.createElement("img")
+            img.src = newImage
+            img.alt = newName
+            img.className = "product-image"
+            card.insertBefore(img, priceElement)
+          } else if (!newImage && imageElement) {
+            imageElement.remove()
+          }
+        }
       })
 
-      // Delete old entry
-      delete this.productData[originalName]
+      // Update product assignment table
+      const visibleColumns = this.columnOrder.filter((col) => this.settings.columnVisibility[col])
+      this.updateProductAssignmentTable(visibleColumns)
+
+      // Reset form
+      if (this.editNameInput) this.editNameInput.value = ""
+      if (this.editPriceInput) this.editPriceInput.value = ""
+      if (this.editDescInput) this.editDescInput.value = ""
+      if (this.editImageInput) {
+        this.editImageInput.value = ""
+        this.editImageInput.dataset.image = ""
+      }
+      if (this.editImagePreview) {
+        this.editImagePreview.src = ""
+        this.editImagePreview.style.display = "none"
+      }
+      if (this.removeImageBtn) {
+        this.removeImageBtn.style.display = "none"
+      }
+
+      // Hide modal
+      this.hideModal()
+
+      // Save settings
+      this.autoSaveSettings()
+      this.showToast("Product updated successfully")
+    } catch (error) {
+      console.error("Error saving product:", error)
+      this.showToast("Error saving product", "error")
     }
-
-    // Update product cards
-    document.querySelectorAll(".product-card").forEach((card) => {
-      const nameElement = card.querySelector("h4")
-      if (nameElement && nameElement.textContent === originalName) {
-        nameElement.textContent = newName
-        nameElement.title = newDesc
-        card.querySelector(".product-price-display").textContent = `$${newPrice.toFixed(2)}`
-      }
-    })
-
-    // Update product assignment table
-    document.querySelectorAll(".product-cell").forEach((cell) => {
-      const productNameEl = cell.querySelector("div:first-child")
-      if (productNameEl && productNameEl.textContent.trim() === originalName) {
-        productNameEl.innerHTML = `<i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(newName)}`
-        productNameEl.title = newDesc
-        const priceElement = cell.querySelector(".product-price")
-        if (priceElement) {
-          priceElement.textContent = `$${newPrice.toFixed(2)}`
-          priceElement.setAttribute("data-product", newName)
-        }
-      }
-    })
-
-    this.bootstrapModal.hide()
-    this.autoSaveSettings()
-    this.showToast("Product updated successfully")
   }
 
   // Add new product
   addProduct() {
+    if (!this.newProductName || !this.newProductPrice) {
+      this.showToast("Error: Form inputs not found", "error")
+      return
+    }
+
     const name = this.newProductName.value.trim()
     const price = Number.parseFloat(this.newProductPrice.value)
-    const desc = this.newProductDesc.value
+    const desc = this.newProductDesc ? this.newProductDesc.value : ""
+    const image = this.newProductImage && this.newProductImage.dataset.image ? this.newProductImage.dataset.image : null
 
     if (!name) {
       this.showToast("Product name cannot be empty", "error")
@@ -797,10 +1118,21 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
       price: price,
       description: desc,
       terms: "Standard terms apply. See dealer for complete details.",
+      image: image,
     }
 
     // Add to product order
     this.settings.productOrder.push(name)
+
+    // Add to product assignments for each column
+    Object.keys(this.settings.productAssignments).forEach((col) => {
+      if (this.settings.columnVisibility[col]) {
+        if (!this.settings.productAssignments[col]) {
+          this.settings.productAssignments[col] = []
+        }
+        this.settings.productAssignments[col].push(name)
+      }
+    })
 
     // Create product card
     const newCard = document.createElement("div")
@@ -818,40 +1150,44 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
           </button>
         </div>
       </div>
+      ${image ? `<img src="${image}" alt="${this.sanitize(name)}" class="product-image">` : ""}
       <div class="product-price-display">$${price.toFixed(2)}</div>
     `
-    this.productsGrid.appendChild(newCard)
+
+    if (this.productsGrid) {
+      this.productsGrid.appendChild(newCard)
+    }
 
     // Add to product assignment table
     const visibleColumns = this.columnOrder.filter((col) => this.settings.columnVisibility[col])
-
     const newRow = document.createElement("tr")
     newRow.className = "product-row"
     newRow.setAttribute("draggable", "true")
 
-    // Create product cell
     const productCell = document.createElement("td")
     productCell.className = "product-cell"
     productCell.innerHTML = `
       <div title="${this.sanitize(desc)}"><i class="bi bi-grip-vertical product-handle"></i> ${this.sanitize(name)}</div>
       <div class="product-price editable-price" data-product="${this.sanitize(name)}">$${price.toFixed(2)}</div>
+      ${image ? `<img src="${image}" alt="${this.sanitize(name)}" class="table-product-image">` : ""}
     `
     newRow.appendChild(productCell)
 
-    // Create column cells with checkboxes
     visibleColumns.forEach((col) => {
       const td = document.createElement("td")
       td.innerHTML = `
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox">
+          <input class="form-check-input" type="checkbox" checked>
         </div>
       `
       newRow.appendChild(td)
     })
 
-    this.productTable.appendChild(newRow)
+    if (this.productTable) {
+      this.productTable.appendChild(newRow)
+    }
 
-    // Bind event listeners to new elements
+    // Bind event listeners
     this.bindProductActions()
     this.bindEditablePrices()
     this.setupDragAndDrop(newRow)
@@ -859,9 +1195,18 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
     // Clear form
     this.newProductName.value = ""
     this.newProductPrice.value = ""
-    this.newProductDesc.value = ""
+    if (this.newProductDesc) this.newProductDesc.value = ""
+    if (this.newProductImage) {
+      this.newProductImage.value = ""
+      this.newProductImage.dataset.image = ""
+    }
+    if (this.imagePreview) {
+      this.imagePreview.src = ""
+      this.imagePreview.style.display = "none"
+    }
 
-    this.autoSaveSettings()
+    // Save settings immediately
+    this.saveSettings()
     this.showToast(`${name} added successfully`)
   }
 
@@ -874,6 +1219,8 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
       bronze: [],
       iron: [],
     }
+
+    if (!this.productTable) return assignments
 
     // Get visible columns in the current order they appear in the table
     const headerCells = document.querySelectorAll(".product-assignment-table th .editable-column-name")
@@ -907,34 +1254,44 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
 
   // Save settings
   saveSettings() {
-    // Get the current product assignments from the table
-    const currentAssignments = this.getProductAssignments()
+    try {
+      // Get the current product assignments from the table
+      const currentAssignments = this.getProductAssignments()
 
-    // Update the settings with the current assignments
-    this.settings.productAssignments = currentAssignments
+      // Update the settings with the current assignments
+      this.settings.productAssignments = currentAssignments
 
-    // Update product order from the table
-    this.settings.productOrder = Array.from(this.productTable.querySelectorAll("tr"))
-      .map((row) => {
-        const productNameEl = row.querySelector(".product-cell div:first-child")
-        if (!productNameEl) return null
+      // Update product order from the table
+      if (this.productTable) {
+        this.settings.productOrder = Array.from(this.productTable.querySelectorAll("tr"))
+          .map((row) => {
+            const productNameEl = row.querySelector(".product-cell div:first-child")
+            if (!productNameEl) return null
 
-        // Extract product name, removing the handle icon text
-        const fullText = productNameEl.textContent.trim()
-        return fullText.replace(
-          /^\s*[\u200B\u200C\u200D\u2060\uFEFF\u00A0]?[\s\u200B\u200C\u200D\u2060\uFEFF\u00A0]*/,
-          "",
-        )
-      })
-      .filter(Boolean)
+            // Extract product name, removing the handle icon text
+            const fullText = productNameEl.textContent.trim()
+            return fullText.replace(
+              /^\s*[\u200B\u200C\u200D\u2060\uFEFF\u00A0]?[\s\u200B\u200C\u200D\u2060\uFEFF\u00A0]*/,
+              "",
+            )
+          })
+          .filter(Boolean)
+      }
 
-    // Update product data
-    this.settings.productData = this.productData
+      // Update product data
+      this.settings.productData = this.productData
 
-    // Save to localStorage
-    localStorage.setItem("menuSettings", JSON.stringify(this.settings))
-    this.broadcastSettingsChange()
-    return this.settings
+      // Save to localStorage
+      localStorage.setItem("menuSettings", JSON.stringify(this.settings))
+      this.broadcastSettingsChange()
+
+      console.log("Settings saved:", this.settings)
+      return this.settings
+    } catch (error) {
+      console.error("Error saving settings:", error)
+      this.showToast("Error saving settings", "error")
+      return this.settings
+    }
   }
 
   // Auto-save settings
@@ -945,33 +1302,101 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
 
   // Apply settings
   applySettings() {
-    // Apply column names
-    document.getElementById("platinum-name").value = this.settings.columnNames.platinum
-    document.getElementById("gold-name").value = this.settings.columnNames.gold
-    document.getElementById("silver-name").value = this.settings.columnNames.silver
-    document.getElementById("bronze-name").value = this.settings.columnNames.bronze
-    document.getElementById("iron-name").value = this.settings.columnNames.iron
+    try {
+      // Apply column names
+      const platinumNameInput = document.getElementById("platinum-name")
+      if (platinumNameInput) platinumNameInput.value = this.settings.columnNames.platinum
 
-    // Apply column visibility
-    document.getElementById("platinum-visible").checked = this.settings.columnVisibility.platinum
-    document.getElementById("gold-visible").checked = this.settings.columnVisibility.gold
-    document.getElementById("silver-visible").checked = this.settings.columnVisibility.silver
-    document.getElementById("bronze-visible").checked = this.settings.columnVisibility.bronze
-    document.getElementById("iron-visible").checked = this.settings.columnVisibility.iron
+      const goldNameInput = document.getElementById("gold-name")
+      if (goldNameInput) goldNameInput.value = this.settings.columnNames.gold
 
-    // Apply platinum first setting
-    this.platinumFirstToggle.checked = this.settings.platinumFirst
+      const silverNameInput = document.getElementById("silver-name")
+      if (silverNameInput) silverNameInput.value = this.settings.columnNames.silver
 
-    // Update column names in product assignment table
-    document.querySelectorAll(".editable-column-name").forEach((column) => {
-      const columnType = column.getAttribute("data-column")
-      if (columnType && this.settings.columnNames[columnType]) {
-        column.querySelector(".column-display-name").textContent = this.settings.columnNames[columnType]
+      const bronzeNameInput = document.getElementById("bronze-name")
+      if (bronzeNameInput) bronzeNameInput.value = this.settings.columnNames.bronze
+
+      const ironNameInput = document.getElementById("iron-name")
+      if (ironNameInput) ironNameInput.value = this.settings.columnNames.iron
+
+      // Apply column visibility
+      const platinumVisibleInput = document.getElementById("platinum-visible")
+      if (platinumVisibleInput) platinumVisibleInput.checked = this.settings.columnVisibility.platinum
+
+      const goldVisibleInput = document.getElementById("gold-visible")
+      if (goldVisibleInput) goldVisibleInput.checked = this.settings.columnVisibility.gold
+
+      const silverVisibleInput = document.getElementById("silver-visible")
+      if (silverVisibleInput) silverVisibleInput.checked = this.settings.columnVisibility.silver
+
+      const bronzeVisibleInput = document.getElementById("bronze-visible")
+      if (bronzeVisibleInput) bronzeVisibleInput.checked = this.settings.columnVisibility.bronze
+
+      const ironVisibleInput = document.getElementById("iron-visible")
+      if (ironVisibleInput) ironVisibleInput.checked = this.settings.columnVisibility.iron
+
+      // Apply platinum first setting
+      if (this.platinumFirstToggle) {
+        this.platinumFirstToggle.checked = this.settings.platinumFirst
       }
+
+      // Update column names in product assignment table
+      document.querySelectorAll(".editable-column-name").forEach((column) => {
+        const columnType = column.getAttribute("data-column")
+        if (columnType && this.settings.columnNames[columnType]) {
+          const displayNameEl = column.querySelector(".column-display-name")
+          if (displayNameEl) {
+            displayNameEl.textContent = this.settings.columnNames[columnType]
+          }
+        }
+      })
+
+      // Render product cards
+      this.renderProductCards()
+
+      // Update column order
+      this.updateColumnOrder()
+    } catch (error) {
+      console.error("Error applying settings:", error)
+      this.showToast("Error applying settings", "error")
+    }
+  }
+
+  // Render product cards
+  renderProductCards() {
+    if (!this.productsGrid) return
+
+    // Clear existing cards
+    this.productsGrid.innerHTML = ""
+
+    // Create cards for each product
+    Object.keys(this.productData).forEach((productName) => {
+      const product = this.productData[productName]
+
+      const card = document.createElement("div")
+      card.className = "product-card"
+      card.setAttribute("data-id", `product-${Date.now()}`)
+      card.innerHTML = `
+        <div class="product-card-header">
+          <h4 title="${this.sanitize(product.description || "")}">${this.sanitize(productName)}</h4>
+          <div class="product-actions">
+            <button class="btn btn-sm btn-outline-light edit-product" aria-label="Edit ${this.sanitize(productName)}">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger delete-product" aria-label="Delete ${this.sanitize(productName)}">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+        ${product.image ? `<img src="${product.image}" alt="${this.sanitize(productName)}" class="product-image">` : ""}
+        <div class="product-price-display">$${product.price.toFixed(2)}</div>
+      `
+
+      this.productsGrid.appendChild(card)
     })
 
-    // Update column order
-    this.updateColumnOrder()
+    // Bind product actions
+    this.bindProductActions()
   }
 
   // Show toast notification
@@ -1068,11 +1493,13 @@ this.editDescInput.style.backgroundColor = "rgba(30, 41, 59, 0.85)";
       }
     })
 
-    this.productTable.querySelectorAll("tr").forEach((row) => {
-      row.classList.add("product-row")
-      row.setAttribute("draggable", "true")
-      this.setupDragAndDrop(row)
-    })
+    if (this.productTable) {
+      this.productTable.querySelectorAll("tr").forEach((row) => {
+        row.classList.add("product-row")
+        row.setAttribute("draggable", "true")
+        this.setupDragAndDrop(row)
+      })
+    }
   }
 }
 

@@ -1020,42 +1020,260 @@ body {
 }
 
 /* Add Product Image Input Styling */
-#new-product-image {
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: var(--space-2);
-  background-color: var(--bg-glass);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  width: 100%;
-  height: 40px;
-  font-size: 0.9rem;
-  color: var(--text-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
+/* Product card image */
+.product-image {
+  max-width: 100%;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 4px);
+  margin: var(--space-2, 8px) 0;
 }
 
-#new-product-image::-webkit-file-upload-button {
+/* Table product image */
+.table-product-image {
+  max-width: 50px;
+  max-height: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 4px);
+  margin-top: var(--space-2, 8px);
+}
+
+/* Image preview */
+#image-preview {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 4px);
+  margin-top: 10px;
+}
+
+/* Ensure form inputs are styled consistently */
+.add-product-form .form-control,
+#editProductModal .form-control {
+  border-radius: var(--radius-sm, 4px);
+  background-color: var(--bg-glass, rgba(255, 255, 255, 0.1));
+  color: var(--text-light, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.add-product-form .form-control:focus,
+#editProductModal .form-control:focus {
+  border-color: var(--platinum-color, #e5e4e2);
+  box-shadow: 0 0 8px var(--platinum-color, #e5e4e2);
+}
+
+/* Custom file input styling */
+#new-product-image,
+#edit-product-image {
+  cursor: pointer;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: var(--space-2, 8px);
+  background-color: var(--bg-glass, rgba(255, 255, 255, 0.1));
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  color: var(--text-light, #ffffff);
+}
+
+#new-product-image:hover,
+#new-product-image:focus,
+#edit-product-image:hover,
+#edit-product-image:focus {
+  border-color: var(--platinum-color, #e5e4e2);
+  outline: none;
+  box-shadow: 0 0 8px var(--platinum-color, #e5e4e2);
+}
+
+#new-product-image::-webkit-file-upload-button,
+#edit-product-image::-webkit-file-upload-button {
   cursor: pointer;
   border: none;
-  background: var(--platinum-gradient);
-  color: var(--text-light);
+  background: var(--platinum-gradient, linear-gradient(45deg, #e5e4e2, #d4d3d1));
+  color: var(--text-light, #ffffff);
   padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm, 4px);
   font-weight: 600;
   transition: background-color 0.3s ease;
 }
 
-#new-product-image::-webkit-file-upload-button:hover {
-  background: var(--platinum-color);
+#new-product-image::-webkit-file-upload-button:hover,
+#edit-product-image::-webkit-file-upload-button:hover {
+  background: var(--platinum-color, #e5e4e2);
 }
 
-#new-product-image:hover,
-#new-product-image:focus {
-  border-color: var(--platinum-color);
+
+/* Edit modal image preview */
+#edit-image-preview {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 4px);
+  margin-top: 10px;
+}
+
+/* Remove image button */
+#remove-product-image {
+  font-size: 0.9rem;
+  padding: 4px 8px;
+}
+
+/* Product card image */
+.product-image {
+  max-width: 100%;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 4px);
+  margin: var(--space-2, 8px) 0;
+}
+
+/* Table product image */
+.table-product-image {
+  max-width: 50px;
+  max-height: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 4px);
+  margin-top: var(--space-2, 8px);
+}
+
+/* Form inputs */
+#editProductModal .form-control {
+  border-radius: var(--radius-sm, 4px);
+  background-color: var(--bg-glass, rgba(255, 255, 255, 0.1));
+  color: var(--text-light, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#editProductModal .form-control:focus {
+  border-color: var(--platinum-color, #e5e4e2);
+  box-shadow: 0 0 8px var(--platinum-color, #e5e4e2);
+}
+
+/* File input */
+#edit-product-image {
+  cursor: pointer;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: var(--space-2, 8px);
+  background-color: var(--bg-glass, rgba(255, 255, 255, 0.1));
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  color: var(--text-light, #ffffff);
+}
+
+#edit-product-image:hover,
+#edit-product-image:focus {
+  border-color: var(--platinum-color, #e5e4e2);
   outline: none;
-  box-shadow: 0 0 8px var(--platinum-color);
+  box-shadow: 0 0 8px var(--platinum-color, #e5e4e2);
+}
+
+#edit-product-image::-webkit-file-upload-button {
+  cursor: pointer;
+  border: none;
+  background: var(--platinum-gradient, linear-gradient(45deg, #e5e4e2, #d4d3d1));
+  color: var(--text-dark, #1e293b);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 4px);
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+#edit-product-image::-webkit-file-upload-button:hover {
+  background: var(--platinum-color, #e5e4e2);
+}
+
+
+/* Add these styles to fix modal display issues */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
+}
+
+.modal-dialog {
+  max-width: 500px;
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  background-color: #1e293b;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+}
+
+.form-control {
+  background-color: rgba(30, 41, 59, 0.85);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-control:focus {
+  background-color: rgba(30, 41, 59, 0.95);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
+}
+
+/* Toast improvements */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast {
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  background-color: #28a745;
+}
+
+.toast-error {
+  background-color: #dc3545;
+}
+
+.toast-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.toast-info {
+  background-color: #17a2b8;
 }
