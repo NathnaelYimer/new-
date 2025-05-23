@@ -1520,6 +1520,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (savePriceBtn) {
         savePriceBtn.addEventListener("click", handleSaveProductPrice)
       }
+
+      // Add event listeners to populate dropdown on show event
+      const plans = ["platinum", "gold", "silver", "bronze", "iron"]
+      plans.forEach((plan) => {
+        const selector = document.querySelector(`.add-product-selector.${plan} .dropdown`)
+        if (selector) {
+          selector.addEventListener("show.bs.dropdown", () => {
+            populateAddProductDropdown(plan)
+          })
+        }
+      })
     }
 
     // Handle saving product price
@@ -1598,89 +1609,93 @@ document.addEventListener("DOMContentLoaded", () => {
       const plans = ["platinum", "gold", "silver", "bronze", "iron"]
       plans.forEach((plan) => {
         if (settings.columnVisibility[plan]) {
-          populateAddProductDropdown(plan)
+          // Do not populate dropdowns here to keep them empty initially
+          // They will be populated on dropdown show event
         }
       })
     }
 
     // Handle add product click from dropdown
-    const handleAddProductClick = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
+ // Modify the handleAddProductClick function to close the dropdown after adding a product
+const handleAddProductClick = (e) => {
+  e.preventDefault()
+  e.stopPropagation()
 
-      const productName = e.target.getAttribute("data-product")
-      const targetPlan = e.target.getAttribute("data-plan")
+  const productName = e.target.getAttribute("data-product")
+  const targetPlan = e.target.getAttribute("data-plan")
 
-      console.log(`Adding product "${productName}" to plan "${targetPlan}"`)
+  console.log(`Adding product "${productName}" to plan "${targetPlan}"`)
 
-      if (!productName || !targetPlan) {
-        console.error("Missing productName or targetPlan")
-        alert("Please select a valid product and plan.")
-        return
-      }
+  if (!productName || !targetPlan) {
+    console.error("Missing productName or targetPlan")
+    alert("Please select a valid product and plan.")
+    return
+  }
 
-      const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`)
-      if (!targetDropzone) {
-        console.error(`Dropzone not found for plan ${targetPlan}`)
-        return
-      }
+  const targetDropzone = document.querySelector(`.kanban-dropzone[data-plan="${targetPlan}"]`)
+  if (!targetDropzone) {
+    console.error(`Dropzone not found for plan ${targetPlan}`)
+    return
+  }
 
-      const addProductWrapper = targetDropzone.querySelector(".add-product-wrapper")
-      const existingItems = targetDropzone.querySelectorAll(".feature-item")
-      let isDuplicate = false
+  const addProductWrapper = targetDropzone.querySelector(".add-product-wrapper")
+  const existingItems = targetDropzone.querySelectorAll(".feature-item")
+  let isDuplicate = false
 
-      existingItems.forEach((item) => {
-        const existingProductName = item.querySelector(".product-name").textContent
-        if (existingProductName.toLowerCase() === productName.toLowerCase()) {
-          isDuplicate = true
-        }
-      })
-
-      if (isDuplicate) {
-        console.warn(`Product "${productName}" already exists in ${targetPlan} plan`)
-        alert(`The product "${productName}" already exists in the ${targetPlan} plan.`)
-        return
-      }
-
-      const newItem = document.createElement("li")
-      newItem.classList.add("feature-item")
-      newItem.setAttribute("draggable", "true")
-      newItem.setAttribute("data-id", `p${Date.now()}`)
-      newItem.setAttribute("data-plan", targetPlan)
-      newItem.setAttribute("data-product", productName)
-
-      newItem.innerHTML = `
-      <div class="feature-content">
-        <span class="feature-check ${targetPlan}-check">✓</span>
-        <span class="product-name">${productName}</span>
-      </div>
-    `
-
-      if (addProductWrapper) {
-        targetDropzone.insertBefore(newItem, addProductWrapper)
-      } else {
-        targetDropzone.appendChild(newItem)
-      }
-
-      // Update productAssignments
-      settings.productAssignments[targetPlan].push(productName)
-      localStorage.setItem("menuSettings", JSON.stringify(settings))
-
-      console.log(`Updated productAssignments for ${targetPlan}:`, settings.productAssignments[targetPlan])
-
-      setupProductExplanationListener(newItem)
-
-      updatePlanPrice(targetPlan)
-      populateAllAddProductDropdowns() // Refresh all dropdowns after adding
-
-      const dropdown = e.target.closest(".dropdown")
-      if (dropdown) {
-        const toggle = dropdown.querySelector(".dropdown-toggle")
-        if (toggle) {
-          toggle.click() // Close the dropdown after selection
-        }
-      }
+  existingItems.forEach((item) => {
+    const existingProductName = item.querySelector(".product-name").textContent
+    if (existingProductName.toLowerCase() === productName.toLowerCase()) {
+      isDuplicate = true
     }
+  })
+
+  if (isDuplicate) {
+    console.warn(`Product "${productName}" already exists in ${targetPlan} plan`)
+    alert(`The product "${productName}" already exists in the ${targetPlan} plan.`)
+    return
+  }
+
+  const newItem = document.createElement("li")
+  newItem.classList.add("feature-item")
+  newItem.setAttribute("draggable", "true")
+  newItem.setAttribute("data-id", `p${Date.now()}`)
+  newItem.setAttribute("data-plan", targetPlan)
+  newItem.setAttribute("data-product", productName)
+
+  newItem.innerHTML = `
+  <div class="feature-content">
+    <span class="feature-check ${targetPlan}-check">✓</span>
+    <span class="product-name">${productName}</span>
+  </div>
+`
+
+  if (addProductWrapper) {
+    targetDropzone.insertBefore(newItem, addProductWrapper)
+  } else {
+    targetDropzone.appendChild(newItem)
+  }
+
+  // Update productAssignments
+  settings.productAssignments[targetPlan].push(productName)
+  localStorage.setItem("menuSettings", JSON.stringify(settings))
+
+  console.log(`Updated productAssignments for ${targetPlan}:`, settings.productAssignments[targetPlan])
+
+  setupProductExplanationListener(newItem)
+
+  updatePlanPrice(targetPlan)
+  populateAllAddProductDropdowns() // Refresh all dropdowns after adding
+
+  // Close the dropdown after adding the product
+  const dropdown = e.target.closest(".dropdown")
+  if (dropdown) {
+    const toggle = dropdown.querySelector(".dropdown-toggle")
+    if (toggle) {
+      toggle.click() // Close the dropdown after selection
+    }
+  }
+}
+
 
     // Save price settings
     const savePriceSettingsBtn = document.getElementById("savePriceSettings")
