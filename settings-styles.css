@@ -408,13 +408,48 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid rgba(30, 144, 255, 0.2);
   transition: background-color var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 .platinum-first-toggle .form-check-input {
   width: 2.5rem;
   height: 1.25rem;
+  margin: 0; /* Remove default margin */
+  flex-shrink: 0;
 }
 .platinum-first-toggle .form-check-label {
   font-weight: 600;
+  color: var(--platinum-color);
+  margin-bottom: 0; /* Align label vertically */
+  user-select: none;
+}
+
+/* Dark mode style when toggle is unchecked */
+.platinum-first-toggle input.form-check-input:not(:checked) {
+  background-color: #3682ad; /* Darker background */
+  border-color: #263238;
+}
+
+.platinum-first-toggle input.form-check-input:not(:checked)::before {
+  background-color: #90a4ae; /* Lighter knob */
+}
+
+.platinum-first-toggle input.form-check-input:checked {
+  background-color: var(--platinum-color);
+  border-color: var(--platinum-color);
+}
+
+.platinum-first-toggle input.form-check-input:checked::before {
+  background-color: #ffffff;
+}
+
+/* Label color changes based on toggle state */
+.platinum-first-toggle input.form-check-input:not(:checked) ~ .form-check-label {
+  color: #90a4ae; /* Darker label color */
+}
+
+.platinum-first-toggle input.form-check-input:checked ~ .form-check-label {
   color: var(--platinum-color);
 }
 
